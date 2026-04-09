@@ -16,12 +16,27 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: "CONTE CORE – Gestão Hospitalar Executiva",
-  description: "Tecnologia e Cuidado na Saúde",
+  description: "Tecnologia e Cuidado na Saúde. Plataforma executiva para gestão hospitalar, Bio Flow e cuidado preventivo.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
     title: "CONTE CORE",
+  },
+  openGraph: {
+    title: "CONTE CORE",
+    description: "Tecnologia e Cuidado na Saúde",
+    url: "https://medcore.app.br",
+    siteName: "CONTE CORE",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    locale: "pt_BR",
+    type: "website",
   },
 };
 
@@ -32,6 +47,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+import { AuthProvider } from "@/contexts/AuthContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,9 +57,11 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" data-theme="dark" className={`${sora.variable} ${jetbrainsMono.variable}`}>
       <body className="antialiased">
-        <div className="app">
-          {children}
-        </div>
+        <AuthProvider>
+          <div className="app">
+            {children}
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

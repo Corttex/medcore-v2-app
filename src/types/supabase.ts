@@ -17,6 +17,7 @@ export interface Database {
           plan_type: string | null
           status: string | null
           created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
@@ -25,6 +26,7 @@ export interface Database {
           plan_type?: string | null
           status?: string | null
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
@@ -33,6 +35,7 @@ export interface Database {
           plan_type?: string | null
           status?: string | null
           created_at?: string
+          updated_at?: string
         }
       }
       profiles: {
@@ -44,6 +47,7 @@ export interface Database {
           company_id: string | null
           pin: string | null
           created_at: string
+          updated_at: string
         }
         Insert: {
           id: string
@@ -53,6 +57,7 @@ export interface Database {
           company_id?: string | null
           pin?: string | null
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
@@ -62,31 +67,44 @@ export interface Database {
           company_id?: string | null
           pin?: string | null
           created_at?: string
+          updated_at?: string
         }
       }
-      subscriptions: {
+      payments: {
         Row: {
           id: string
           company_id: string | null
-          status: string | null
+          user_id: string | null
+          amount: number
+          currency: string
+          status: string
           mp_preference_id: string | null
-          next_billing: string | null
+          mp_payment_id: string | null
+          raw_response: Json | null
           created_at: string
         }
         Insert: {
           id?: string
           company_id?: string | null
-          status?: string | null
+          user_id?: string | null
+          amount: number
+          currency?: string
+          status: string
           mp_preference_id?: string | null
-          next_billing?: string | null
+          mp_payment_id?: string | null
+          raw_response?: Json | null
           created_at?: string
         }
         Update: {
           id?: string
           company_id?: string | null
-          status?: string | null
+          user_id?: string | null
+          amount?: number
+          currency?: string
+          status?: string
           mp_preference_id?: string | null
-          next_billing?: string | null
+          mp_payment_id?: string | null
+          raw_response?: Json | null
           created_at?: string
         }
       }
@@ -98,6 +116,7 @@ export interface Database {
           company_id: string | null
           content: Json | null
           created_at: string
+          updated_at: string
         }
         Insert: {
           id?: string
@@ -106,6 +125,7 @@ export interface Database {
           company_id?: string | null
           content?: Json | null
           created_at?: string
+          updated_at?: string
         }
         Update: {
           id?: string
@@ -114,6 +134,7 @@ export interface Database {
           company_id?: string | null
           content?: Json | null
           created_at?: string
+          updated_at?: string
         }
       }
     }

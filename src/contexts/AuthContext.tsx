@@ -80,13 +80,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .eq('id', userId)
         .single()
         
-      if (error) {
-        console.error('Error fetching profile:', error)
+      if (error || !data) {
+        console.warn('Profile fetch issue (will auto-create):', error?.message || error)
+        
+        // Auto-create or fallback setup
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert({ id: userId, role: 'individual_user' })
+          .select()
+          .single()
+          
+        if (insertError) {
+          console.error('Error creating default profile:', insertError.message || insertError)
+          // Fallback na memória para quebrar o loop infinito de redirecionamento!
+          setProfile({ 
+            id: userId, 
+            role: 'individual_user', 
+            company_id: null, 
+            email: null, 
+            full_name: null, 
+            pin: null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+        } else {
+          setProfile(newProfile)
+        }
       } else {
         setProfile(data)
       }
     } catch (err) {
-      console.error(err)
+      console.error('Exception fetching profile:', err)
+      // Ultimate Fallback
+      setProfile({ 
+        id: userId, 
+        role: 'individual_user', 
+        company_id: null, 
+        email: null, 
+        full_name: null, 
+        pin: null,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
     } finally {
       setLoading(false)
     }

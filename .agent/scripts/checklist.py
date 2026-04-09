@@ -25,6 +25,16 @@ import subprocess
 import argparse
 from pathlib import Path
 from typing import List, Tuple, Optional
+import os
+
+# Fix Windows console encoding for Unicode output
+try:
+    if hasattr(sys.stdout, 'reconfigure'):
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+    if hasattr(sys.stderr, 'reconfigure'):
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
 
 # ANSI colors for terminal output
 class Colors:
