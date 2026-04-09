@@ -1,0 +1,29 @@
+# DEPENDÊNCIAS (CRÍTICO)
+node_modules/
+npm-debug.log*
+.pnp.*
+
+# AMBIENTE E SECRETS
+.env
+.env.local
+*.pem
+*.key
+
+# BUILD OUTPUTS
+.next/
+out/
+dist/
+.vercel/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# SISTEMA
+.DS_Store
+Thumbs.db
+
+# LOGS
+*.log
+.cache/
