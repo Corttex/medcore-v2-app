@@ -119,36 +119,56 @@ export default function Home() {
         {/* Left Module: Fast Access Portals (Agora apenas 3 e mais compactos) */}
         <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           
-          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[120px] ring-1 ring-emerald-500/0 hover:ring-emerald-500/30 transition-all cursor-default">
+          {/* Card 01 — Business Master */}
+          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[130px] ring-1 ring-emerald-500/0 hover:ring-emerald-500/30 transition-all cursor-default">
             <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center mb-2 text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
-              <span className="text-[10px]">01</span>
+            <div className="relative z-10 flex items-center justify-between mb-3">
+              <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
+                <span className="text-[10px]">01</span>
+              </div>
+              <span className="text-[9px] font-bold tracking-widest uppercase text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">Enterprise</span>
             </div>
             <div>
-              <h2 className="relative z-10 text-sm font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Empresa</h2>
-              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 line-clamp-2">Painel de gerenciamento administrativo corporativo.</p>
+              <h2 className="relative z-10 text-sm font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Business Master</h2>
+              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 leading-relaxed">Painel corporativo completo. Multi-unidades, relatórios avançados e gestão de equipes.</p>
             </div>
           </div>
 
-          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[120px] ring-1 ring-emerald-500/0 hover:ring-emerald-500/30 transition-all cursor-default">
-             <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center mb-2 text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
-              <span className="text-[10px]">02</span>
+          {/* Card 02 — Times / Colaboradores */}
+          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[130px] ring-1 ring-emerald-500/0 hover:ring-emerald-500/30 transition-all cursor-default">
+            <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative z-10 flex items-center justify-between mb-3">
+              <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
+                <span className="text-[10px]">02</span>
+              </div>
+              <span className="text-[9px] font-bold tracking-widest uppercase text-cyan-600 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">Team Access</span>
             </div>
             <div>
-              <h2 className="relative z-10 text-sm font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Colaborador</h2>
-              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 line-clamp-2">Atendimento médico e fluxos operacionais.</p>
+              <h2 className="relative z-10 text-sm font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Times · Colaboradores</h2>
+              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 leading-relaxed">Acesso operacional para equipes médicas, enfermagem e suporte clínico.</p>
             </div>
           </div>
 
-          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[120px] ring-1 ring-cyan-500/0 hover:ring-cyan-500/30 transition-all cursor-default sm:col-span-2 lg:col-span-1">
-             <div className="absolute inset-0 bg-gradient-to-t from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center mb-2 text-zinc-400 group-hover:text-cyan-400 group-hover:border-cyan-500/30 transition-all">
-              <span className="text-[10px]">03</span>
+          {/* Card 03 — Individual / Freemium */}
+          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[130px] ring-1 ring-zinc-500/0 hover:ring-zinc-400/20 transition-all cursor-default sm:col-span-2 lg:col-span-1 border-zinc-700/60">
+            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            
+            {/* Free badge */}
+            <div className="relative z-10 flex items-center justify-between mb-3">
+              <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 transition-all">
+                <span className="text-[10px]">03</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-[9px] font-bold tracking-widest uppercase text-zinc-400 bg-zinc-800 border border-zinc-700 px-2 py-0.5 rounded-full">Free</span>
+                <span className="text-[9px] font-bold tracking-widest uppercase text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">+ Pro</span>
+              </div>
             </div>
             <div>
-              <h2 className="relative z-10 text-sm font-bold text-zinc-200 group-hover:text-cyan-400 transition-colors">Indívidual</h2>
-              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 line-clamp-2">Dashboard auxiliar adm completo (BioFlow).</p>
+              <h2 className="relative z-10 text-sm font-bold text-zinc-300 group-hover:text-zinc-100 transition-colors">Acesso Individual</h2>
+              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 leading-relaxed">
+                Organize-se de graça. Kanban, agenda e relatórios pessoais. 
+                <span className="text-amber-600"> Desbloqueie recursos avançados com o Pro.</span>
+              </p>
             </div>
           </div>
         </div>
