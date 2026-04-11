@@ -13,6 +13,8 @@ interface AuthContextType {
   profile: Profile | null
   loading: boolean
   signOut: () => Promise<void>
+  signInWithGoogle: () => Promise<void>
+  verifyPin: (userId: string, pin: string) => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,6 +23,8 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   signOut: async () => {},
+  signInWithGoogle: async () => {},
+  verifyPin: async (_userId: string, _pin: string) => false,
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -32,32 +36,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const supabase = createClient()
 
   useEffect(() => {
-    // Busca a sessão atual ativa
+    // Busca a sessão ativa
     const getSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession()
-      
-      if (error) {
-        console.error('Error fetching session', error)
-      }
-      
+      const { data: { session } } = await supabase.auth.getSession()
       setSession(session)
       setUser(session?.user || null)
-      
       if (session?.user) {
         fetchProfile(session.user.id)
       } else {
         setLoading(false)
       }
     }
-
     getSession()
 
-    // Ouve mudanças na autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
         setSession(session)
         setUser(session?.user || null)
-        
         if (session?.user) {
            fetchProfile(session.user.id)
         } else {
@@ -66,65 +61,66 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
     )
-
-    return () => {
-      subscription.unsubscribe()
-    }
+    return () => subscription.unsubscribe()
   }, [])
 
   const fetchProfile = async (userId: string) => {
     try {
+      setLoading(true)
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
         
-      if (error || !data) {
-        console.warn('Profile fetch issue (will auto-create):', error?.message || error)
-        
-        // Auto-create or fallback setup
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert({ id: userId, role: 'individual_user' })
-          .select()
-          .single()
-          
-        if (insertError) {
-          console.error('Error creating default profile:', insertError.message || insertError)
-          // Fallback na memória para quebrar o loop infinito de redirecionamento!
-          setProfile({ 
-            id: userId, 
-            role: 'individual_user', 
-            company_id: null, 
-            email: null, 
-            full_name: null, 
-            pin: null,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-        } else {
-          setProfile(newProfile)
-        }
-      } else {
+      if (error) {
+        console.error('AuthContext: Database error:', error.message)
+        // Fallback profile is set below
+      }
+
+      if (data) {
         setProfile(data)
+      } else {
+        // Se não houver perfil no banco, usamos um fallback seguro
+        setProfile({
+          id: userId,
+          role: 'individual_user',
+          full_name: 'Usuário (Modo Residência)',
+          email: user?.email || '',
+          company_id: null,
+          created_at: new Date().toISOString()
+        } as Profile)
       }
     } catch (err) {
       console.error('Exception fetching profile:', err)
-      // Ultimate Fallback
-      setProfile({ 
-        id: userId, 
-        role: 'individual_user', 
-        company_id: null, 
-        email: null, 
-        full_name: null, 
-        pin: null,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      })
+      setProfile(null)
     } finally {
       setLoading(false)
     }
+  }
+
+  const verifyPin = async (userId: string, pin: string): Promise<boolean> => {
+    const { data, error } = await supabase
+      .rpc('verify_user_pin', { p_user_id: userId, p_pin: pin })
+    
+    if (error) {
+      console.error('PIN verification error:', error)
+      return false
+    }
+    return !!data
+  }
+
+  const signInWithGoogle = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    })
   }
 
   const signOut = async () => {
@@ -132,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signOut, signInWithGoogle, verifyPin }}>
       {children}
     </AuthContext.Provider>
   )

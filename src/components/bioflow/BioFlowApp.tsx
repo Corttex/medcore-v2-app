@@ -13,8 +13,10 @@ import SectionDemandas from './sections/SectionDemandas'
 import SectionNotificacoes from './sections/SectionNotificacoes'
 import SectionIA from './sections/SectionIA'
 import SectionArquitetura from './sections/SectionArquitetura'
+import SectionMindMap from './sections/SectionMindMap'
+import { SectionKanban } from './sections/SectionKanban'
 
-type Section = 'dashboard' | 'agenda' | 'reunioes' | 'documentos' | 'processos' | 'demandas' | 'notificacoes' | 'ia' | 'arquitetura'
+type Section = 'dashboard' | 'agenda' | 'reunioes' | 'documentos' | 'processos' | 'demandas' | 'notificacoes' | 'ia' | 'arquitetura' | 'mindmap' | 'kanban'
 
 const PAGE_TITLES: Record<Section, { title: string; sub: string }> = {
   dashboard:     { title: 'Visão Executiva',    sub: 'Painel da Diretoria' },
@@ -26,12 +28,14 @@ const PAGE_TITLES: Record<Section, { title: string; sub: string }> = {
   notificacoes:  { title: 'Notificações',       sub: 'Central de alertas' },
   ia:            { title: 'IA Executiva',       sub: 'CORE Intelligence' },
   arquitetura:   { title: 'Arquitetura',        sub: 'Stack e segurança' },
+  mindmap:       { title: 'Esquemas (Mind-Map)', sub: 'BioFlow Organizador de Notas' },
+  kanban:        { title: 'Hub Interligado',   sub: 'Gestão Unificada de Módulos' },
 }
 
 const QUOTES = [
   { text: '"Liderar é criar um ambiente onde as pessoas podem fazer o melhor trabalho de suas vidas."', author: '— Daniel Pink' },
   { text: '"A eficiência é fazer as coisas certo; a eficácia é fazer as coisas certas."', author: '— Peter Drucker' },
-  { text: '"Gestão é a arte de transformar decisões em resultados."', author: '— CONTE CORE' },
+  { text: '"Gestão é a arte de transformar decisões em resultados."', author: '— MEDCORE' },
 ]
 
 export default function BioFlowApp() {
@@ -89,6 +93,7 @@ export default function BioFlowApp() {
 
   const navItems: { id: Section; label: string; badge?: string | number; icon: string }[] = [
     { id: 'dashboard',    label: 'Visão Executiva',   icon: 'grid'   },
+    { id: 'mindmap',      label: 'Esquemas BioFlow',  badge: 'Novo', icon: 'mindmap' },
     { id: 'agenda',       label: 'Agenda',            badge: 3, icon: 'calendar' },
     { id: 'reunioes',     label: 'Reuniões',          icon: 'users'  },
     { id: 'documentos',   label: 'Documentos',        icon: 'folder' },
@@ -96,11 +101,13 @@ export default function BioFlowApp() {
     { id: 'demandas',     label: 'Demandas Externas', icon: 'clipboard' },
     { id: 'notificacoes', label: 'Notificações',      badge: unread, icon: 'bell' },
     { id: 'ia',           label: 'IA Executiva',      badge: 'IA', icon: 'cpu' },
+    { id: 'kanban',       label: 'Hub Kanban',        badge: 'Hub', icon: 'kanban' },
     { id: 'arquitetura',  label: 'Arquitetura',       icon: 'home'   },
   ]
 
   const SVG_ICONS: Record<string, React.ReactNode> = {
     grid: <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
+    mindmap: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="3"/><path d="M12 9V5m0 14v-4m7-3h-4M5 12h4m9-5l-2 2M5 5l2 2m12 12l-2-2M5 19l2-2"/></svg>,
     calendar: <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>,
     users: <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
     folder: <svg viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>,
@@ -111,12 +118,14 @@ export default function BioFlowApp() {
     home: <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>,
     logout: <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
     notif: <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>,
+    kanban: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18"/></svg>,
   }
 
   const renderSection = () => {
     const props = { onNavigate: navigate }
     switch (section) {
       case 'dashboard':    return <SectionDashboard {...props} quote={quote} />
+      case 'mindmap':      return <SectionMindMap />
       case 'agenda':       return <SectionAgenda />
       case 'reunioes':     return <SectionReunioes />
       case 'documentos':   return <SectionDocumentos />
@@ -125,6 +134,7 @@ export default function BioFlowApp() {
       case 'notificacoes': return <SectionNotificacoes />
       case 'ia':           return <SectionIA userInitials={getInitials()} />
       case 'arquitetura':  return <SectionArquitetura />
+      case 'kanban':       return <SectionKanban />
       default:             return null
     }
   }
@@ -145,9 +155,13 @@ export default function BioFlowApp() {
       <aside className={`cc-sidebar${collapsed ? ' collapsed' : ''}${mobileOpen ? ' mobile-open' : ''}`}>
         <div className="cc-logo-wrap">
           <div className="cc-logo">
-            <div className="cc-logo-icon">⚕</div>
+            <div className="cc-logo-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 12H18L15 21L9 3L6 12H2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
             <div className="cc-logo-text">
-              <div className="cc-logo-name">CONTE CORE</div>
+              <div className="cc-logo-name">MEDCORE</div>
               <div className="cc-logo-sub">Gestão Hospitalar</div>
             </div>
           </div>

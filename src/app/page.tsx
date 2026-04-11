@@ -1,13 +1,16 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/utils/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Home() {
   const router = useRouter();
   const supabase = createClient();
+  const { verifyPin, profile } = useAuth();
+  
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   
   // Auth Form State
@@ -16,12 +19,41 @@ export default function Home() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
 
-  // Quick Access PIN State (Optional usage)
+  // Quick Access PIN State
   const [pinMode, setPinMode] = useState(false);
   const [pin, setPin] = useState('');
 
   const handleNumClick = (num: number) => {
-    if (pin.length < 4) setPin(prev => prev + num);
+    if (pin.length < 4) {
+      const newPin = pin + num;
+      setPin(newPin);
+      if (newPin.length === 4) {
+        handlePinAuth(newPin);
+      }
+    }
+  };
+
+  const handlePinAuth = async (pinValue: string) => {
+    setIsAuthenticating(true);
+    setAuthError(null);
+    try {
+      if (!profile) {
+        throw new Error('Realize o login com senha primeiro para ativar o PIN.');
+      }
+      
+      const isValid = await verifyPin(profile.id, pinValue);
+      if (isValid) {
+        router.refresh();
+      } else {
+        setAuthError('PIN incorreto.');
+        setPin('');
+      }
+    } catch (error: unknown) {
+      setAuthError(error instanceof Error ? error.message : 'Erro do PIN');
+      setPin('');
+    } finally {
+      setIsAuthenticating(false);
+    }
   };
 
   const handleAuth = async (e?: React.FormEvent) => {
@@ -34,17 +66,13 @@ export default function Home() {
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
-          options: {
-            data: {
-              role: 'individual_user'
-            }
-          }
+          options: { data: { role: 'individual_user' } }
         });
         if (error) throw error;
         if (data.user && !data.session) {
           setAuthError('Verifique seu e-mail para confirmar a conta.');
         } else if (data.session) {
-           router.push('/bioflow'); // Padrão individual
+           router.refresh();
         }
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -52,248 +80,271 @@ export default function Home() {
           password,
         });
         if (error) throw error;
-        // Middleware cuidará do roteamento ideal, mas vamos reverter para bioflow
-        if (data.session) router.push('/bioflow');
+        if (data.session) router.refresh();
       }
-    } catch (error: any) {
-      setAuthError(error.message || 'Falha na autenticação');
+    } catch (error: unknown) {
+      setAuthError(error instanceof Error ? error.message : 'Falha na autenticação');
     } finally {
       setIsAuthenticating(false);
     }
   };
 
-  const handleGoogleAuth = async () => {
-    setIsAuthenticating(true);
-    setAuthError(null);
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`
+  // Modal States
+  const [showTerms, setShowTerms] = useState(false);
+  const [showSecurity, setShowSecurity] = useState(false);
+
+  // Global Settings State — default TRUE so buttons always visible until DB says otherwise
+  const [showDemoAccess, setShowDemoAccess] = useState(true);
+
+  useEffect(() => {
+    async function fetchSettings() {
+      try {
+        const { data, error } = await supabase
+          .from('system_settings')
+          .select('value')
+          .eq('key', 'show_demo_access')
+          .single();
+        // Only hide if DB explicitly returns false — error/miss keeps buttons visible
+        if (!error && data) {
+          setShowDemoAccess(data.value === true || data.value === 'true');
         }
-      });
-      if (error) throw error;
-    } catch (error: any) {
-      setAuthError(error.message || 'Falha ao iniciar Google Auth');
-      setIsAuthenticating(false);
+      } catch {
+        // Keep default true on any failure
+      }
     }
-  };
+    fetchSettings();
+  }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-6 lg:p-12 relative overflow-hidden bg-gradient-to-b from-zinc-950 via-zinc-900 to-black">
+    <main className="flex min-h-screen flex-col items-center justify-center p-6 lg:p-12 relative overflow-hidden bg-[#030712]">
       
-      {/* Background ambient lighting */}
+      {/* Background ambient lighting - Teal themed */}
       <div className="absolute top-0 right-0 w-full h-full overflow-hidden pointer-events-none z-0">
-        <div className="absolute top-[-10%] right-[-5%] w-[40%] h-[40%] bg-emerald-900/10 blur-[100px] rounded-full mix-blend-screen" />
-        <div className="absolute bottom-[-10%] left-[-5%] w-[30%] h-[30%] bg-cyan-900/10 blur-[80px] rounded-full mix-blend-screen" />
+        <div className="absolute top-[-10%] right-[-5%] w-[50%] h-[50%] bg-teal-900/10 blur-[120px] rounded-full mix-blend-screen" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[40%] bg-cyan-900/10 blur-[100px] rounded-full mix-blend-screen" />
       </div>
 
-      {/* Header Compacto */}
-      <div className="z-10 w-full max-w-6xl flex justify-between items-center mb-16 transition-all duration-1000">
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <span className="text-white text-[10px] font-bold">⚕</span>
+      {/* Floating Header */}
+      <header className="z-20 absolute top-8 left-0 right-0 px-6 lg:px-12 flex justify-between items-center w-full max-w-7xl mx-auto">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center shadow-[0_0_30px_rgba(20,184,166,0.3)] border border-white/10">
+             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 12H18L15 21L9 3L6 12H2" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+             </svg>
           </div>
-          <span className="text-xs font-bold tracking-widest uppercase text-white/90">CONTE CORE</span>
+          <div className="flex flex-col">
+            <span className="text-lg font-black tracking-widest text-white leading-none">MED<span className="text-teal-400">CORE</span></span>
+            <span className="text-[9px] font-bold text-slate-500 tracking-[0.2em] uppercase mt-1">BioFlow Powered</span>
+          </div>
         </div>
-        <div className="hidden md:flex gap-4 text-[10px] font-semibold tracking-wider uppercase text-zinc-500">
-          <span className="cursor-pointer hover:text-emerald-400 transition-colors">Suporte</span>
-          <span className="flex items-center gap-1.5 cursor-pointer text-emerald-500">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            Sistema Operante
+        
+        <div className="hidden md:flex gap-6 text-[11px] font-bold tracking-widest uppercase text-slate-400">
+          <span className="cursor-pointer hover:text-teal-400 transition-colors">Suporte</span>
+          <span className="flex items-center gap-2 cursor-pointer text-teal-400 bg-teal-500/5 px-3 py-1.5 rounded-full border border-teal-500/10 backdrop-blur-sm">
+            <div className="w-1.5 h-1.5 rounded-full bg-teal-400 animate-pulse shadow-[0_0_8px_rgba(20,184,166,0.8)]" />
+            Sistema Ativo
           </span>
         </div>
-      </div>
+      </header>
 
-      <div className="z-10 flex flex-col items-center w-full max-w-4xl text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-zinc-500 mb-4 drop-shadow-sm">
-          Acesso Restrito
-        </h1>
-        <p className="text-zinc-400 max-w-lg text-sm font-light">
-          Plataforma modular de gestão em saúde. Autentique-se para ter acesso ao seu workspace correspondente.
-        </p>
-      </div>
-
-      <div className="z-10 flex flex-col md:flex-row gap-6 w-full max-w-5xl justify-center items-stretch">
-        
-        {/* Left Module: Fast Access Portals (Agora apenas 3 e mais compactos) */}
-        <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          
-          {/* Card 01 — Business Master */}
-          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[130px] ring-1 ring-emerald-500/0 hover:ring-emerald-500/30 transition-all cursor-default">
-            <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 flex items-center justify-between mb-3">
-              <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
-                <span className="text-[10px]">01</span>
-              </div>
-              <span className="text-[9px] font-bold tracking-widest uppercase text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">Enterprise</span>
-            </div>
-            <div>
-              <h2 className="relative z-10 text-sm font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Business Master</h2>
-              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 leading-relaxed">Painel corporativo completo. Multi-unidades, relatórios avançados e gestão de equipes.</p>
-            </div>
-          </div>
-
-          {/* Card 02 — Times / Colaboradores */}
-          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[130px] ring-1 ring-emerald-500/0 hover:ring-emerald-500/30 transition-all cursor-default">
-            <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative z-10 flex items-center justify-between mb-3">
-              <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-emerald-400 group-hover:border-emerald-500/30 transition-all">
-                <span className="text-[10px]">02</span>
-              </div>
-              <span className="text-[9px] font-bold tracking-widest uppercase text-cyan-600 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">Team Access</span>
-            </div>
-            <div>
-              <h2 className="relative z-10 text-sm font-bold text-zinc-200 group-hover:text-emerald-400 transition-colors">Times · Colaboradores</h2>
-              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 leading-relaxed">Acesso operacional para equipes médicas, enfermagem e suporte clínico.</p>
-            </div>
-          </div>
-
-          {/* Card 03 — Individual / Freemium */}
-          <div className="group relative card p-5 text-left overflow-hidden flex flex-col justify-between min-h-[130px] ring-1 ring-zinc-500/0 hover:ring-zinc-400/20 transition-all cursor-default sm:col-span-2 lg:col-span-1 border-zinc-700/60">
-            <div className="absolute inset-0 bg-gradient-to-br from-zinc-800/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+      {/* Main Glass Content */}
+      <div className="z-10 w-full max-w-md mt-16">
+        <section className="cc-card p-1 sm:p-1 overflow-visible">
+          <div className="p-8 sm:p-10 bg-slate-900/40 backdrop-blur-3xl rounded-[19px]">
             
-            {/* Free badge */}
-            <div className="relative z-10 flex items-center justify-between mb-3">
-              <div className="w-6 h-6 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 transition-all">
-                <span className="text-[10px]">03</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[9px] font-bold tracking-widest uppercase text-zinc-400 bg-zinc-800 border border-zinc-700 px-2 py-0.5 rounded-full">Free</span>
-                <span className="text-[9px] font-bold tracking-widest uppercase text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">+ Pro</span>
-              </div>
+            <div className="text-center mb-10">
+              <h1 className="text-3xl font-extrabold tracking-tight text-white mb-3">Bem-vindo</h1>
+              <p className="text-slate-400 text-sm font-medium italic">"Excelência em Gestão e Organização Estratégica."</p>
             </div>
-            <div>
-              <h2 className="relative z-10 text-sm font-bold text-zinc-300 group-hover:text-zinc-100 transition-colors">Acesso Individual</h2>
-              <p className="relative z-10 text-[10px] text-zinc-500 mt-1 leading-relaxed">
-                Organize-se de graça. Kanban, agenda e relatórios pessoais. 
-                <span className="text-amber-600"> Desbloqueie recursos avançados com o Pro.</span>
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* Right Module: Advanced Auth Panel */}
-        <section className="w-full max-w-[320px] mx-auto filter drop-shadow-xl" aria-labelledby="login-title">
-          <div className="card p-6 h-full flex flex-col">
-            
             {/* Auth Service Tabs */}
-            <div className="flex w-full bg-black/40 rounded-md p-1 mb-6 border border-zinc-800">
+            <div className="flex w-full bg-slate-950/50 rounded-2xl p-1.5 mb-8 border border-white/5">
               <button 
                 onClick={() => setAuthMode('login')}
-                className={`flex-1 text-xs font-semibold py-1.5 rounded transition-all ${authMode === 'login' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                className={`flex-1 text-[11px] font-bold py-2.5 rounded-xl transition-all ${authMode === 'login' ? 'bg-teal-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
               >
-                Login
+                LOGIN
               </button>
               <button 
                 onClick={() => setAuthMode('register')}
-                className={`flex-1 text-xs font-semibold py-1.5 rounded transition-all ${authMode === 'register' ? 'bg-zinc-800 text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'}`}
+                className={`flex-1 text-[11px] font-bold py-2.5 rounded-xl transition-all ${authMode === 'register' ? 'bg-teal-600 text-white shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
               >
-                Cadastro
+                CADASTRO
               </button>
             </div>
-            
+
             {pinMode ? (
-              /* PIN BLOCK */
-              <div className="space-y-4 flex-1 flex flex-col transition-all">
+              /* PIN BLOCK (Quick Access) */
+              <div className="flex flex-col gap-6 flex-1 transition-all">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-emerald-400 uppercase tracking-widest">Acesso Rápido</span>
-                  <button onClick={() => setPinMode(false)} className="text-[10px] text-zinc-500 underline">Usar Senha</button>
+                  <span className="text-[10px] font-black text-teal-400 uppercase tracking-widest">PIN de Segurança</span>
+                  <button onClick={() => { setPinMode(false); setPin(''); }} className="text-[10px] text-slate-500 hover:text-white underline font-bold transition-colors">Usar Senha</button>
                 </div>
                 
-                <div className="flex justify-center gap-2 mb-2">
+                <div className="flex justify-center gap-3 mb-4">
                   {[0, 1, 2, 3].map((_, i) => (
-                    <div key={i} className={`w-2.5 h-2.5 rounded-full transition-all ${pin.length > i ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.6)]' : 'bg-zinc-800'}`} />
+                    <div key={i} className={`w-3 h-3 rounded-full transition-all duration-300 ${pin.length > i ? 'bg-teal-400 shadow-[0_0_12px_rgba(20,184,166,0.8)] scale-110' : 'bg-white/10'}`} />
                   ))}
                 </div>
                 
-                <div className="grid grid-cols-3 gap-2 mt-auto">
+                <div className="grid grid-cols-3 gap-4">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                    <button key={num} onClick={() => handleNumClick(num)} className="input-field aspect-square font-mono text-sm hover:bg-zinc-800" disabled={isAuthenticating}>
+                    <button key={num} onClick={() => handleNumClick(num)} className="cc-form-input aspect-square font-black text-lg hover:bg-teal-500/10 hover:border-teal-500/30 flex items-center justify-center transition-all bg-slate-900/50" disabled={isAuthenticating}>
                       {num}
                     </button>
                   ))}
-                  <button onClick={() => setPin('')} className="text-[10px] text-zinc-500 uppercase font-bold" disabled={isAuthenticating}>C</button>
-                  <button onClick={() => handleNumClick(0)} className="input-field aspect-square font-mono text-sm hover:bg-zinc-800" disabled={isAuthenticating}>0</button>
-                  <button onClick={() => setPin(prev => prev.slice(0, -1))} className="text-[10px] text-zinc-500 uppercase font-bold" disabled={isAuthenticating}>Del</button>
-                </div>
-                
-                <button onClick={() => handleAuth()} disabled={pin.length < 4 || isAuthenticating} className="btn-primary w-full h-10 text-[10px] uppercase tracking-wider mt-2">
-                  {isAuthenticating ? 'Validando...' : 'Entrar com PIN'}
-                </button>
-              </div>
-            ) : (
-              /* EMAIL/PASS + GOOGLE BLOCK */
-              <form onSubmit={handleAuth} className="space-y-4 flex-1 flex flex-col transition-all">
-                
-                <button 
-                  type="button"
-                  onClick={handleGoogleAuth}
-                  disabled={isAuthenticating}
-                  className="w-full flex items-center justify-center gap-2 bg-white text-black h-9 rounded text-xs font-semibold hover:bg-zinc-200 transition-colors disabled:opacity-50"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                  </svg>
-                  {authMode === 'login' ? 'Continuar com Google' : 'Cadastrar com Google'}
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <div className="h-px bg-zinc-800 flex-1" />
-                  <span className="text-[10px] text-zinc-600 uppercase">ou e-mail</span>
-                  <div className="h-px bg-zinc-800 flex-1" />
-                </div>
-
-                <div className="space-y-3">
-                  <input 
-                    type="email" 
-                    placeholder="E-mail profissional" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="input-field w-full h-9 text-xs placeholder:text-zinc-600"
-                    required
-                  />
-                  <input 
-                    type="password" 
-                    placeholder="Senha" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="input-field w-full h-9 text-xs placeholder:text-zinc-600"
-                    required
-                  />
+                  <button onClick={() => setPin('')} className="text-[10px] text-slate-500 uppercase font-black" disabled={isAuthenticating}>C</button>
+                  <button onClick={() => handleNumClick(0)} className="cc-form-input aspect-square font-black text-lg hover:bg-teal-500/10 hover:border-teal-500/30 flex items-center justify-center transition-all bg-slate-900/50" disabled={isAuthenticating}>0</button>
+                  <button onClick={() => setPin(prev => prev.slice(0, -1))} className="text-[10px] text-slate-500 uppercase font-black" disabled={isAuthenticating}>Del</button>
                 </div>
 
                 {authError && (
-                  <div className="text-[10px] text-red-500 text-center bg-red-500/10 p-2 rounded">
+                  <div className="text-[10px] font-bold text-red-500 text-center bg-red-500/5 border border-red-500/20 p-3 rounded-xl">
+                    {authError}
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* EMAIL/PASS BLOCK */
+              <form onSubmit={handleAuth} className="flex flex-col gap-6">
+                
+                <div className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">E-mail corporativo</label>
+                    <input 
+                      type="email" 
+                      placeholder="seu@exemplo.com" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="cc-form-input bg-slate-950/50"
+                      required
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2 pt-1">
+                    <div className="flex justify-between items-center px-1">
+                      <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Senha</label>
+                      <button type="button" className="text-[9px] text-teal-500 hover:text-teal-400 font-bold transition-colors">Esqueceu a senha?</button>
+                    </div>
+                    <input 
+                      type="password" 
+                      placeholder="••••••••" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="cc-form-input bg-slate-950/50"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {authError && (
+                  <div className="text-[10px] font-bold text-red-400 text-center bg-red-500/5 border border-red-500/10 p-4 rounded-xl">
                     {authError}
                   </div>
                 )}
 
-                <div className="mt-auto pt-4 space-y-2">
-                  <button type="submit" disabled={isAuthenticating} className="btn-primary w-full h-10 text-[10px] uppercase tracking-wider">
-                    {isAuthenticating ? 'Processando...' : (authMode === 'login' ? 'Entrar no Sistema' : 'Criar Conta')}
+                <div className="flex flex-col gap-3 pt-2">
+                  <button 
+                    type="submit" 
+                    disabled={isAuthenticating} 
+                    className="w-full flex items-center justify-center h-12 rounded-xl text-[13px] font-bold text-white bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-500 hover:to-cyan-400 shadow-[0_4px_20px_rgba(13,148,136,0.3)] transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 uppercase tracking-widest"
+                  >
+                    {isAuthenticating ? 'PROCESSANDO...' : (authMode === 'login' ? 'ENTRAR NO PORTAL' : 'CRIAR MINHA CONTA')}
                   </button>
                   
                   {authMode === 'login' && (
                     <button 
                       type="button" 
                       onClick={() => setPinMode(true)}
-                      className="w-full text-center text-[10px] text-zinc-500 hover:text-emerald-400 transition-colors"
+                      className="w-full text-center text-[10px] font-bold text-slate-500 hover:text-teal-400 transition-colors uppercase tracking-widest pt-2"
                     >
-                      Acessar usando PIN Biométrico
+                      Acessar com PIN de Segurança
                     </button>
                   )}
                 </div>
               </form>
             )}
-
           </div>
         </section>
+
+        {showDemoAccess && (
+          <div className="mt-10 w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="flex items-center gap-4 mb-5">
+              <div className="h-[1px] bg-white/5 flex-1" />
+              <p className="text-[10px] font-black text-teal-500/50 uppercase tracking-[0.4em]">Acesso Rápido • Demo</p>
+              <div className="h-[1px] bg-white/5 flex-1" />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+               <Link href="/admin" className="cc-card p-4 flex flex-col items-center gap-2 hover:border-teal-500/40 group transition-all bg-slate-900/20 backdrop-blur-sm">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">🛡️</div>
+                  <span className="text-[11px] font-bold text-white group-hover:text-teal-400 transition-colors">Super Admin</span>
+                  <span className="text-[8px] text-slate-500 uppercase font-black tracking-widest">Controle Global</span>
+               </Link>
+               <Link href="/management" className="cc-card p-4 flex flex-col items-center gap-2 hover:border-teal-500/40 group transition-all bg-slate-900/20 backdrop-blur-sm">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">🏢</div>
+                  <span className="text-[11px] font-bold text-white group-hover:text-teal-400 transition-colors">Gestão</span>
+                  <span className="text-[8px] text-slate-500 uppercase font-black tracking-widest">Unidade Clínica</span>
+               </Link>
+               <Link href="/workspace" className="cc-card p-4 flex flex-col items-center gap-2 hover:border-teal-500/40 group transition-all bg-slate-900/20 backdrop-blur-sm">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">👨‍⚕️</div>
+                  <span className="text-[11px] font-bold text-white group-hover:text-teal-400 transition-colors">Workspace</span>
+                  <span className="text-[8px] text-slate-500 uppercase font-black tracking-widest">Corpo Clínico</span>
+               </Link>
+               <Link href="/dashboard" className="cc-card p-4 flex flex-col items-center gap-2 hover:border-teal-500/40 group transition-all bg-slate-900/20 backdrop-blur-sm">
+                  <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center text-teal-400 group-hover:scale-110 transition-transform">🧬</div>
+                  <span className="text-[11px] font-bold text-white group-hover:text-teal-400 transition-colors">BioFlow</span>
+                  <span className="text-[8px] text-slate-500 uppercase font-black tracking-widest">Mind-Map AI</span>
+               </Link>
+            </div>
+          </div>
+        )}
       </div>
 
+      {/* Institutional Footer */}
+      <footer className="z-10 mt-auto py-10 w-full max-w-7xl mx-auto px-6 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex flex-col gap-1 items-center md:items-start">
+          <span className="text-[11px] font-bold text-slate-500">Developed by <span className="text-slate-300">Conte Core Technologies</span></span>
+          <span className="text-[10px] text-slate-600">© 2026 MedCore Excellence in Healthcare.</span>
+        </div>
+
+        <div className="flex gap-4 sm:gap-8">
+          <button onClick={() => setShowTerms(true)} className="text-[10px] font-bold text-slate-500 hover:text-teal-400 transition-colors uppercase tracking-[0.14em]">Termos de Uso</button>
+          <button onClick={() => setShowSecurity(true)} className="text-[10px] font-bold text-slate-500 hover:text-teal-400 transition-colors uppercase tracking-[0.14em]">Segurança</button>
+          <button className="text-[10px] font-bold text-slate-500 hover:text-teal-400 transition-colors uppercase tracking-[0.14em]">Privacidade</button>
+          <button className="text-[10px] font-bold text-slate-500 hover:text-teal-400 transition-colors uppercase tracking-[0.14em]">Suporte</button>
+        </div>
+      </footer>
+
+      {/* Modals */}
+      {(showTerms || showSecurity) && (
+        <div className="z-[100] fixed inset-0 bg-black/80 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="cc-card max-w-lg w-full p-8 border-teal-500/30">
+            <h2 className="text-xl font-bold text-white mb-4">
+              {showTerms ? 'Termos de Uso MedCore' : 'Segurança da Informação'}
+            </h2>
+            <div className="text-slate-400 text-sm leading-relaxed max-h-[60vh] overflow-y-auto pr-4 mb-8">
+              {showTerms ? (
+                <>
+                  <p className="mb-4">Ao acessar a plataforma MedCore, você concorda em cumprir estes termos de serviço, todas as leis e regulamentos aplicáveis. A MedCore Excellence in Healthcare preza pela transparência e ética em todos os seus processos de gestão hospitalar.</p>
+                  <p>A utilização dos dados aqui processados segue rigorosamente a Lei Geral de Proteção de Dados (LGPD) e diretrizes internacionais de saúde.</p>
+                </>
+              ) : (
+                <>
+                  <p className="mb-4">Nossa infraestrutura utiliza criptografia de nível militar (AES-256) e protocolos de autenticação mútua. Todos os seus dados de saúde são armazenados em nuvens seguras com redundância geográfica e auditoria contínua de segurança.</p>
+                  <p>Implementamos monitoramento em tempo real contra invasões e sistemas de backup automático para garantir a integridade total do seu prontuário e operações clínicas.</p>
+                </>
+              )}
+            </div>
+            <button 
+              onClick={() => { setShowTerms(false); setShowSecurity(false); }}
+              className="cc-btn-primary w-full"
+            >
+              FECHAR
+            </button>
+          </div>
+        </div>
+      )}
+
     </main>
+
   );
 }

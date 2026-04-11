@@ -15,19 +15,18 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CONTE CORE – Gestão Hospitalar Executiva",
+  title: "MEDCORE – Tecnologia e Gestão de Saúde",
   description: "Tecnologia e Cuidado na Saúde. Plataforma executiva para gestão hospitalar, Bio Flow e cuidado preventivo.",
-  manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "CONTE CORE",
+    title: "MEDCORE",
   },
   openGraph: {
-    title: "CONTE CORE",
+    title: "MEDCORE",
     description: "Tecnologia e Cuidado na Saúde",
     url: "https://medcore.app.br",
-    siteName: "CONTE CORE",
+    siteName: "MEDCORE",
     images: [
       {
         url: "/og-image.png",
@@ -37,6 +36,10 @@ export const metadata: Metadata = {
     ],
     locale: "pt_BR",
     type: "website",
+  },
+  icons: {
+    icon: "/favicon.png",
+    apple: "/favicon.png",
   },
 };
 
@@ -48,6 +51,8 @@ export const viewport: Viewport = {
 };
 
 import { AuthProvider } from "@/contexts/AuthContext";
+import { ModuleProvider } from "@/contexts/ModuleContext";
+import SwRegister from "@/components/pwa/SwRegister";
 
 export default function RootLayout({
   children,
@@ -57,10 +62,13 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" data-theme="dark" className={`${sora.variable} ${jetbrainsMono.variable}`}>
       <body className="antialiased">
+        <SwRegister />
         <AuthProvider>
-          <div className="app">
-            {children}
-          </div>
+          <ModuleProvider>
+            <div className="app">
+              {children}
+            </div>
+          </ModuleProvider>
         </AuthProvider>
       </body>
     </html>

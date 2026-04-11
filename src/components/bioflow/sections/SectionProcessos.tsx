@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import { PinConfirmModal } from '@/components/modals/PinConfirmModal'
+import { Trash2, Eye } from 'lucide-react'
 
 const PROCESSOS = [
   { id: '#PRO-0092', title: 'Revisão estratégica de RH — reestruturação cargos', impact: 'Alto', urgency: 'Alta', status: 'Em andamento', resp: 'Dr. Alan S.', dept: 'RH', deadline: '28/04/26', progress: 35 },
@@ -32,7 +34,11 @@ export default function SectionProcessos() {
   const [filter, setFilter] = useState<Filter>('all')
   const [newOpen, setNewOpen] = useState(false)
   const [detailIdx, setDetailIdx] = useState<number | null>(null)
+  const [pinModalOpen, setPinModalOpen] = useState(false)
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null)
   const [form, setForm] = useState({ title: '', dept: '', impact: 'Alto', urgency: 'Alta', deadline: '', resp: '', desc: '' })
+  
+  // PIN states removed as they are handled by PinConfirmModal directly or not used here.
 
   const filtered = filter === 'all' ? PROCESSOS : PROCESSOS.filter(p =>
     p.urgency === filter || p.status === filter
@@ -109,8 +115,20 @@ export default function SectionProcessos() {
                       </div>
                     </td>
                     <td>
-                      <div style={{ display: 'flex', gap: 4 }}>
-                        <button className="cc-btn-sm" style={{ padding: '4px 8px', fontSize: 10 }} onClick={() => setDetailIdx(i)}>Ver</button>
+                      <div style={{ display: 'flex', gap: 6 }}>
+                        <button className="cc-btn-sm" style={{ padding: '6px', borderRadius: 8 }} onClick={() => setDetailIdx(i)}>
+                          <Eye size={14} />
+                        </button>
+                        <button 
+                          className="cc-btn-sm" 
+                          style={{ padding: '6px', borderRadius: 8, color: 'var(--danger)', background: 'rgba(239,68,68,0.1)' }}
+                          onClick={() => {
+                            setItemToDelete(p.id)
+                            setPinModalOpen(true)
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -207,6 +225,17 @@ export default function SectionProcessos() {
           </div>
         </div>
       )}
+      {/* PIN CONFIRM MODAL */}
+      <PinConfirmModal 
+        isOpen={pinModalOpen}
+        onClose={() => setPinModalOpen(false)}
+        onVerified={() => {
+          setPinModalOpen(false)
+          // Here we would actually delete the item
+          alert(`Item ${itemToDelete} deletado com segurança via PIN.`)
+          setItemToDelete(null)
+        }}
+      />
     </div>
   )
 }

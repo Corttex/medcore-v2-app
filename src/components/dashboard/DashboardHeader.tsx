@@ -1,12 +1,23 @@
 import { Bell, Search, Command } from 'lucide-react'
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  title?: string
+  subtitle?: string
+}
+
+export function DashboardHeader({ title, subtitle }: DashboardHeaderProps) {
   return (
     <header className="h-[60px] border-b border-[#ffffff0a] bg-[#030303]/80 backdrop-blur-md flex items-center justify-between px-8 sticky top-0 z-40 transition-all duration-300">
-      <div className="flex items-center gap-4">
-        <div className="hidden lg:flex items-center gap-2 bg-[#ffffff05] hover:bg-[#ffffff0a] transition-colors border border-[#ffffff0a] px-3 py-1.5 rounded-md text-zinc-500 w-[280px] shadow-inner cursor-text" role="search" aria-label="Busca Global">
+      <div className="flex items-center gap-6">
+        {title && (
+          <div className="flex flex-col border-r border-white/5 pr-6 hidden sm:flex">
+            <h2 className="text-sm font-black text-white uppercase tracking-widest leading-none">{title}</h2>
+            {subtitle && <p className="text-[9px] text-slate-500 font-bold uppercase mt-1 tracking-tighter">{subtitle}</p>}
+          </div>
+        )}
+        <div className="hidden lg:flex items-center gap-2 bg-[#ffffff05] hover:bg-[#ffffff0a] transition-colors border border-[#ffffff0a] px-3 py-1.5 rounded-md text-zinc-500 w-[240px] shadow-inner cursor-text" role="search" aria-label="Busca Global">
           <Search size={14} className="text-zinc-600" />
-          <span className="text-[13px] flex-1 font-medium tracking-wide">Buscar fluxos...</span>
+          <span className="text-[13px] flex-1 font-medium tracking-wide">Buscar...</span>
           <div className="flex items-center gap-1 bg-white/5 px-1.5 py-0.5 rounded-[4px] border border-white/5 text-[10px] text-zinc-400 font-mono shadow-sm">
             <Command size={10} />
             <span>K</span>

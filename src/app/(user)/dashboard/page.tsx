@@ -1,7 +1,7 @@
 import BioFlowApp from '@/components/bioflow/BioFlowApp'
 
 export const metadata = {
-  title: 'CONTE CORE – Auxiliar ADM',
+  title: 'MEDCORE – Hub de Cuidado',
   description: 'Dashboard executivo de gestão hospitalar.',
 }
 

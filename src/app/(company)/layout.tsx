@@ -19,12 +19,16 @@ export default function CompanyLayout({
     }
   }, [profile, loading, router])
 
-  if (loading || !profile || (profile.role !== 'company_admin' && profile.role !== 'super_admin')) {
+  if (loading) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-[#030712] flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-teal-500 border-t-transparent rounded-full animate-spin shadow-[0_0_20px_rgba(20,184,166,0.3)]"></div>
       </div>
     )
+  }
+
+  if (!profile || (profile.role !== 'company_admin' && profile.role !== 'super_admin')) {
+    return null
   }
 
   return <DashboardShell>{children}</DashboardShell>

@@ -5,7 +5,7 @@ import { useState } from 'react'
 type Section = 'dashboard' | 'agenda' | 'reunioes' | 'documentos' | 'processos' | 'demandas' | 'notificacoes' | 'ia' | 'arquitetura'
 
 interface Props {
-  onNavigate: (s: Section) => void
+  onNavigate: (section: Section) => void
   quote: { text: string; author: string }
 }
 
@@ -116,32 +116,42 @@ export default function SectionDashboard({ onNavigate, quote }: Props) {
       )}
 
       {/* KPIs */}
-      <div className="cc-stats-row">
+      <div className="flex flex-wrap gap-4 mb-8">
         {kpis.map((kpi, i) => (
           <div
             key={i}
-            className="cc-stat-card"
-            style={{ '--cc-grad': `linear-gradient(90deg,${kpi.color},${kpi.color}99)` } as React.CSSProperties}
+            className="flex-1 min-w-[200px] cc-card p-6 bg-slate-900/40 backdrop-blur-md border-white/5 group hover:border-teal-500/30 transition-all cursor-pointer relative overflow-hidden"
             onClick={() => onNavigate(kpi.nav)}
           >
-            <div className="cc-stat-icon" style={{ background: `${kpi.color}22`, color: kpi.color }}>
-              <svg viewBox="0 0 24 24">
-                {i === 0 && <><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></>}
-                {i === 1 && <><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></>}
-                {i === 2 && <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>}
-                {i === 3 && <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>}
-              </svg>
+             {/* Gradient accent */}
+            <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-teal-500/10 to-transparent blur-2xl" />
+            
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: `${kpi.color}15`, color: kpi.color }}>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  {i === 0 && <><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></>}
+                  {i === 1 && <><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></>}
+                  {i === 2 && <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>}
+                  {i === 3 && <><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>}
+                </svg>
+              </div>
+              <div className={`px-2 py-1 rounded-lg text-[9px] font-black tracking-widest ${kpi.up ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
+                {kpi.up ? '▲' : '▼'} {kpi.change}
+              </div>
             </div>
-            <div className="cc-stat-value">{kpi.value}</div>
-            <div className="cc-stat-label">{kpi.label}</div>
-            <div className={`cc-stat-change ${kpi.up ? 'up' : 'dn'}`}>{kpi.change}</div>
-            <div className="cc-stat-hint">Ver detalhes →</div>
+            
+            <div className="text-2xl font-black text-white tracking-tight mb-1">{kpi.value}</div>
+            <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">{kpi.label}</div>
+            
+            <div className="mt-4 flex items-center text-[9px] font-black text-teal-500/0 group-hover:text-teal-500 transition-all uppercase tracking-widest gap-1">
+              PROSSEGUIR <span className="text-xs">›</span>
+            </div>
           </div>
         ))}
       </div>
 
       {/* ACTIVITY + INDICATORS */}
-      <div className="cc-grid-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="cc-card">
           <div className="cc-card-header">
             <div className="cc-card-title">Movimentações Recentes</div>

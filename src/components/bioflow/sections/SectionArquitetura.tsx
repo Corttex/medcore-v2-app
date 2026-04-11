@@ -7,7 +7,7 @@ export default function SectionArquitetura() {
     { layer: 'IA Executiva', name: 'CORE Intelligence', desc: 'Análise preditiva e suporte estratégico', icon: '🧠' },
     { layer: 'Infraestrutura', name: 'Vercel Edge', desc: 'CDN global, Edge Functions, deploy CI/CD', icon: '⚡' },
     { layer: 'Monitoramento', name: 'Vercel Analytics', desc: 'Core Web Vitals, logs em tempo real', icon: '📊' },
-    { layer: 'Design System', name: 'CONTE CORE DS', desc: 'Violet/lavanda, tipografia Sora, tokens CSS', icon: '🎨' },
+    { layer: 'Design System', name: 'MEDCORE DS', desc: 'Teal/Ciano, tipografia Sora, tokens CSS', icon: '🎨' },
   ]
 
   const security = [
