@@ -9,7 +9,7 @@ import { useAuth } from './AuthContext'
 interface ModuleContextType {
   activeModules: string[]
   loading: boolean
-  isModuleEnabled: (moduleId: string) => boolean
+  isModuleEnabled: (_moduleId: string) => boolean
 }
 
 const ModuleContext = createContext<ModuleContextType>({

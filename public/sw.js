@@ -14,9 +14,22 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  // Pass-through for Next.js internal assets and development hot-reloads
+  if (event.request.url.includes('/_next/') || event.request.url.includes('webpack-hmr')) {
+    return;
+  }
+
   event.respondWith(
     caches.match(event.request)
-      .then((response) => response || fetch(event.request))
+      .then((response) => {
+        if (response) {
+          return response;
+        }
+        return fetch(event.request).catch(() => {
+          // If fetch fails (offline or server down), don't throw, just let it fail gracefully
+          return null;
+        });
+      })
   );
 });
 

@@ -5,7 +5,7 @@ import { useState } from 'react'
 type Section = 'dashboard' | 'agenda' | 'reunioes' | 'documentos' | 'processos' | 'demandas' | 'notificacoes' | 'ia' | 'arquitetura'
 
 interface Props {
-  onNavigate: (section: Section) => void
+  onNavigate: (_section: Section) => void
   quote: { text: string; author: string }
 }
 

@@ -4,7 +4,12 @@ import { useEffect } from 'react';
 
 export default function SwRegister() {
   useEffect(() => {
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    // Only register SW in production to avoid issues with stale CSS/JS in dev
+    if (
+      process.env.NODE_ENV === 'production' &&
+      typeof window !== 'undefined' && 
+      'serviceWorker' in navigator
+    ) {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
