@@ -3,9 +3,17 @@
         "openrouter-glm": {
             "provider": "openrouter",
             "model": "z-ai/glm-5.1",
-            "apiKey": "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",
+            "apiKey": "YOUR_OPENROUTER_KEY",
             "baseUrl": "https://openrouter.ai/api/v1",
             "displayName": "GLM-5.1"
+        }
+    },
+    "mcpServers": {
+        "stitch": {
+            "serverUrl": "https://stitch.googleapis.com/mcp",
+            "headers": {
+                "X-Goog-Api-Key": "YOUR_STITCH_API_KEY"
+            }
         }
     }
 }
