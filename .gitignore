@@ -1,29 +1,23 @@
-# DEPENDÊNCIAS (CRÍTICO)
-node_modules/
-npm-debug.log*
-.pnp.*
-
-# AMBIENTE E SECRETS
+node_modules
+.next
+out
+build
 .env
 .env.local
-*.pem
-*.key
+.env.development.local
+.env.test.local
+.env.production.local
 
-# BUILD OUTPUTS
-.next/
-out/
-dist/
-.vercel/
-
-# IDE
-.vscode/*
-!.vscode/extensions.json
-*.swp
-
-# SISTEMA
 .DS_Store
-Thumbs.db
+*.pem
 
-# LOGS
-*.log
-.cache/
+# Stitch
+.stitch/
+
+# Agents
+.agent/brain
+.agent/conversations
+.agent/browser_recordings
+.agent/html_artifacts
+.agent/knowledge
+.agent/scratch

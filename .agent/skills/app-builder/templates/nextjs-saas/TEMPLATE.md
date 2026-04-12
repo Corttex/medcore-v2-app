@@ -1,21 +1,20 @@
 ---
 name: nextjs-saas
-description: Next.js SaaS template principles (2026 Standards). React 19, Server Actions, Auth.js v6.
+description: Next.js SaaS template principles. Auth, payments, email.
 ---
 
-# Next.js SaaS Template (Updated 2026)
+# Next.js SaaS Template
 
 ## Tech Stack
 
-| Component | Technology | Version / Notes |
-|-----------|------------|-----------------|
-| Framework | Next.js | v16+ (App Router, React Compiler) |
-| Runtime | Node.js | v24 (Krypton LTS) |
-| Auth | Auth.js | v6 (formerly NextAuth) |
-| Payments | Stripe API | Latest |
-| Database | PostgreSQL | Prisma v6 (Serverless Driver) |
-| Email | Resend | React Email |
-| UI | Tailwind CSS | v4 (Oxide Engine, no config file) |
+| Component | Technology |
+|-----------|------------|
+| Framework | Next.js 14 (App Router) |
+| Auth | NextAuth.js v5 |
+| Payments | Stripe |
+| Database | PostgreSQL + Prisma |
+| Email | Resend |
+| UI | Tailwind (ASK USER: shadcn/Headless UI/Custom?) |
 
 ---
 
@@ -24,28 +23,24 @@ description: Next.js SaaS template principles (2026 Standards). React 19, Server
 ```
 project-name/
 ├── prisma/
-│   └── schema.prisma    # Database Schema
 ├── src/
-│   ├── actions/         # NEW: Server Actions (Replaces API Routes for data mutation)
-│   │   ├── auth-actions.ts
-│   │   ├── billing-actions.ts
-│   │   └── user-actions.ts
 │   ├── app/
-│   │   ├── (auth)/      # Route Group: Login, register
-│   │   ├── (dashboard)/ # Route Group: Protected routes (App Layout)
-│   │   ├── (marketing)/ # Route Group: Landing, pricing (Marketing Layout)
-│   │   └── api/         # Only used for Webhooks or Edge cases
+│   │   ├── (auth)/      # Login, register
+│   │   ├── (dashboard)/ # Protected routes
+│   │   ├── (marketing)/ # Landing, pricing
+│   │   └── api/
+│   │       ├── auth/[...nextauth]/
 │   │       └── webhooks/stripe/
 │   ├── components/
-│   │   ├── emails/      # React Email templates
-│   │   ├── forms/       # Client components using useActionState (React 19)
-│   │   └── ui/          # Shadcn UI
+│   │   ├── auth/
+│   │   ├── billing/
+│   │   └── dashboard/
 │   ├── lib/
-│   │   ├── auth.ts      # Auth.js v6 config
-│   │   ├── db.ts        # Prisma Singleton
-│   │   └── stripe.ts    # Stripe Singleton
-│   └── styles/
-│       └── globals.css  # Tailwind v4 imports (CSS only)
+│   │   ├── auth.ts      # NextAuth config
+│   │   ├── stripe.ts    # Stripe client
+│   │   └── email.ts     # Resend client
+│   └── config/
+│       └── subscriptions.ts
 └── package.json
 ```
 
@@ -55,22 +50,21 @@ project-name/
 
 | Feature | Implementation |
 |---------|---------------|
-| Auth | Auth.js v6 + Passkeys + OAuth |
-| Data Mutation | Server Actions (No API routes) |
-| Subscriptions | Stripe Checkout & Customer Portal |
-| Webhooks | Asynchronous Stripe event handling |
+| Auth | NextAuth + OAuth |
+| Subscriptions | Stripe Checkout |
+| Billing Portal | Stripe Portal |
+| Webhooks | Stripe events |
 | Email | Transactional via Resend |
-| Validation | Zod (Server-side validation) |
 
 ---
 
 ## Database Schema
 
-| Model | Fields (Key fields) |
-|-------|---------------------|
-| User | id, email, stripeCustomerId, subscriptionId, plan |
-| Account | OAuth provider data (Google, GitHub...) |
-| Session | User sessions (Database strategy) |
+| Model | Fields |
+|-------|--------|
+| User | id, email, stripeCustomerId, subscriptionId |
+| Account | OAuth provider data |
+| Session | User sessions |
 
 ---
 
@@ -78,45 +72,29 @@ project-name/
 
 | Variable | Purpose |
 |----------|---------|
-| DATABASE_URL | Prisma connection string (Postgres) |
-| AUTH_SECRET | Replaces NEXTAUTH_SECRET (Auth.js v6) |
-| STRIPE_SECRET_KEY | Payments (Server-side) |
-| STRIPE_WEBHOOK_SECRET | Webhook verification |
-| RESEND_API_KEY | Email sending |
-| NEXT_PUBLIC_APP_URL | Application Canonical URL |
+| DATABASE_URL | Prisma |
+| NEXTAUTH_SECRET | Auth |
+| STRIPE_SECRET_KEY | Payments |
+| STRIPE_WEBHOOK_SECRET | Webhooks |
+| RESEND_API_KEY | Email |
 
 ---
 
 ## Setup Steps
 
-1. Initialize project (Node 24):
-   ```bash
-   npx create-next-app@latest {{name}} --typescript --eslint
-   ```
+1. `npx create-next-app {{name}} --typescript --tailwind --app`
+2. Install: `npm install next-auth @auth/prisma-adapter stripe resend`
+3. Setup Stripe products/prices
+4. Configure environment
+5. `npm run db:push`
+6. `npm run stripe:listen` (webhooks)
+7. `npm run dev`
 
-2. Install core libraries:
-   ```bash
-   npm install next-auth@beta stripe resend @prisma/client
-   ```
+---
 
-3. Install Tailwind v4 (Add to globals.css):
-   ```css
-   @import "tailwindcss";
-   ```
+## Best Practices
 
-4. Configure environment (.env.local)
-
-5. Sync Database:
-   ```bash
-   npx prisma db push
-   ```
-
-6. Run local Webhook:
-   ```bash
-   npm run stripe:listen
-   ```
-
-7. Run project:
-   ```bash
-   npm run dev
-   ```
+- Route groups for layout separation
+- Stripe webhooks for subscription sync
+- NextAuth with Prisma adapter
+- Email templates with React Email

@@ -1,8 +1,8 @@
-# Tech Stack Selection (2026)
+# Tech Stack Selection (2025)
 
 > Default and alternative technology choices for web applications.
 
-## Default Stack (Web App - 2026)
+## Default Stack (Web App - 2025)
 
 ```yaml
 Frontend:
@@ -10,8 +10,7 @@ Frontend:
   language: TypeScript 5.7+
   styling: Tailwind CSS v4
   state: React 19 Actions / Server Components
-  caching: Next.js 16 Cache Components (Stable)
-  bundler: Turbopack (Stable for Dev & Build)
+  bundler: Turbopack (Stable for Dev)
 
 Backend:
   runtime: Node.js 23

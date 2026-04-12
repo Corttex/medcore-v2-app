@@ -1,24 +1,11 @@
 {
-    "mcpServers": {
-        "context7": {
-            "command": "npx",
-            "args": [
-                "-y",
-                "@upstash/context7-mcp",
-                "--api-key",
-                "YOUR_API_KEY"
-            ]
-        },
-        "shadcn": {
-            "command": "npx",
-            "args": [
-                "shadcn@latest",
-                "mcp"
-            ]
+    "antigravity.models": {
+        "openrouter-glm": {
+            "provider": "openrouter",
+            "model": "z-ai/glm-5.1",
+            "apiKey": "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",
+            "baseUrl": "https://openrouter.ai/api/v1",
+            "displayName": "GLM-5.1"
         }
-        //other mcp servers
     }
 }
-
-// setup mcp server in  ~/.gemini\antigravity\mcp_config.json
-

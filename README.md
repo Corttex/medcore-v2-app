@@ -1,1 +1,0 @@
-# conte-core-hospitalar
