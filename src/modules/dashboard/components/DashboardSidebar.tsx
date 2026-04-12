@@ -73,11 +73,11 @@ export function DashboardSidebar() {
       {/* Sidebar Core */}
       <aside 
         className={cn(
-          "h-screen w-72 bg-surface shadow-[4px_0_24px_rgba(0,0,0,0.08)] border-r border-outline-variant/50 flex flex-col py-8 fixed top-0 left-0 z-50 transition-transform duration-300 ease-in-out",
+          "h-screen w-60 bg-surface shadow-[4px_0_24px_rgba(0,0,0,0.08)] border-r border-outline-variant/30 flex flex-col py-4 fixed top-0 left-0 z-50 transition-transform duration-300 ease-in-out",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="flex justify-between items-center px-4 mb-10 w-full relative">
+        <div className="flex justify-between items-center px-4 mb-6 w-full relative">
           <div className="flex-1 flex justify-center">
             <Logo className="scale-90" />
           </div>
@@ -101,18 +101,18 @@ export function DashboardSidebar() {
                 key={item.href + item.label}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-heading text-sm font-medium tracking-wide group",
+                  "flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all duration-200 font-heading text-[12px] font-black uppercase tracking-widest italic group",
                   !authorized && "opacity-40 cursor-not-allowed",
                   authorized && isActive 
-                    ? "bg-primary/10 text-primary shadow-sm border border-primary/20" 
+                    ? "bg-lilac/10 text-lilac shadow-sm border border-lilac/20" 
                     : authorized 
                       ? "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
                       : "text-on-surface-variant/50 grayscale"
                 )}
               >
-                <item.icon size={18} className={cn(
+                <item.icon size={16} className={cn(
                   "transition-colors shrink-0",
-                  isActive && authorized ? "text-primary" : "text-on-surface-variant/60",
+                  isActive && authorized ? "text-lilac" : "text-on-surface-variant/60",
                   authorized && !isActive && "group-hover:text-on-surface"
                 )} />
                 <span className="flex-1 flex items-center justify-between">
@@ -131,25 +131,29 @@ export function DashboardSidebar() {
 
         <div className="mt-auto px-4 space-y-2">
           {/* Botão IA Executiva - Destaque Principal */}
-          <div className="mb-3">
+          <div className="mb-2">
             <Link 
               href="/dashboard/ai-exec" 
-              className="group relative flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary-container overflow-hidden shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              className="group relative flex items-center gap-3 px-4 py-3 rounded-2xl bg-gradient-to-r from-lilac to-lilac-container overflow-hidden shadow-lg shadow-lilac/30 hover:shadow-lilac/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              {/* Glow Animado */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute -top-1 -right-1 w-8 h-8 bg-white/10 rounded-full blur-lg" />
-              
-              <div className="relative flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-sm shadow-inner">
-                <Brain size={20} className="text-white" />
+              <div className="relative flex items-center justify-center w-8 h-8 bg-white/20 rounded-xl backdrop-blur-sm shadow-inner">
+                <Brain size={18} className="text-white" />
                 <Sparkles size={10} className="text-white/80 absolute -top-1 -right-1" />
               </div>
               <div className="relative flex-1">
-                <p className="text-[10px] font-black text-white/70 uppercase tracking-[0.2em] leading-none mb-0.5">Exclusivo MAX</p>
-                <p className="text-sm font-black text-white tracking-tight">IA Executiva</p>
+                <p className="text-[10px] font-black text-white tracking-tight italic">IA Executiva</p>
               </div>
-              <div className="relative w-2 h-2 bg-emerald-300 rounded-full shadow-[0_0_8px_#6ee7b7] animate-pulse" />
             </Link>
+          </div>
+
+          <div className="pb-4">
+             <Link 
+               href="/master" 
+               className="flex items-center justify-center gap-2 w-full py-2.5 rounded-xl border border-outline-variant/30 text-[9px] font-black text-on-surface-variant uppercase tracking-widest hover:bg-surface-container hover:text-on-surface transition-all"
+             >
+               <LayoutDashboard size={12} />
+               Switchboard Portal
+             </Link>
           </div>
 
           {footerMenuItems.map((item) => (

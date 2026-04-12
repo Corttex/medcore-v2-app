@@ -70,20 +70,20 @@ export default function KanbanPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">Organização</span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="px-3 py-1 bg-lilac/10 border border-lilac/20 text-lilac text-[9px] font-black uppercase tracking-widest rounded-full italic">Operational Flow</span>
           </div>
-          <h1 className="font-heading text-4xl font-black tracking-tighter text-on-surface">
-            Kanban de <span className="text-gradient">Notas</span>
+          <h1 className="font-heading text-3xl font-black tracking-tighter text-on-surface italic">
+            Vital <span className="text-gradient-lilac">Kanban</span>
           </h1>
-          <p className="text-on-surface-variant text-sm mt-1">{cards.filter(c => c.column !== "archived").length} itens ativos</p>
+          <p className="text-on-surface-variant text-[11px] font-medium opacity-80">{cards.filter(c => c.column !== "archived").length} itens em processamento ativo</p>
         </div>
-        <button onClick={() => setShowForm(true)} className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-black">
-          <Plus size={18} /> Novo Card
+        <button onClick={() => setShowForm(true)} className="btn-gradient-lilac flex items-center gap-2 px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest italic group">
+          <Plus size={16} className="group-hover:rotate-90 transition-transform" /> Novo Card
         </button>
       </div>
 
@@ -141,8 +141,8 @@ export default function KanbanPage() {
             >
               <div className={`p-4 border-b border-outline-variant/30 border-t-4 ${col.color} rounded-t-3xl rounded-tr-3xl`}>
                 <div className="flex items-center justify-between">
-                  <h3 className="font-heading font-black text-sm text-on-surface">{col.label}</h3>
-                  <span className="w-6 h-6 rounded-full bg-surface-container flex items-center justify-center text-[10px] font-black text-on-surface-variant">{colCards.length}</span>
+                  <h3 className="font-heading font-black text-[11px] text-on-surface uppercase tracking-widest italic">{col.label}</h3>
+                  <span className="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center text-[9px] font-black text-on-surface-variant">{colCards.length}</span>
                 </div>
               </div>
               <div className="p-3 space-y-3 flex-1 min-h-[200px]">
@@ -155,26 +155,26 @@ export default function KanbanPage() {
                       onDragStart={() => setDragCard(card)}
                       className="group bg-surface rounded-2xl border border-outline-variant/40 p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
                     >
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <p className="text-sm font-bold text-on-surface leading-snug flex-1">{card.title}</p>
+                      <div className="flex items-start justify-between gap-2 mb-1.5">
+                        <p className="text-xs font-black text-on-surface leading-tight italic flex-1">{card.title}</p>
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <GripVertical size={14} className="text-on-surface-variant mt-0.5" />
-                          <button onClick={() => deleteCard(card.id)} className="text-error hover:text-error/80"><Trash2 size={13} /></button>
+                          <button onClick={() => deleteCard(card.id)} className="text-error/60 hover:text-error transition-colors"><Trash2 size={12} /></button>
+                          <button onClick={() => deleteCard(card.id)} className="text-error/60 hover:text-error transition-colors"><Trash2 size={10} /></button>
                         </div>
                       </div>
-                      {card.description && <p className="text-xs text-on-surface-variant mb-3 line-clamp-2">{card.description}</p>}
+                      {card.description && <p className="text-[10px] text-on-surface-variant mb-2 line-clamp-2">{card.description}</p>}
                       {card.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mb-3">
+                        <div className="flex flex-wrap gap-1 mb-2">
                           {card.tags.map(tag => (
-                            <span key={tag} className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-bold rounded-full">
-                              <Tag size={8} />{tag}
-                            </span>
+                             <span key={tag} className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-lilac/5 text-lilac text-[8px] font-black uppercase tracking-widest rounded-sm border border-lilac/10">
+                               <Tag size={7} />{tag}
+                             </span>
                           ))}
                         </div>
                       )}
                       <div className="flex items-center justify-between">
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full border ${prio.bg} ${prio.color}`}>
-                          <Flag size={8} />{prio.label}
+                        <span className={`inline-flex items-center gap-1 text-[9px] font-black px-1.5 py-0.5 rounded-full border ${prio.bg} ${prio.color}`}>
+                          <Flag size={7} />{prio.label}
                         </span>
                         <div className="flex items-center gap-2">
                           {card.dueDate && (

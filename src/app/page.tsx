@@ -9,7 +9,7 @@ export default function Home() {
 
   const handleSimulate = (plan: "BASIC" | "PRO" | "MAX") => {
     localStorage.setItem("medcore_simulated_plan", plan);
-    router.push("/dashboard");
+    router.push("/master");
   };
 
   return (
@@ -22,8 +22,10 @@ export default function Home() {
       {/* Glass Navigation */}
       <nav className="fixed top-6 z-50 px-8 py-3 bg-zinc-900/40 backdrop-blur-xl border border-zinc-800 rounded-full flex items-center gap-8 shadow-2xl animate-in fade-in slide-in-from-top-4 duration-1000">
         <div className="flex items-center gap-2">
-          <Stethoscope className="text-teal-400" size={20} />
-          <span className="font-black text-sm tracking-tighter uppercase">Medcore <span className="text-zinc-500">V2</span></span>
+          <div className="w-8 h-8 rounded-lg bg-teal-500/10 flex items-center justify-center border border-teal-500/20">
+            <Stethoscope className="text-teal-400" size={16} />
+          </div>
+          <span className="font-black text-sm tracking-tighter uppercase italic">Medcore <span className="text-zinc-500">Vital</span></span>
         </div>
         <div className="h-4 w-[1px] bg-zinc-800"></div>
         <div className="flex items-center gap-6">
@@ -38,9 +40,9 @@ export default function Home() {
           <span className="w-1.5 h-1.5 rounded-full bg-teal-500 animate-pulse"></span> Sistema de Gestão Hospitalar v2.0
         </div>
 
-        <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9]">
-          Sua Operação <br />
-          <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-sky-500 bg-clip-text text-transparent">Ultra-Leve</span>
+        <h1 className="text-5xl md:text-8xl font-black tracking-tighter leading-[0.9] italic">
+          Operação <br />
+          <span className="bg-gradient-to-r from-teal-400 via-cyan-400 to-sky-500 bg-clip-text text-transparent">VitalFlow</span>
         </h1>
 
         <p className="max-w-xl mx-auto text-zinc-500 text-lg md:text-xl font-medium leading-relaxed">
@@ -48,8 +50,8 @@ export default function Home() {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-          <Link href="/login" className="w-full sm:w-auto px-8 py-4 bg-white text-black font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-teal-400 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)] group">
-            Acessar Painel <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+          <Link href="/master" className="w-full sm:w-auto px-8 py-4 bg-white text-black font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-teal-400 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)] group italic text-sm">
+            Acessar Controle <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </Link>
           <a href="#planos" className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 font-bold rounded-2xl hover:bg-zinc-800 transition-all cursor-pointer">
             Ver Planos
@@ -137,8 +139,8 @@ export default function Home() {
       </div>
 
       {/* Footer Decoration */}
-      <footer className="mt-24 text-zinc-800 font-black text-[12vw] tracking-tighter select-none opacity-20 pointer-events-none uppercase">
-        Medcore V2
+      <footer className="mt-24 text-zinc-800 font-black text-[10vw] tracking-tighter select-none opacity-20 pointer-events-none uppercase italic">
+        VitalFlow
       </footer>
     </main>
   );

@@ -11,7 +11,7 @@ function cn(...inputs: ClassValue[]) {
 
 const systemNodes = [
   { name: "Node Alpha Core", status: "ESTÁVEL", cpu: "12%", ram: "4.2GB", uptime: "142d 08h", color: "text-emerald-500" },
-  { name: "Node Bio-Sinc", status: "ESTÁVEL", cpu: "45%", ram: "18.1GB", uptime: "12d 22h", color: "text-primary" },
+  { name: "Node Bio-Sinc", status: "ESTÁVEL", cpu: "45%", ram: "18.1GB", uptime: "12d 22h", color: "text-lilac" },
   { name: "Edge Jurídico-VA", status: "ESTÁVEL", cpu: "08%", ram: "1.2GB", uptime: "312d 14h", color: "text-zinc-500" },
   { name: "Gateway Global-X", status: "ALERTA", cpu: "92%", ram: "62.8GB", uptime: "04h 12m", color: "text-error" },
 ];
@@ -25,22 +25,22 @@ export default function ArchitecturePage() {
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-4">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-               <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">SYSTEM ARCHITECTURE MODULE</span>
+               <span className="px-3 py-1 bg-lilac/10 border border-lilac/20 text-lilac text-[10px] font-black uppercase tracking-widest rounded-full">SYSTEM ARCHITECTURE MODULE</span>
             </div>
             <h1 className="font-heading text-6xl font-black tracking-tighter text-on-surface leading-[0.9] italic">
-              Mapa de <span className="text-gradient">Estrutura</span>
+              Mapa de <span className="text-gradient-lilac">Estrutura</span>
             </h1>
             <p className="text-on-surface-variant font-medium italic opacity-80 max-w-xl">
-              Visualização sistêmica da topologia BioFlow, gerenciamento de nós e infraestrutura de autoridade distribuída.
+              Visualização sistêmica da topologia VitalFlow, gerenciamento de nós e infraestrutura de autoridade distribuída.
             </p>
           </div>
 
           <div className="flex items-center gap-4">
              <button className="flex items-center gap-2 px-6 py-4 bg-surface-container-highest/50 hover:bg-surface-container-highest border border-outline-variant/10 rounded-2xl text-on-surface font-heading font-black text-sm transition-all group">
-                <Terminal size={18} className="text-zinc-500 group-hover:text-primary transition-colors" />
+                <Terminal size={18} className="text-zinc-500 group-hover:text-lilac transition-colors" />
                 Root Terminal
              </button>
-             <button className="btn-gradient px-8 py-4 rounded-2xl flex items-center gap-3 hover:shadow-primary/30 active:scale-95 transition-all text-sm font-heading font-black">
+             <button className="btn-gradient-lilac px-8 py-4 rounded-2xl flex items-center gap-3 hover:shadow-lilac/30 active:scale-95 transition-all text-sm font-heading font-black">
                 <Network size={20} />
                 Projetar Cluster
              </button>
@@ -54,15 +54,15 @@ export default function ArchitecturePage() {
              
              {/* Visual Topology Mockup */}
              <section className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 rounded-[2.5rem] p-12 min-h-[500px] flex flex-col items-center justify-center relative overflow-hidden group">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-primary-low)_0%,_transparent_70%)] opacity-20 pointer-events-none"></div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--color-lilac-low)_0%,_transparent_70%)] opacity-20 pointer-events-none"></div>
                 
                 {/* Visual Representation of Nodes */}
                 <div className="relative w-full max-w-2xl h-[400px]">
                    {/* Central Core */}
-                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-primary/10 border-2 border-primary/30 flex items-center justify-center animate-pulse-slow shadow-[0_0_80px_rgba(58,223,250,0.2)] group-hover:shadow-[0_0_120px_rgba(58,223,250,0.3)] transition-all duration-1000">
+                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full bg-lilac/10 border-2 border-lilac/30 flex items-center justify-center animate-pulse-slow shadow-[0_0_80px_rgba(167,139,250,0.2)] group-hover:shadow-[0_0_120px_rgba(167,139,250,0.3)] transition-all duration-1000">
                       <div className="text-center space-y-1">
-                         <div className="flex justify-center mb-2"><Database size={42} className="text-primary"/></div>
-                         <p className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">ALPHA CORE</p>
+                         <div className="flex justify-center mb-2"><Database size={42} className="text-lilac"/></div>
+                         <p className="text-[10px] font-black text-lilac uppercase tracking-[0.3em]">ALPHA CORE</p>
                          <p className="text-[8px] text-zinc-500 font-bold">10.0.0.1</p>
                       </div>
                    </div>
@@ -77,15 +77,15 @@ export default function ArchitecturePage() {
                          transform: 'translate(-50%, -50%)' 
                        }}
                      >
-                        <div className="w-16 h-16 rounded-2xl bg-surface-container-highest/20 border border-outline-variant/10 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer flex items-center justify-center group/node">
-                           <div className="w-1.5 h-1.5 bg-primary/40 rounded-full group-hover/node:scale-150 group-hover/node:bg-primary transition-all shadow-[0_0_10px_rgba(58,223,250,0)] group-hover/node:shadow-[0_0_15px_#3adffa]"></div>
+                        <div className="w-16 h-16 rounded-2xl bg-surface-container-highest/20 border border-outline-variant/10 hover:border-lilac/40 hover:bg-lilac/5 transition-all cursor-pointer flex items-center justify-center group/node">
+                           <div className="w-1.5 h-1.5 bg-lilac/40 rounded-full group-hover/node:scale-150 group-hover/node:bg-lilac transition-all shadow-[0_0_10px_rgba(167,139,250,0)] group-hover/node:shadow-[0_0_15px_#a78bfa]"></div>
                         </div>
                      </div>
                    ))}
 
                    {/* Connecting Lines (Decorative) */}
                    <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-                      <circle cx="50%" cy="50%" r="180" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="10 10" className="text-primary/30 animate-spin-veryslow" />
+                      <circle cx="50%" cy="50%" r="180" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="10 10" className="text-lilac/30 animate-spin-veryslow" />
                    </svg>
                 </div>
 
@@ -107,12 +107,12 @@ export default function ArchitecturePage() {
 
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  { label: "Throughput", value: "2.4 GB/s", icon: Activity, color: "text-primary" },
+                  { label: "Throughput", value: "2.4 GB/s", icon: Activity, color: "text-lilac" },
                   { label: "Requests/m", value: "142.8k", icon: Share2, color: "text-emerald-500" },
                   { label: "Active Nodes", value: "12/14", icon: Server, color: "text-amber-500" },
-                  { label: "Sys Protection", value: "MAXIMA", icon: Shield, color: "text-primary" },
+                  { label: "Sys Protection", value: "MAXIMA", icon: Shield, color: "text-lilac" },
                 ].map((stat, i) => (
-                  <div key={i} className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 p-6 rounded-[2rem] space-y-3 group hover:border-primary/20 transition-all">
+                  <div key={i} className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 p-6 rounded-[2rem] space-y-3 group hover:border-lilac/20 transition-all">
                      <div className={cn("p-2 rounded-lg bg-surface-container-highest/50 w-fit transition-all group-hover:scale-110", stat.color)}>
                         <stat.icon size={18} />
                      </div>
@@ -128,7 +128,7 @@ export default function ArchitecturePage() {
              
              <section className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 rounded-[2.5rem] p-10 relative overflow-hidden group">
                 <div className="flex items-center gap-2 mb-10">
-                  <div className="w-1 h-5 bg-primary rounded-full"></div>
+                  <div className="w-1 h-5 bg-lilac rounded-full"></div>
                   <h3 className="font-heading text-xl font-black text-on-surface italic">Status de Nós</h3>
                 </div>
 
@@ -137,14 +137,14 @@ export default function ArchitecturePage() {
                      <div key={j} className="p-5 bg-surface-container-highest/20 hover:bg-surface-container-highest/40 border border-outline-variant/5 rounded-2xl group/item transition-all cursor-pointer">
                         <div className="flex justify-between items-start mb-4">
                            <div className="space-y-1">
-                              <h5 className="text-sm font-black text-on-surface group-hover/item:text-primary transition-colors">{node.name}</h5>
+                              <h5 className="text-sm font-black text-on-surface group-hover/item:text-lilac transition-colors">{node.name}</h5>
                               <div className="flex items-center gap-2">
                                  <span className={cn("text-[8px] font-black uppercase tracking-widest", node.color)}>{node.status}</span>
                                  <span className="w-1 h-1 bg-zinc-800 rounded-full"></span>
                                  <span className="text-[8px] font-bold text-zinc-600 italic">UP: {node.uptime}</span>
                               </div>
                            </div>
-                           <div className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-zinc-600 group-hover/item:text-primary transition-all">
+                           <div className="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-zinc-600 group-hover/item:text-lilac transition-all">
                               {node.status === 'ALERTA' ? <AlertCircle size={16} className="text-error animate-pulse"/> : <CheckCircle2 size={16}/>}
                            </div>
                         </div>
@@ -152,7 +152,7 @@ export default function ArchitecturePage() {
                            <div className="space-y-1">
                               <div className="flex justify-between items-center text-[8px] font-black text-zinc-500 uppercase"><span>CPU</span><span>{node.cpu}</span></div>
                               <div className="h-1 bg-surface-container-highest rounded-full overflow-hidden">
-                                 <div className={cn("h-full rounded-full transition-all duration-1000", node.status === 'ALERTA' ? 'bg-error' : 'bg-primary')} style={{ width: node.cpu }}></div>
+                                 <div className={cn("h-full rounded-full transition-all duration-1000", node.status === 'ALERTA' ? 'bg-error' : 'bg-lilac')} style={{ width: node.cpu }}></div>
                               </div>
                            </div>
                            <div className="space-y-1">
@@ -167,13 +167,13 @@ export default function ArchitecturePage() {
                 </div>
              </section>
 
-             <section className="bg-primary/5 border border-primary/20 rounded-[2.5rem] p-8 overflow-hidden relative group/cpu">
+             <section className="bg-lilac/5 border border-lilac/20 rounded-[2.5rem] p-8 overflow-hidden relative group/cpu">
                 <div className="absolute top-0 right-0 p-6 opacity-10 group-hover/cpu:opacity-20 transition-opacity">
                    <Cpu size={140} />
                 </div>
                 <div className="relative z-10 space-y-6">
                    <div className="flex items-center gap-2">
-                      <Cpu size={20} className="text-primary"/>
+                      <Cpu size={20} className="text-lilac"/>
                       <h4 className="text-[10px] font-black text-on-surface uppercase tracking-[0.3em]">Hardware de Core</h4>
                    </div>
                    <div className="space-y-4">
@@ -189,7 +189,7 @@ export default function ArchitecturePage() {
                          </div>
                       </div>
                    </div>
-                   <button className="w-full py-4 bg-primary text-black text-[10px] font-black uppercase tracking-widest rounded-xl hover:shadow-[0_0_20px_rgba(58,223,250,0.4)] active:scale-95 transition-all">Reboot Global Sync</button>
+                   <button className="w-full py-4 bg-lilac text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:shadow-[0_0_20px_rgba(167,139,250,0.4)] active:scale-95 transition-all">Reboot Global Sync</button>
                 </div>
              </section>
 
