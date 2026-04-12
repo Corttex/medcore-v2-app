@@ -17,7 +17,11 @@ import {
   Sparkles,
   Building2,
   KanbanSquare,
-  Bell
+  Bell,
+  Scale,
+  CreditCard,
+  ScanLine,
+  Mail
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -39,9 +43,10 @@ const mainMenuItems: { icon: any; label: string; href: string; requiredPlan: Pla
   { icon: KanbanSquare, label: "Kanban", href: "/dashboard/kanban", requiredPlan: "BASIC" },
   { icon: Building2, label: "Unidades", href: "/dashboard/units", requiredPlan: "BASIC" },
   { icon: BarChart3, label: "Relatórios", href: "/dashboard/reports", requiredPlan: "PRO" },
-  { icon: Users, label: "Reuniões", href: "/dashboard/meetings", requiredPlan: "PRO" },
-  { icon: FileText, label: "Documentos", href: "/dashboard/documents", requiredPlan: "PRO" },
-  { icon: Layers, label: "Processos", href: "/dashboard/processes", requiredPlan: "MAX" },
+  { icon: Scale, label: "Jurídico", href: "/dashboard/legal", requiredPlan: "PRO" },
+  { icon: CreditCard, label: "Contas", href: "/dashboard/accounts", requiredPlan: "PRO" },
+  { icon: ScanLine, label: "Scanner", href: "/dashboard/scanner", requiredPlan: "PRO" },
+  { icon: Mail, label: "E-mails", href: "/dashboard/email", requiredPlan: "MAX" },
 ];
 
 const footerMenuItems = [

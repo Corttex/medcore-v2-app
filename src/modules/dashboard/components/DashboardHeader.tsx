@@ -16,16 +16,17 @@ function cn(...inputs: ClassValue[]) {
 const routeTitles: Record<string, string> = {
   "/dashboard": "Visão Executiva",
   "/dashboard/agenda": "Agenda Clínica",
-  "/dashboard/meetings": "Reuniões e Comitês",
-  "/dashboard/documents": "Repositório de Documentos",
   "/dashboard/processes": "Demandas Internas",
+  "/dashboard/reminders": "Lembretes & Notificações",
+  "/dashboard/kanban": "Kanban de Notas",
+  "/dashboard/units": "Unidades Hospitalares",
+  "/dashboard/reports": "Relatórios Estratégicos",
+  "/dashboard/legal": "Processos Jurídicos",
+  "/dashboard/accounts": "Gestor de Contas",
+  "/dashboard/scanner": "Scanner de Documentos",
+  "/dashboard/email": "Painel de E-mails",
   "/dashboard/admin": "Administração do Sistema",
   "/dashboard/ai-exec": "IA Executiva (CORE)",
-  "/dashboard/architecture": "Arquitetura Holística",
-  "/dashboard/reports": "Relatórios Estratégicos",
-  "/dashboard/units": "Unidades Hospitalares",
-  "/dashboard/kanban": "Kanban de Notas",
-  "/dashboard/reminders": "Lembretes & Notificações",
 };
 
 export function DashboardHeader() {
