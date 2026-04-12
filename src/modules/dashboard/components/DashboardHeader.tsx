@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Search, Bell, ShieldCheck, Menu, User, TrendingUp, AlertTriangle } from "lucide-react";
+import { Search, Bell, ShieldCheck, Menu, User, TrendingUp, AlertTriangle, Settings, LifeBuoy } from "lucide-react";
 import { Logo } from "@/modules/shared/components/Logo";
 import { useDashboardContext } from "@/modules/dashboard/context/DashboardContext";
 import { usePlan, PlanLevel } from "@/modules/shared/context/PlanContext";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import Link from "next/link";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,12 +34,15 @@ export function DashboardHeader() {
   const { toggleMobileMenu } = useDashboardContext();
   const { activePlan, setActivePlan } = usePlan();
   const pathname = usePathname();
+  const router = useRouter();
   const currentTitle = routeTitles[pathname] || "Dashboard";
   
   const [showNotifications, setShowNotifications] = useState(false);
   const [showPlanSwitcher, setShowPlanSwitcher] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
   const planRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -47,6 +51,9 @@ export function DashboardHeader() {
       }
       if (planRef.current && !planRef.current.contains(event.target as Node)) {
         setShowPlanSwitcher(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfileMenu(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -162,19 +169,61 @@ export function DashboardHeader() {
 
         <div className="h-8 w-[1px] bg-outline-variant/50 mx-1 md:mx-2 hidden sm:block"></div>
 
-        <div className="flex items-center gap-3 md:gap-4 transition-all group cursor-pointer hover:opacity-80">
-          <div className="text-right hidden sm:block flex-shrink-0">
-            <p className="text-sm font-black text-on-surface font-heading leading-tight truncate">Dr. Thorne</p>
-            <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-0.5 truncate">CMO</p>
+        <div className="relative" ref={profileRef}>
+          <div 
+            onClick={() => setShowProfileMenu(!showProfileMenu)}
+            className="flex items-center gap-3 md:gap-4 transition-all group cursor-pointer hover:opacity-80"
+          >
+            <div className="text-right hidden sm:block flex-shrink-0">
+              <p className="text-sm font-black text-on-surface font-heading leading-tight truncate">Dr. Thorne</p>
+              <p className="text-[10px] text-primary font-black uppercase tracking-[0.2em] mt-0.5 truncate">CMO</p>
+            </div>
+            <div className="relative shrink-0">
+              <img 
+                src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070&auto=format&fit=crop" 
+                alt="Dr. Alistair Thorne" 
+                className={cn(
+                  "w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover ring-2 shadow-md transition-all",
+                  showProfileMenu ? "ring-primary" : "ring-primary/20 group-hover:ring-primary/50"
+                )}
+              />
+              <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg"></div>
+            </div>
           </div>
-          <div className="relative shrink-0">
-            <img 
-              src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070&auto=format&fit=crop" 
-              alt="Dr. Alistair Thorne" 
-              className="w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover ring-2 ring-primary/20 shadow-md group-hover:ring-primary/50 transition-all"
-            />
-            <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg"></div>
-          </div>
+
+          {showProfileMenu && (
+            <div className="absolute right-0 mt-3 w-56 bg-surface border border-outline-variant/60 rounded-2xl shadow-xl p-2 animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
+              <div className="px-3 py-2 mb-2 border-b border-outline-variant/30">
+                <p className="text-xs font-black text-on-surface font-heading uppercase tracking-widest">Painel Pessoal</p>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Link 
+                  href="/dashboard/settings"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
+                  onClick={() => setShowProfileMenu(false)}
+                >
+                  <Settings size={16} className="text-zinc-500" />
+                  Configurações
+                </Link>
+                <Link 
+                  href="/dashboard/support"
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-all"
+                  onClick={() => setShowProfileMenu(false)}
+                >
+                  <LifeBuoy size={16} className="text-zinc-500" />
+                  Suporte Técnico
+                </Link>
+                <div className="h-[1px] bg-outline-variant/30 my-1 mx-2"></div>
+                <button 
+                  onClick={() => { /* Logout logic */ }}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-error hover:bg-error/10 transition-all"
+                >
+                  <AlertTriangle size={16} />
+                  Encerrar Sessão
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

@@ -1,30 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  /* Light Theme Base */
-  --color-background: #f0f4f8;
-  --color-surface: #ffffff;
-  --color-on-surface: #0f1c2e;
-  --color-on-surface-variant: #4a5568;
+  /* Dark Theme — fundo escuro com cards evidentes */
+  --color-background: #161b27;        /* fundo geral — escuro azulado */
+  --color-surface: #1e2538;           /* cards/painéis — um tom acima do fundo */
+  --color-on-surface: #e8edf5;        /* texto principal — quase branco */
+  --color-on-surface-variant: #8895a7;/* texto secundário */
   
-  /* Brand Colors - vibrantes para contraste no fundo claro */
-  --color-primary: #0099b8;
-  --color-primary-container: #00b8d9;
+  /* Brand Colors */
+  --color-primary: #00b8d9;
+  --color-primary-container: #0099b8;
   --color-on-primary: #ffffff;
   
-  --color-secondary: #0077a3;
-  --color-secondary-container: #e0f7fc;
+  --color-secondary: #38bdf8;
+  --color-secondary-container: #0ea5e9;
   
-  --color-tertiary: #00875a;
+  --color-tertiary: #34d399;
   
-  /* Surface Containers - tons de cinza claro progressivos */
-  --color-surface-container-low: #f8fafc;
-  --color-surface-container: #eef2f7;
-  --color-surface-container-high: #e2e8f0;
-  --color-surface-container-highest: #d1dce8;
+  /* Surface Containers — camadas progressivas sobre o background */
+  --color-surface-container-low: #1a2030;
+  --color-surface-container: #222840;
+  --color-surface-container-high: #2a3350;
+  --color-surface-container-highest: #303d5e;
   
-  --color-outline-variant: #cbd5e0;
-  --color-error: #dc2626;
+  --color-outline-variant: #2e3a52;
+  --color-error: #f87171;
 
   --font-heading: "Manrope", sans-serif;
   --font-body: "Inter", sans-serif;
@@ -37,19 +37,20 @@
 }
 
 @layer components {
+  /* Sem backdrop-blur pesado — apenas borda + sombra leve */
   .glass-panel {
-    @apply bg-[rgba(255,255,255,0.85)] backdrop-blur-[40px] border border-outline-variant/40 shadow-lg;
+    @apply bg-surface border border-outline-variant/50 shadow-md;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-[#0099b8] to-[#005f7a];
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-[#00b8d9] to-[#38bdf8];
   }
 
   .btn-gradient {
-    @apply bg-gradient-to-br from-[#0099b8] to-[#005f7a] text-white font-bold shadow-lg shadow-primary/25 transition-all active:scale-[0.98];
+    @apply bg-gradient-to-br from-[#0099b8] to-[#0077a3] text-white font-bold shadow-md shadow-primary/20 active:scale-[0.98];
   }
 
   .no-line-card {
-    @apply bg-surface rounded-2xl p-6 transition-all border border-outline-variant/30 shadow-sm;
+    @apply bg-surface rounded-2xl p-6 border border-outline-variant/40 shadow-sm;
   }
 }

@@ -13,11 +13,14 @@
     "@supabase/supabase-js": "latest",
     "@vercel/speed-insights": "^2.0.0",
     "clsx": "latest",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "latest",
     "next": "15.x",
     "react": "19.x",
     "react-dom": "19.x",
-    "tailwind-merge": "latest"
+    "tailwind-merge": "latest",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.2",

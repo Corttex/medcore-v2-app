@@ -49,10 +49,7 @@ const mainMenuItems: { icon: any; label: string; href: string; requiredPlan: Pla
   { icon: Mail, label: "E-mails", href: "/dashboard/email", requiredPlan: "MAX" },
 ];
 
-const footerMenuItems = [
-  { icon: Settings, label: "Configurações", href: "/dashboard/settings" },
-  { icon: HelpCircle, label: "Suporte", href: "/dashboard/support" },
-];
+const footerMenuItems: { icon: any; label: string; href: string }[] = [];
 
 export function DashboardSidebar() {
   const pathname = usePathname();
