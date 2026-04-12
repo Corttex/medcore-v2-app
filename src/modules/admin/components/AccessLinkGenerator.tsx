@@ -44,7 +44,7 @@ export function AccessLinkGenerator() {
         <div className="space-y-6">
           <div>
             <label className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-3 block">Tipo de Acesso</label>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mb-4">
               {(["Diretor", "Auditor", "Jurídico"] as ExecutiveRole[]).map((r) => (
                 <button
                   key={r}
@@ -58,6 +58,17 @@ export function AccessLinkGenerator() {
                   {r}
                 </button>
               ))}
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-bold text-zinc-500 uppercase">Ou digite um cargo personalizado:</label>
+              <input 
+                type="text"
+                placeholder="Ex: Consultor Externo"
+                value={role}
+                onChange={(e) => setRole(e.target.value as ExecutiveRole)}
+                className="w-full bg-zinc-900/50 border border-zinc-800 rounded-xl py-2 px-4 text-sm text-zinc-300 focus:outline-none focus:border-cyan-500/50 transition-all"
+              />
             </div>
           </div>
 

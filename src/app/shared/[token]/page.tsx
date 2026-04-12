@@ -5,24 +5,42 @@ import { useSearchParams } from "next/navigation";
 import { PinGate } from "@/modules/auth/components/PinGate";
 import { Stethoscope, BarChart3, ShieldCheck, FileText, TrendingUp, AlertCircle } from "lucide-react";
 
-export default function SharedViewPage({ params }: { params: { token: string } }) {
+export default function SharedViewPage({ params }: { params: Promise<{ token: string }> }) {
   const searchParams = useSearchParams();
+  const [token, setToken] = useState<string>("");
   const role = searchParams.get("role") || "Executivo";
+  const isExpired = searchParams.get("expired") === "true";
   
   const [pinVerified, setPinVerified] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simular carregamento inicial
-    const timer = setTimeout(() => setLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+    params.then(p => {
+      setToken(p.token);
+      setLoading(false);
+    });
+  }, [params]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="w-12 h-12 border-4 border-teal-500/20 border-t-teal-500 rounded-full animate-spin"></div>
       </div>
+    );
+  }
+
+  if (isExpired) {
+    return (
+      <main className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-red-500/10 text-red-500 flex items-center justify-center mb-6 border border-red-500/20 animate-pulse">
+          <AlertCircle size={40} />
+        </div>
+        <h1 className="text-2xl font-bold text-white mb-2">Acesso Expirado</h1>
+        <p className="text-zinc-500 max-w-sm mb-8">O link que você tentou acessar não é mais válido ou foi revogado.</p>
+        <div className="px-6 py-3 bg-zinc-900 border border-zinc-800 rounded-2xl text-zinc-300 font-bold text-sm">
+          Contate o Administrador
+        </div>
+      </main>
     );
   }
 
@@ -104,7 +122,7 @@ export default function SharedViewPage({ params }: { params: { token: string } }
                 Este link é exclusivo para {role}s autorizados. Toda atividade de visualização é registrada para fins de segurança.
               </p>
               <footer className="pt-6 border-t border-zinc-800/50">
-                <p className="text-[10px] text-zinc-600 font-bold">TOKEN: {params.token.toUpperCase()}</p>
+                <p className="text-[10px] text-zinc-600 font-bold">TOKEN: {token.toUpperCase()}</p>
                 <p className="text-[10px] text-zinc-600 font-bold">EXPIRA EM: 24h</p>
               </footer>
             </div>

@@ -9,7 +9,8 @@ import {
   ClipboardCheck, 
   ChevronLeft, 
   ChevronRight,
-  Stethoscope
+  Stethoscope,
+  Shield
 } from "lucide-react";
 import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
@@ -25,6 +26,7 @@ const menuItems = [
   { icon: ClipboardCheck, label: "Processos", href: "/dashboard/processes" },
   { icon: CreditCard, label: "Faturamento", href: "/dashboard/billing" },
   { icon: Settings, label: "Configurações", href: "/dashboard/settings" },
+  { icon: Shield, label: "Admin", href: "/dashboard/admin" },
 ];
 
 export function DashboardSidebar() {
@@ -39,12 +41,12 @@ export function DashboardSidebar() {
     >
       <div className="flex items-center justify-between p-6 h-20 border-b border-zinc-800">
         <div className={cn("flex items-center gap-3 overflow-hidden", collapsed && "justify-center w-full")}>
-          <div className="p-2 rounded-lg bg-teal-500/10 text-teal-400">
+          <div className="p-2.5 bg-teal-500 text-black rounded-xl shadow-[0_0_15px_rgba(45,212,191,0.2)]">
             <Stethoscope size={24} />
           </div>
           {!collapsed && (
-            <span className="text-xl font-bold bg-gradient-to-r from-teal-400 to-cyan-400 bg-clip-text text-transparent truncate">
-              Medcore
+            <span className="text-xl font-black font-heading tracking-tighter">
+              MEDCORE <span className="text-zinc-600 font-bold">V2</span>
             </span>
           )}
         </div>
