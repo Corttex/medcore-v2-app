@@ -1,7 +1,17 @@
+"use client";
+
 import Link from "next/link";
 import { Shield, LayoutDashboard, Database, CreditCard, Stethoscope, ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleSimulate = (plan: "BASIC" | "PRO" | "MAX") => {
+    localStorage.setItem("medcore_simulated_plan", plan);
+    router.push("/dashboard");
+  };
+
   return (
     <main className="relative min-h-screen bg-black text-white overflow-hidden flex flex-col items-center justify-center p-6 sm:p-24 selection:bg-teal-500 selection:text-black">
       
@@ -84,7 +94,7 @@ export default function Home() {
             <h3 className="text-zinc-400 font-bold mb-2 uppercase tracking-widest text-xs">Basic</h3>
             <div className="text-3xl font-black mb-1">R$ 19,99<span className="text-sm text-zinc-600 font-medium">/m</span></div>
             <p className="text-xs text-zinc-600 mt-2 mb-6">Ideal para profissionais autônomos e gestão de agenda.</p>
-            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition-colors">Selecionar</button>
+            <button onClick={() => handleSimulate("BASIC")} className="w-full mt-auto px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition-colors">Acesso Rápido (Demo)</button>
           </div>
 
           {/* Pro */}
@@ -93,7 +103,7 @@ export default function Home() {
             <h3 className="text-teal-400 font-bold mb-2 uppercase tracking-widest text-xs mt-2">Pro</h3>
             <div className="text-3xl font-black mb-1">R$ 49,99<span className="text-sm text-zinc-600 font-medium">/m</span></div>
             <p className="text-xs text-zinc-600 mt-2 mb-6">Para Clínicas de pequeno porte e IA assistente.</p>
-            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold hover:bg-teal-500/20 transition-colors">Selecionar</button>
+            <button onClick={() => handleSimulate("PRO")} className="w-full mt-auto px-4 py-2 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold hover:bg-teal-500/20 transition-colors">Acesso Rápido (Demo)</button>
           </div>
 
           {/* Max */}
@@ -104,7 +114,7 @@ export default function Home() {
             <h3 className="text-teal-300 font-bold mb-2 uppercase tracking-widest text-xs mt-4">Max</h3>
             <div className="text-3xl xl:text-4xl font-black mb-1 text-white">R$ 97,99<span className="text-sm text-teal-500/50 font-medium">/m</span></div>
             <p className="text-xs text-zinc-400 mt-2 mb-6">Auditoria completa para múltiplos setores.</p>
-            <button className="w-full mt-auto px-4 py-3 rounded-xl bg-teal-500 text-black text-xs font-black shadow-lg hover:bg-teal-400 transition-colors">Assinar Max</button>
+            <button onClick={() => handleSimulate("MAX")} className="w-full mt-auto px-4 py-3 rounded-xl bg-teal-500 text-black text-xs font-black shadow-lg hover:bg-teal-400 transition-colors">Acesso Rápido (Demo)</button>
           </div>
 
           {/* Empresas */}
@@ -113,7 +123,7 @@ export default function Home() {
             <div className="text-3xl font-black mb-1">R$ 279,99<span className="text-sm text-zinc-600 font-medium">/m</span></div>
             <p className="text-[10px] font-black text-cyan-500/80 mb-2 uppercase tracking-widest bg-cyan-500/10 px-2 py-1 rounded-full">2 a 5 funcionários</p>
             <p className="text-xs text-zinc-600 mb-6">Gestão em rede e faturamento multi-clínica descentralizado.</p>
-            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition-colors">Selecionar</button>
+            <a href="mailto:empresas@medcore.com" className="w-full mt-auto px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition-colors">Painel Exclusivo</a>
           </div>
 
           {/* BigData */}
@@ -121,7 +131,7 @@ export default function Home() {
             <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-xs">BigData</h3>
             <div className="text-2xl font-black mb-1 text-white">Consultar</div>
             <p className="text-xs text-zinc-600 mt-2 mb-6">Redes de Saúde com ultra volume e IA analítica em massa.</p>
-            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ring-1 ring-white/10 group-hover:ring-white/30">Falar com Especialista</button>
+            <a href="mailto:enterprise@medcore.com" className="w-full mt-auto px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ring-1 ring-white/10 group-hover:ring-white/30">Falar com Especialista</a>
           </div>
         </div>
       </div>

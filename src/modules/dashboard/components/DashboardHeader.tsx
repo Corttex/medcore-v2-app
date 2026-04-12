@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Search, Bell, ShieldCheck, Menu, User, TrendingUp, AlertTriangle } from "lucide-react";
 import { Logo } from "@/modules/shared/components/Logo";
 import { useDashboardContext } from "@/modules/dashboard/context/DashboardContext";
+import { usePlan, PlanLevel } from "@/modules/shared/context/PlanContext";
 import { usePathname } from "next/navigation";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -26,16 +27,22 @@ const routeTitles: Record<string, string> = {
 
 export function DashboardHeader() {
   const { toggleMobileMenu } = useDashboardContext();
+  const { activePlan, setActivePlan } = usePlan();
   const pathname = usePathname();
   const currentTitle = routeTitles[pathname] || "Dashboard";
   
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showPlanSwitcher, setShowPlanSwitcher] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const planRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
+      }
+      if (planRef.current && !planRef.current.contains(event.target as Node)) {
+        setShowPlanSwitcher(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -66,6 +73,41 @@ export function DashboardHeader() {
             placeholder="Pesquisar na base..." 
             className="bg-transparent border-none text-sm text-white placeholder:text-zinc-600 focus:ring-0 w-full ml-3 outline-none"
           />
+        </div>
+
+        {/* Plan Switcher */}
+        <div className="relative z-50 ml-2" ref={planRef}>
+          <button 
+            onClick={() => setShowPlanSwitcher(!showPlanSwitcher)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-teal-500/30 bg-teal-500/10 hover:bg-teal-500/20 transition-all shadow-[0_0_15px_rgba(20,184,166,0.1)] group"
+          >
+            <span className="text-[10px] font-bold text-teal-400/70 uppercase tracking-widest hidden sm:block">Simulador:</span>
+            <span className="text-xs font-black text-teal-400 tracking-wider">
+              {activePlan}
+            </span>
+          </button>
+          
+          {showPlanSwitcher && (
+            <div className="absolute right-0 mt-3 w-40 bg-[#090b14]/95 backdrop-blur-3xl border border-white/10 rounded-2xl shadow-2xl p-2 animate-in fade-in slide-in-from-top-2 origin-top-right flex flex-col gap-1">
+              {(["BASIC", "PRO", "MAX"] as PlanLevel[]).map((plan) => (
+                <button
+                  key={plan}
+                  onClick={() => {
+                    setActivePlan(plan);
+                    setShowPlanSwitcher(false);
+                  }}
+                  className={cn(
+                    "text-left px-3 py-2 rounded-xl text-xs font-bold transition-all",
+                    activePlan === plan 
+                      ? "bg-teal-500/20 text-teal-400 border border-teal-500/30" 
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
+                  )}
+                >
+                  Modo {plan}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="relative" ref={notifRef}>

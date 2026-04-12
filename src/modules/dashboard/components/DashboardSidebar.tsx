@@ -15,6 +15,7 @@ import {
   AlertOctagon,
   ShieldCheck,
   BarChart3,
+  Lock,
   X
 } from "lucide-react";
 import Link from "next/link";
@@ -23,21 +24,20 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { Logo } from "@/modules/shared/components/Logo";
 import { useDashboardContext } from "@/modules/dashboard/context/DashboardContext";
+import { usePlan, PlanLevel } from "@/modules/shared/context/PlanContext";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const mainMenuItems = [
-  { icon: LayoutDashboard, label: "Visão Executiva", href: "/dashboard" },
-  { icon: BarChart3, label: "Relatórios", href: "/dashboard/reports" },
-  { icon: Calendar, label: "Agenda", href: "/dashboard/agenda" },
-  { icon: Users, label: "Reuniões", href: "/dashboard/meetings" },
-  { icon: FileText, label: "Documentos", href: "/dashboard/documents" },
-  { icon: Layers, label: "Processos", href: "/dashboard/processes" },
-  { icon: ShieldCheck, label: "Administração", href: "/dashboard/admin" },
-  { icon: Brain, label: "IA Executiva", href: "/dashboard/ai-exec" },
-  { icon: Activity, label: "Arquitetura", href: "/dashboard/architecture" },
+const mainMenuItems: { icon: any; label: string; href: string; requiredPlan: PlanLevel }[] = [
+  { icon: LayoutDashboard, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC" },
+  { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", requiredPlan: "BASIC" },
+  { icon: BarChart3, label: "Relatórios", href: "/dashboard/reports", requiredPlan: "PRO" },
+  { icon: Users, label: "Reuniões", href: "/dashboard/meetings", requiredPlan: "PRO" },
+  { icon: FileText, label: "Documentos", href: "/dashboard/documents", requiredPlan: "PRO" },
+  { icon: Layers, label: "Processos", href: "/dashboard/processes", requiredPlan: "MAX" },
+  { icon: Brain, label: "IA Executiva", href: "/dashboard/ai-exec", requiredPlan: "MAX" },
 ];
 
 const footerMenuItems = [
@@ -48,6 +48,7 @@ const footerMenuItems = [
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { isMobileMenuOpen, setMobileMenuOpen } = useDashboardContext();
+  const { hasAccess } = usePlan();
 
   // Fecha o menu ao trocar de rota no mobile
   useEffect(() => {
@@ -86,23 +87,39 @@ export function DashboardSidebar() {
         <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
           {mainMenuItems.map((item) => {
             const isActive = pathname === item.href;
+            const authorized = hasAccess(item.requiredPlan);
+            
+            const ItemWrapper = authorized ? Link : "div";
+            
             return (
-              <Link
+              <ItemWrapper
                 key={item.href}
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 px-8 py-3 transition-all duration-200 font-heading text-sm font-medium tracking-wide group",
-                  isActive 
+                  !authorized && "opacity-50 cursor-not-allowed",
+                  authorized && isActive 
                     ? "bg-primary/10 text-primary border-l-4 border-primary" 
-                    : "text-zinc-500 hover:bg-white/5 hover:text-zinc-200"
+                    : authorized 
+                      ? "text-zinc-500 hover:bg-white/5 hover:text-zinc-200"
+                      : "text-zinc-600 grayscale bg-zinc-950"
                 )}
               >
                 <item.icon size={18} className={cn(
                   "transition-colors",
-                  isActive ? "text-primary" : "text-zinc-500 group-hover:text-zinc-200"
+                  isActive && authorized ? "text-primary" : "text-zinc-500",
+                  authorized && !isActive && "group-hover:text-zinc-200"
                 )} />
-                <span>{item.label}</span>
-              </Link>
+                <span className="flex-1 flex items-center justify-between">
+                  {item.label}
+                  {!authorized && (
+                    <span className="flex items-center gap-1 bg-zinc-900 border border-white/5 px-2 py-0.5 rounded-full text-[10px] text-zinc-400 font-bold tracking-widest uppercase shadow-inner">
+                      <Lock size={10} className="text-zinc-500" />
+                      {item.requiredPlan}
+                    </span>
+                  )}
+                </span>
+              </ItemWrapper>
             );
           })}
         </nav>
