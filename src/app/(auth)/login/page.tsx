@@ -6,14 +6,14 @@ import { ShieldCheck, Zap, Activity } from "lucide-react";
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-background text-on-surface flex items-center justify-center p-0 lg:p-8">
+    <div className="min-h-screen bg-background text-on-surface grid place-items-center py-12 px-4 lg:p-8">
       {/* Background Ambient Elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px]"></div>
         <div className="absolute -bottom-[10%] -right-[10%] w-[50%] h-[50%] bg-secondary/5 rounded-full blur-[150px]"></div>
       </div>
 
-      <main className="relative w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 min-h-screen lg:min-h-[800px] lg:h-[800px] overflow-hidden lg:rounded-[2rem] shadow-2xl border-none lg:border lg:border-outline-variant/15 glass-panel z-10 transition-all duration-700">
+      <main className="relative w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 min-h-screen lg:min-h-[800px] overflow-hidden lg:rounded-[2rem] shadow-2xl border-none lg:border lg:border-outline-variant/15 glass-panel z-10 transition-all duration-700">
         
         {/* Left Side: Visual Narrative */}
         <div className="hidden lg:flex relative flex-col justify-end p-16 overflow-hidden">
