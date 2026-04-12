@@ -1,0 +1,191 @@
+"use client";
+
+import React, { useState } from "react";
+import { BrainCircuit, Send, Sparkles, Activity, ShieldCheck, Zap, ArrowRight, MessageSquare, Terminal, RefreshCw } from "lucide-react";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+const aiInsights = [
+  { type: "PREDITIVO", content: "Probabilidade de sobrecarga na Unidade de Emergência nas próximas 6 horas: 82.4%. Recomenda-se realocação de 3 médicos.", color: "text-primary" },
+  { type: "OTIMIZAÇÃO", content: "Protocolo de Auditoria BioFlow detectou redução de 14% na latência de faturamento após ajuste no módulo de laudos.", color: "text-emerald-500" },
+  { type: "ESTRATÉGICO", content: "Análise de mercado sugere integração imediata com o Hub Regional de Telemedicina para expansão de cobertura.", color: "text-amber-500" },
+];
+
+export default function AIExecPage() {
+  const [input, setInput] = useState("");
+
+  return (
+    <>
+      <div className="space-y-12 animate-in fade-in duration-700">
+        
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-4">
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+               <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">INTELLIGENCE CORE MODULE</span>
+               <div className="flex items-center gap-1.5 ml-2">
+                 <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span>
+                 <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest leading-none">Stream Neural ATIVO</span>
+               </div>
+            </div>
+            <h1 className="font-heading text-6xl font-black tracking-tighter text-on-surface leading-[0.9] italic">
+              IA <span className="text-gradient">Executiva</span>
+            </h1>
+            <p className="text-on-surface-variant font-medium italic opacity-80 max-w-xl">
+              O núcleo de processamento neural do MedCore V2, projetado para sintetizar dados complexos em decisões de alta fidelidade.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+             <button className="flex items-center gap-2 px-6 py-4 bg-surface-container-highest/50 hover:bg-surface-container-highest border border-outline-variant/10 rounded-2xl text-on-surface font-heading font-black text-sm transition-all group">
+                <RefreshCw size={18} className="text-zinc-500 group-hover:text-primary transition-colors" />
+                Recalibrar IA
+             </button>
+             <button className="btn-gradient px-8 py-4 rounded-2xl flex items-center gap-3 hover:shadow-primary/30 active:scale-95 transition-all text-sm font-heading font-black">
+                <Terminal size={20} />
+                Acessar Raw Logs
+             </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
+          
+          {/* Neural Interface Area */}
+          <div className="xl:col-span-8 flex flex-col min-h-[700px]">
+             
+             {/* Chat Display Areas */}
+             <div className="flex-1 bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 rounded-t-[3rem] p-10 space-y-8 overflow-y-auto custom-scrollbar">
+                
+                <div className="flex gap-6 max-w-3xl">
+                   <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-primary/5 animate-pulse"></div>
+                      <BrainCircuit size={24} />
+                   </div>
+                   <div className="space-y-4">
+                      <div className="bg-surface-container-highest/40 border border-outline-variant/5 p-6 rounded-3xl rounded-tl-none">
+                         <p className="text-on-surface-variant font-medium leading-relaxed italic">
+                            Saudações, Dr. Thorne. Estou analisando o fluxo BioFlow de hoje. Detectei um desvio na precisão diagnóstica da ala cardíaca que requer sua atenção. Como deseja proceder?
+                         </p>
+                      </div>
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest pl-2">SISTEMA ALPHA CORE • AGORA</p>
+                   </div>
+                </div>
+
+                <div className="flex gap-6 max-w-3xl ml-auto flex-row-reverse">
+                   <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-500 shrink-0">
+                      <span className="text-xs font-black">AT</span>
+                   </div>
+                   <div className="space-y-4 text-right">
+                      <div className="bg-primary/20 border border-primary/20 p-6 rounded-3xl rounded-tr-none">
+                         <p className="text-on-surface font-medium leading-relaxed italic">
+                            Execute uma varredura completa nos últimos 12 laudos da ala cardíaca e compare com o protocolo BioFlow-C3.
+                         </p>
+                      </div>
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest pr-2">DR. ALISTAIR THORNE • HÁ 1MIN</p>
+                   </div>
+                </div>
+
+                <div className="flex gap-6 max-w-3xl">
+                   <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-primary/5 animate-pulse"></div>
+                      <BrainCircuit size={24} />
+                   </div>
+                   <div className="space-y-4">
+                      <div className="bg-surface-container-highest/40 border border-outline-variant/5 p-6 rounded-3xl rounded-tl-none">
+                         <div className="flex items-center gap-3 mb-4">
+                            <span className="w-2 h-2 bg-primary rounded-full animate-bounce shadow-[0_0_10px_#3adffa]"></span>
+                            <span className="text-[10px] font-black text-primary uppercase tracking-[0.3em]">ANALISANDO DATASET...</span>
+                         </div>
+                         <p className="text-on-surface-variant font-medium leading-relaxed italic">
+                            Varredura iniciada. Processando 1.482 pontos de dados clínicos. Latência neural estimada: 1.2s.
+                         </p>
+                      </div>
+                   </div>
+                </div>
+
+             </div>
+
+             {/* Input Area */}
+             <div className="bg-surface-container-low backdrop-blur-md border-x border-b border-outline-variant/10 rounded-b-[3rem] p-6">
+                <div className="relative group">
+                   <input 
+                     value={input}
+                     onChange={(e) => setInput(e.target.value)}
+                     placeholder="Comande o Núcleo Inteligente (Shift + Enter para nova linha)..." 
+                     className="w-full bg-surface-container-highest/30 border border-outline-variant/10 focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none h-20 px-8 pr-20 rounded-[1.5rem] text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant/40 font-medium"
+                   />
+                   <button className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-primary text-black rounded-xl flex items-center justify-center hover:shadow-[0_0_20px_rgba(58,223,250,0.4)] hover:scale-110 active:scale-95 transition-all group/btn">
+                      <Send size={20} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                   </button>
+                </div>
+                <div className="flex justify-between items-center mt-4 px-2">
+                   <div className="flex gap-4">
+                      <button className="text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-1.5"><Sparkles size={14}/> Gerar Insights</button>
+                      <button className="text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-primary transition-colors flex items-center gap-1.5"><MessageSquare size={14}/> Sugestões Rápidas</button>
+                   </div>
+                   <p className="text-[9px] text-zinc-700 font-bold italic">IA Alpha v4.28.1-BETA6 (Criptografia AES-256)</p>
+                </div>
+             </div>
+
+          </div>
+
+          {/* Neural Analytics Sidebar */}
+          <aside className="xl:col-span-4 space-y-10">
+             
+             <section className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 rounded-[2.5rem] p-10 overflow-hidden relative">
+                <div className="flex items-center gap-2 mb-10">
+                  <div className="w-1 h-5 bg-primary rounded-full"></div>
+                  <h3 className="font-heading text-xl font-black text-on-surface italic">Alpha Insights</h3>
+                </div>
+
+                <div className="space-y-8">
+                   {aiInsights.map((insight, i) => (
+                     <div key={i} className="p-6 bg-surface-container-highest/20 border border-outline-variant/5 rounded-2xl space-y-3 relative group overflow-hidden hover:bg-surface-container-highest/40 transition-all cursor-pointer">
+                        <div className="flex justify-between items-center relative z-10">
+                           <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", insight.color)}>{insight.type}</span>
+                           <ShieldCheck size={14} className="text-zinc-700" />
+                        </div>
+                        <p className="text-[11px] text-on-surface-variant font-medium leading-relaxed italic relative z-10">
+                           {insight.content}
+                        </p>
+                        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-12 translate-x-12"></div>
+                     </div>
+                   ))}
+                </div>
+
+                <button className="w-full mt-12 py-5 bg-surface-container-highest/50 border border-outline-variant/10 rounded-2xl flex items-center justify-between px-8 hover:bg-surface-container-highest transition-all group">
+                   <div className="flex items-center gap-3">
+                      <Activity size={18} className="text-primary"/>
+                      <span className="text-[10px] font-black text-on-surface uppercase tracking-widest">Ver Matriz Neural</span>
+                   </div>
+                   <ArrowRight size={18} className="text-zinc-600 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                </button>
+             </section>
+
+             <section className="p-10 bg-surface-container-highest/20 border border-outline-variant/10 rounded-[2.5rem] relative overflow-hidden">
+                <div className="relative z-10 space-y-6">
+                   <div className="flex justify-between items-end">
+                      <div className="space-y-1">
+                         <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Sincronização</p>
+                         <p className="font-heading text-4xl font-black text-on-surface italic">100<span className="text-primary">%</span></p>
+                      </div>
+                      <Zap size={32} className="text-primary shadow-[0_0_15px_#3adffa]"/>
+                   </div>
+                   <div className="h-2 bg-surface-container-highest/50 rounded-full overflow-hidden">
+                      <div className="h-full w-full bg-primary rounded-full animate-pulse shadow-[0_0_8px_#3adffa]"></div>
+                   </div>
+                   <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest text-center">Conexão Estável com Cloud-Brain 01</p>
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent"></div>
+             </section>
+
+          </aside>
+        </div>
+      </div>
+    </>
+  );
+}

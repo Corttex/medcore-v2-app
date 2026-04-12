@@ -41,9 +41,9 @@ export default function Home() {
           <Link href="/login" className="w-full sm:w-auto px-8 py-4 bg-white text-black font-black rounded-2xl flex items-center justify-center gap-2 hover:bg-teal-400 transition-all shadow-[0_0_30px_rgba(255,255,255,0.1)] group">
             Acessar Painel <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
           </Link>
-          <button className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 font-bold rounded-2xl hover:bg-zinc-800 transition-all">
+          <a href="#planos" className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 font-bold rounded-2xl hover:bg-zinc-800 transition-all cursor-pointer">
             Ver Planos
-          </button>
+          </a>
         </div>
       </div>
 
@@ -68,6 +68,61 @@ export default function Home() {
           <CreditCard className="text-teal-500 mb-6" size={24} />
           <h2 className="text-lg font-bold mb-2">SaaS Billing</h2>
           <p className="text-zinc-600 text-sm leading-relaxed">Ativação automática de módulos via faturamento recorrente.</p>
+        </div>
+      </div>
+
+      {/* Pricing Section */}
+      <div id="planos" className="relative z-10 w-full max-w-6xl mt-32 space-y-16 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500">
+        <div className="text-center space-y-4">
+          <h2 className="text-4xl md:text-5xl font-black tracking-tighter">Planos e Preços</h2>
+          <p className="text-zinc-500 text-lg">Escolha o nível de inteligência ideal para a sua estrutura clínica.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          {/* Basic */}
+          <div className="p-6 rounded-3xl bg-zinc-950/50 border border-zinc-900 flex flex-col items-center text-center group hover:border-zinc-500/30 transition-all">
+            <h3 className="text-zinc-400 font-bold mb-2 uppercase tracking-widest text-xs">Basic</h3>
+            <div className="text-3xl font-black mb-1">R$ 19,99<span className="text-sm text-zinc-600 font-medium">/m</span></div>
+            <p className="text-xs text-zinc-600 mt-2 mb-6">Ideal para profissionais autônomos e gestão de agenda.</p>
+            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold hover:bg-zinc-800 transition-colors">Selecionar</button>
+          </div>
+
+          {/* Pro */}
+          <div className="p-6 rounded-3xl bg-zinc-950/50 border border-zinc-900 flex flex-col items-center text-center group hover:border-teal-500/30 transition-all relative overflow-hidden">
+            <div className="absolute top-0 w-full h-1 bg-teal-500"></div>
+            <h3 className="text-teal-400 font-bold mb-2 uppercase tracking-widest text-xs mt-2">Pro</h3>
+            <div className="text-3xl font-black mb-1">R$ 49,99<span className="text-sm text-zinc-600 font-medium">/m</span></div>
+            <p className="text-xs text-zinc-600 mt-2 mb-6">Para Clínicas de pequeno porte e IA assistente.</p>
+            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-teal-500/10 border border-teal-500/20 text-teal-400 text-xs font-bold hover:bg-teal-500/20 transition-colors">Selecionar</button>
+          </div>
+
+          {/* Max */}
+          <div className="p-6 rounded-3xl bg-teal-950/20 border border-teal-500/30 flex flex-col items-center text-center hover:border-teal-400/50 transition-all relative transform lg:-translate-y-4 shadow-[0_0_40px_rgba(20,184,166,0.15)]">
+            <div className="absolute top-0 w-full flex justify-center -mt-3">
+              <span className="bg-teal-500 text-black text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">Recomendado</span>
+            </div>
+            <h3 className="text-teal-300 font-bold mb-2 uppercase tracking-widest text-xs mt-4">Max</h3>
+            <div className="text-3xl xl:text-4xl font-black mb-1 text-white">R$ 97,99<span className="text-sm text-teal-500/50 font-medium">/m</span></div>
+            <p className="text-xs text-zinc-400 mt-2 mb-6">Auditoria completa para múltiplos setores.</p>
+            <button className="w-full mt-auto px-4 py-3 rounded-xl bg-teal-500 text-black text-xs font-black shadow-lg hover:bg-teal-400 transition-colors">Assinar Max</button>
+          </div>
+
+          {/* Empresas */}
+          <div className="p-6 rounded-3xl bg-zinc-950/50 border border-zinc-900 flex flex-col items-center text-center group hover:border-cyan-500/30 transition-all">
+            <h3 className="text-cyan-400 font-bold mb-2 uppercase tracking-widest text-xs">Empresas</h3>
+            <div className="text-3xl font-black mb-1">R$ 279,99<span className="text-sm text-zinc-600 font-medium">/m</span></div>
+            <p className="text-[10px] font-black text-cyan-500/80 mb-2 uppercase tracking-widest bg-cyan-500/10 px-2 py-1 rounded-full">2 a 5 funcionários</p>
+            <p className="text-xs text-zinc-600 mb-6">Gestão em rede e faturamento multi-clínica descentralizado.</p>
+            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-bold hover:bg-cyan-500/20 transition-colors">Selecionar</button>
+          </div>
+
+          {/* BigData */}
+          <div className="p-6 rounded-3xl bg-zinc-950/50 border border-zinc-900 flex flex-col items-center text-center justify-center group hover:border-white/30 transition-all">
+            <h3 className="text-white font-bold mb-2 uppercase tracking-widest text-xs">BigData</h3>
+            <div className="text-2xl font-black mb-1 text-white">Consultar</div>
+            <p className="text-xs text-zinc-600 mt-2 mb-6">Redes de Saúde com ultra volume e IA analítica em massa.</p>
+            <button className="w-full mt-auto px-4 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-bold text-white hover:bg-zinc-800 transition-colors ring-1 ring-white/10 group-hover:ring-white/30">Falar com Especialista</button>
+          </div>
         </div>
       </div>
 

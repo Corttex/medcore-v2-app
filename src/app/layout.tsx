@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Manrope } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -8,15 +8,15 @@ const inter = Inter({
   display: "swap",
 });
 
-const outfit = Outfit({
+const manrope = Manrope({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-manrope",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Medcore V2",
-  description: "Sistema Hospitalar Inteligente e Modular",
+  title: "MedCore - Sistema Integrado de Gestão Hospitalar",
+  description: "Inteligência Executiva para Gestão Hospitalar de Alta Performance",
 };
 
 export default function RootLayout({
@@ -25,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} ${outfit.variable}`}>
-      <body className="antialiased font-sans bg-black text-white">
+    <html lang="pt-BR" className={`${inter.variable} ${manrope.variable}`}>
+      <body className="antialiased font-body bg-background text-on-surface">
         {children}
       </body>
     </html>

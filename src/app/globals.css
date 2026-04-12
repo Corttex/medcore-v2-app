@@ -1,47 +1,52 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui;
-  --font-heading: var(--font-outfit), ui-sans-serif, system-ui;
+  --color-background: #0e0e11;
+  --color-surface: #0e0e11;
+  --color-on-surface: #f0edf1;
+  --color-on-surface-variant: #acaaae;
   
-  --color-primary-teal: #2dd4bf;
-  --color-primary-cyan: #06b6d4;
-  --color-midnight-pure: #0a0a0a;
-  --color-midnight-surface: #121212;
-  --color-midnight-border: #27272a;
+  --color-primary: #3adffa;
+  --color-primary-container: #00cbe6;
+  --color-on-primary: #004b56;
+  
+  --color-secondary: #72d9fd;
+  --color-secondary-container: #006780;
+  
+  --color-tertiary: #9bffcf;
+  
+  --color-surface-container-low: #131316;
+  --color-surface-container: #19191d;
+  --color-surface-container-high: #1f1f23;
+  --color-surface-container-highest: #25252a;
+  
+  --color-outline-variant: #48474b;
+  --color-error: #ff716c;
+
+  --font-heading: "Manrope", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  --surface: #121212;
-  --border: #27272a;
-  --primary: #2dd4bf;
-  --secondary: #06b6d4;
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-body antialiased selection:bg-primary/30;
+  }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-}
+@layer components {
+  .glass-panel {
+    @apply bg-[rgba(19,19,22,0.7)] backdrop-blur-[40px] border border-outline-variant/15;
+  }
 
-h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-heading);
-}
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-[#3adffa] to-[#00cbe6];
+  }
 
-/* Glassmorphism Utilities */
-.glass {
-  background: rgba(18, 18, 18, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(39, 39, 42, 0.5);
-}
+  .btn-gradient {
+    @apply bg-gradient-to-br from-[#3adffa] to-[#00cbe6] text-on-primary font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98];
+  }
 
-.glass-vibrant {
-  background: rgba(45, 212, 191, 0.05);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(45, 212, 191, 0.15);
+  .no-line-card {
+    @apply bg-surface-container rounded-2xl p-6 transition-all;
+  }
 }

@@ -3,8 +3,14 @@
 import React, { useState } from "react";
 import { authService } from "../services/authService";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Loader2, ArrowRight } from "lucide-react";
+import { Mail, Lock, Loader2, ArrowRight, Fingerprint } from "lucide-react";
 import Link from "next/link";
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -29,73 +35,107 @@ export function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md p-8 bg-zinc-950 border border-zinc-800 rounded-2xl shadow-2xl relative overflow-hidden group">
-      {/* Decoração sutil */}
-      <div className="absolute -top-24 -right-24 w-48 h-48 bg-teal-500/10 rounded-full blur-3xl group-hover:bg-teal-500/20 transition-all duration-500"></div>
-      
-      <div className="relative">
-        <h2 className="text-3xl font-bold text-white mb-2">Entrar</h2>
-        <p className="text-zinc-500 mb-8 text-sm">Bem-vindo de volta ao ecossistema Medcore.</p>
+    <div className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-700">
+      <div className="space-y-3">
+        <h2 className="font-heading text-4xl font-extrabold text-on-surface tracking-tight italic">
+          Bem-vindo ao <span className="text-gradient">MedCore V2</span>
+        </h2>
+        <p className="text-on-surface-variant font-medium text-sm tracking-wide">
+          Acesso Seguro ao Clinical Observer
+        </p>
+      </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm animate-in fade-in slide-in-from-top-2">
-            {error}
-          </div>
-        )}
+      <button className="group w-full flex items-center justify-center gap-4 bg-surface-container-highest/50 hover:bg-surface-container-highest border border-outline-variant/20 h-14 rounded-xl transition-all duration-300 relative overflow-hidden shadow-inner">
+        <img 
+          alt="Google Logo" 
+          className="w-5 h-5 opacity-80 group-hover:opacity-100 transition-opacity" 
+          src="https://www.google.com/favicon.ico" 
+        />
+        <span className="font-body text-sm font-semibold text-on-surface/80 group-hover:text-on-surface">Continuar com Google</span>
+        <div className="absolute top-0 right-0 px-3 py-1 bg-primary/20 text-primary text-[10px] font-black uppercase tracking-tighter rounded-bl-lg">Em breve</div>
+      </button>
 
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">E-mail</label>
+      <div className="relative flex items-center py-2">
+        <div className="flex-grow border-t border-outline-variant/10"></div>
+        <span className="flex-shrink mx-4 text-outline-variant text-[10px] uppercase tracking-[0.3em] font-black">ou use seu e-mail</span>
+        <div className="flex-grow border-t border-outline-variant/10"></div>
+      </div>
+
+      {error && (
+        <div className="p-4 bg-error/10 border border-error/20 rounded-xl text-error text-sm font-medium animate-shake">
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleLogin} className="space-y-8">
+        <div className="space-y-6">
+          <div className="space-y-2 group">
+            <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] ml-1" htmlFor="email">
+              E-mail Corporativo
+            </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-teal-400" size={18} />
               <input 
-                type="email" 
+                className="w-full bg-surface-container-highest/40 border border-outline-variant/15 focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none h-14 px-5 rounded-xl text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant/40 font-medium"
+                id="email" 
+                placeholder="exemplo@medcore.com.br" 
+                type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-10 pr-4 text-zinc-200 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all placeholder:text-zinc-700"
-                placeholder="exemplo@medcore.com"
               />
+              <Mail className="absolute right-5 top-1/2 -translate-y-1/2 text-outline-variant/40 group-focus-within:text-primary transition-colors" size={18} />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between">
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider ml-1">Senha</label>
-              <Link href="#" className="text-xs text-teal-400 hover:text-teal-300">Esqueceu?</Link>
+          <div className="space-y-2 group">
+            <div className="flex justify-between items-center px-1">
+              <label className="block text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em]" htmlFor="password">
+                Senha de Acesso
+              </label>
+              <Link className="text-[10px] font-black text-primary hover:text-primary-container transition-colors uppercase tracking-[0.2em]" href="#">
+                Esqueceu?
+              </Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-teal-400" size={18} />
               <input 
-                type="password" 
+                className="w-full bg-surface-container-highest/40 border border-outline-variant/15 focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none h-14 px-5 rounded-xl text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant/40"
+                id="password" 
+                placeholder="••••••••••••" 
+                type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl py-3 pl-10 pr-4 text-zinc-200 focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all"
-                placeholder="••••••••"
               />
+              <Lock className="absolute right-5 top-1/2 -translate-y-1/2 text-outline-variant/40 group-focus-within:text-primary transition-colors" size={18} />
             </div>
           </div>
+        </div>
 
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full bg-teal-500 hover:bg-teal-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-bold py-3.5 rounded-xl transition-all shadow-[0_0_20px_rgba(45,212,191,0.2)] flex items-center justify-center gap-2 group/btn"
-          >
-            {loading ? (
-              <Loader2 className="animate-spin" size={20} />
-            ) : (
-              <>
-                Acessar Dashboard
-                <ArrowRight size={18} className="group-hover/btn:translate-x-1 transition-transform" />
-              </>
-            )}
-          </button>
-        </form>
+        <button 
+          className="w-full btn-gradient h-16 rounded-xl font-heading font-black text-on-primary shadow-2xl flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-50 group/btn" 
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? (
+            <Loader2 className="animate-spin" size={24} />
+          ) : (
+            <>
+              Entrar no Dashboard
+              <ArrowRight className="group-hover/btn:translate-x-1.5 transition-transform" size={20} />
+            </>
+          )}
+        </button>
+      </form>
 
-        <p className="mt-8 text-center text-sm text-zinc-500">
-          Não tem uma conta?{" "}
-          <Link href="/register" className="text-teal-400 hover:text-teal-300 font-semibold">Crie uma agora</Link>
+      <div className="flex flex-col items-center gap-6">
+        <div className="flex items-center gap-2 group cursor-pointer">
+          <Fingerprint className="text-primary/80 group-hover:text-primary transition-colors" size={20} />
+          <Link className="text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors" href="#">
+            Acessar via <span className="text-primary font-bold">Código PIN</span>
+          </Link>
+        </div>
+        <p className="text-[11px] text-center text-outline-variant/60 leading-relaxed font-medium max-w-[280px]">
+          Sistema de auditoria médica criptografado. Ao entrar, você concorda com nossos protocolos de privacidade.
         </p>
       </div>
     </div>

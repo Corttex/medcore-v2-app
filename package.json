@@ -9,22 +9,24 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@supabase/ssr": "latest",
+    "@supabase/supabase-js": "latest",
+    "clsx": "latest",
+    "lucide-react": "latest",
     "next": "15.x",
     "react": "19.x",
     "react-dom": "19.x",
-    "@supabase/supabase-js": "latest",
-    "@supabase/ssr": "latest",
-    "lucide-react": "latest",
-    "clsx": "latest",
     "tailwind-merge": "latest"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
-    "typescript": "latest",
-    "tailwindcss": "4.x",
     "eslint": "latest",
-    "eslint-config-next": "latest"
+    "eslint-config-next": "latest",
+    "postcss": "^8.5.9",
+    "tailwindcss": "4.x",
+    "typescript": "latest"
   }
 }
