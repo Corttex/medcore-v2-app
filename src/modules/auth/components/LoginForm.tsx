@@ -134,6 +134,35 @@ export function LoginForm() {
             Acessar via <span className="text-primary font-bold">Código PIN</span>
           </Link>
         </div>
+
+        {/* MODO SIMULADOR RÁPIDO (TEMPORÁRIO) */}
+        <div className="w-full mt-4 p-4 rounded-2xl border border-dashed border-teal-500/40 bg-teal-500/5 backdrop-blur-sm animate-pulse-slow">
+          <p className="text-[10px] font-black text-teal-400 uppercase tracking-widest text-center mb-3">🛠️ Simulador / Fast-Track</p>
+          <div className="flex justify-center gap-2">
+            <button 
+              type="button"
+              onClick={() => { localStorage.setItem("medcore_simulated_plan", "BASIC"); router.push("/dashboard"); }}
+              className="flex-1 py-2 bg-zinc-900 border border-zinc-700 rounded-lg text-xs font-bold text-zinc-400 hover:bg-zinc-800 transition-colors"
+            >
+              BASIC
+            </button>
+            <button 
+              type="button"
+              onClick={() => { localStorage.setItem("medcore_simulated_plan", "PRO"); router.push("/dashboard"); }}
+              className="flex-1 py-2 bg-teal-900/30 border border-teal-500/30 rounded-lg text-xs font-bold text-teal-400 hover:bg-teal-900/50 transition-colors"
+            >
+              PRO
+            </button>
+            <button 
+              type="button"
+              onClick={() => { localStorage.setItem("medcore_simulated_plan", "MAX"); router.push("/dashboard"); }}
+              className="flex-1 py-2 bg-teal-500 text-black border border-teal-400 rounded-lg text-xs font-black shadow-[0_0_15px_rgba(20,184,166,0.3)] hover:bg-teal-400 transition-colors"
+            >
+              MAX
+            </button>
+          </div>
+        </div>
+
         <p className="text-[11px] text-center text-outline-variant/60 leading-relaxed font-medium max-w-[280px]">
           Sistema de auditoria médica criptografado. Ao entrar, você concorda com nossos protocolos de privacidade.
         </p>
