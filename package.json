@@ -13,7 +13,7 @@
     "react": "19.x",
     "react-dom": "19.x",
     "@supabase/supabase-js": "latest",
-    "@supabase/auth-helpers-nextjs": "latest",
+    "@supabase/ssr": "latest",
     "lucide-react": "latest",
     "clsx": "latest",
     "tailwind-merge": "latest"
