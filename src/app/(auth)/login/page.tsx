@@ -25,15 +25,15 @@ export default function LoginPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent"></div>
           
           <div className="relative z-10 space-y-6">
-            <Logo className="mb-8" iconSize={36} textSize="text-3xl" />
+            <Logo className="mb-8" />
             
-            <h1 className="font-heading text-6xl font-black tracking-tighter leading-[0.9] italic">
-              The Clinical <br/>
-              <span className="text-gradient">Observer.</span>
+            <h1 className="font-heading text-5xl font-black tracking-tighter leading-[0.9]">
+              Visão <br/>
+              <span className="text-gradient">Executiva.</span>
             </h1>
             
             <p className="text-on-surface-variant max-w-md text-lg leading-relaxed font-medium">
-              Transformando dados clínicos complexos em inteligência executiva com precisão editorial e autoridade diagnóstica.
+              Transformando dados clínicos complexos em inteligência executiva com precisão e controle de auditoria.
             </p>
 
             <div className="pt-12 grid grid-cols-3 gap-8 border-t border-outline-variant/20">
