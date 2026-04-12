@@ -7,16 +7,14 @@ import {
   Users, 
   FileText, 
   Layers, 
-  Bell, 
   Brain, 
-  Activity,
   Settings,
   HelpCircle,
-  AlertOctagon,
-  ShieldCheck,
   BarChart3,
   Lock,
-  X
+  X,
+  Inbox,
+  Sparkles
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -33,11 +31,11 @@ function cn(...inputs: ClassValue[]) {
 const mainMenuItems: { icon: any; label: string; href: string; requiredPlan: PlanLevel }[] = [
   { icon: LayoutDashboard, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC" },
   { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", requiredPlan: "BASIC" },
+  { icon: Inbox, label: "Demandas Internas", href: "/dashboard/processes", requiredPlan: "BASIC" },
   { icon: BarChart3, label: "Relatórios", href: "/dashboard/reports", requiredPlan: "PRO" },
   { icon: Users, label: "Reuniões", href: "/dashboard/meetings", requiredPlan: "PRO" },
   { icon: FileText, label: "Documentos", href: "/dashboard/documents", requiredPlan: "PRO" },
   { icon: Layers, label: "Processos", href: "/dashboard/processes", requiredPlan: "MAX" },
-  { icon: Brain, label: "IA Executiva", href: "/dashboard/ai-exec", requiredPlan: "MAX" },
 ];
 
 const footerMenuItems = [
@@ -50,7 +48,6 @@ export function DashboardSidebar() {
   const { isMobileMenuOpen, setMobileMenuOpen } = useDashboardContext();
   const { hasAccess } = usePlan();
 
-  // Fecha o menu ao trocar de rota no mobile
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname, setMobileMenuOpen]);
@@ -60,7 +57,7 @@ export function DashboardSidebar() {
       {/* Mobile Backdrop */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-[#020617]/80 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-on-surface/30 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
@@ -68,7 +65,7 @@ export function DashboardSidebar() {
       {/* Sidebar Core */}
       <aside 
         className={cn(
-          "h-screen w-72 bg-[#020617] shadow-[4px_0_24px_rgba(0,0,0,0.5)] border-r border-white/5 flex flex-col py-8 fixed top-0 left-0 z-50 transition-transform duration-300 ease-in-out",
+          "h-screen w-72 bg-surface shadow-[4px_0_24px_rgba(0,0,0,0.08)] border-r border-outline-variant/50 flex flex-col py-8 fixed top-0 left-0 z-50 transition-transform duration-300 ease-in-out",
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
       >
@@ -78,13 +75,13 @@ export function DashboardSidebar() {
           </div>
           <button 
             onClick={() => setMobileMenuOpen(false)}
-            className="lg:hidden absolute right-4 p-2 text-zinc-400 hover:text-white rounded-lg hover:bg-white/5"
+            className="lg:hidden absolute right-4 p-2 text-on-surface-variant hover:text-on-surface rounded-lg hover:bg-surface-container"
           >
             <X size={20} />
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
           {mainMenuItems.map((item) => {
             const isActive = pathname === item.href;
             const authorized = hasAccess(item.requiredPlan);
@@ -93,28 +90,28 @@ export function DashboardSidebar() {
             
             return (
               <ItemWrapper
-                key={item.href}
+                key={item.href + item.label}
                 href={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-8 py-3 transition-all duration-200 font-heading text-sm font-medium tracking-wide group",
-                  !authorized && "opacity-50 cursor-not-allowed",
+                  "flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 font-heading text-sm font-medium tracking-wide group",
+                  !authorized && "opacity-40 cursor-not-allowed",
                   authorized && isActive 
-                    ? "bg-primary/10 text-primary border-l-4 border-primary" 
+                    ? "bg-primary/10 text-primary shadow-sm border border-primary/20" 
                     : authorized 
-                      ? "text-zinc-500 hover:bg-white/5 hover:text-zinc-200"
-                      : "text-zinc-600 grayscale bg-zinc-950"
+                      ? "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                      : "text-on-surface-variant/50 grayscale"
                 )}
               >
                 <item.icon size={18} className={cn(
-                  "transition-colors",
-                  isActive && authorized ? "text-primary" : "text-zinc-500",
-                  authorized && !isActive && "group-hover:text-zinc-200"
+                  "transition-colors shrink-0",
+                  isActive && authorized ? "text-primary" : "text-on-surface-variant/60",
+                  authorized && !isActive && "group-hover:text-on-surface"
                 )} />
                 <span className="flex-1 flex items-center justify-between">
                   {item.label}
                   {!authorized && (
-                    <span className="flex items-center gap-1 bg-zinc-900 border border-white/5 px-2 py-0.5 rounded-full text-[10px] text-zinc-400 font-bold tracking-widest uppercase shadow-inner">
-                      <Lock size={10} className="text-zinc-500" />
+                    <span className="flex items-center gap-1 bg-surface-container border border-outline-variant/60 px-2 py-0.5 rounded-full text-[10px] text-on-surface-variant/60 font-bold tracking-widest uppercase">
+                      <Lock size={9} />
                       {item.requiredPlan}
                     </span>
                   )}
@@ -124,14 +121,26 @@ export function DashboardSidebar() {
           })}
         </nav>
 
-        <div className="mt-auto px-6 space-y-1">
-          <div className="mb-6">
+        <div className="mt-auto px-4 space-y-2">
+          {/* Botão IA Executiva - Destaque Principal */}
+          <div className="mb-3">
             <Link 
-              href="/dashboard/emergency" 
-              className="flex items-center gap-3 px-4 py-3 rounded-xl bg-error/10 border border-error/20 text-error hover:bg-error/20 transition-all group"
+              href="/dashboard/ai-exec" 
+              className="group relative flex items-center gap-3 px-4 py-4 rounded-2xl bg-gradient-to-r from-primary to-secondary-container overflow-hidden shadow-lg shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
-              <AlertOctagon size={18} className="group-hover:scale-110 transition-transform" />
-              <span className="text-[10px] font-black uppercase tracking-[0.2em]">Protocolo de Emergência</span>
+              {/* Glow Animado */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <div className="absolute -top-1 -right-1 w-8 h-8 bg-white/10 rounded-full blur-lg" />
+              
+              <div className="relative flex items-center justify-center w-9 h-9 bg-white/20 rounded-xl backdrop-blur-sm shadow-inner">
+                <Brain size={20} className="text-white" />
+                <Sparkles size={10} className="text-white/80 absolute -top-1 -right-1" />
+              </div>
+              <div className="relative flex-1">
+                <p className="text-[10px] font-black text-white/70 uppercase tracking-[0.2em] leading-none mb-0.5">Exclusivo MAX</p>
+                <p className="text-sm font-black text-white tracking-tight">IA Executiva</p>
+              </div>
+              <div className="relative w-2 h-2 bg-emerald-300 rounded-full shadow-[0_0_8px_#6ee7b7] animate-pulse" />
             </Link>
           </div>
 
@@ -139,9 +148,9 @@ export function DashboardSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className="flex items-center gap-3 px-6 py-2.5 text-zinc-500 hover:text-zinc-200 transition-colors font-heading text-sm font-medium tracking-wide"
+              className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors font-heading text-sm font-medium tracking-wide"
             >
-              <item.icon size={18} />
+              <item.icon size={18} className="text-on-surface-variant/60" />
               <span>{item.label}</span>
             </Link>
           ))}

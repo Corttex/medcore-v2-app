@@ -1,27 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #0e0e11;
-  --color-surface: #0e0e11;
-  --color-on-surface: #f0edf1;
-  --color-on-surface-variant: #acaaae;
+  /* Light Theme Base */
+  --color-background: #f0f4f8;
+  --color-surface: #ffffff;
+  --color-on-surface: #0f1c2e;
+  --color-on-surface-variant: #4a5568;
   
-  --color-primary: #3adffa;
-  --color-primary-container: #00cbe6;
-  --color-on-primary: #004b56;
+  /* Brand Colors - vibrantes para contraste no fundo claro */
+  --color-primary: #0099b8;
+  --color-primary-container: #00b8d9;
+  --color-on-primary: #ffffff;
   
-  --color-secondary: #72d9fd;
-  --color-secondary-container: #006780;
+  --color-secondary: #0077a3;
+  --color-secondary-container: #e0f7fc;
   
-  --color-tertiary: #9bffcf;
+  --color-tertiary: #00875a;
   
-  --color-surface-container-low: #131316;
-  --color-surface-container: #19191d;
-  --color-surface-container-high: #1f1f23;
-  --color-surface-container-highest: #25252a;
+  /* Surface Containers - tons de cinza claro progressivos */
+  --color-surface-container-low: #f8fafc;
+  --color-surface-container: #eef2f7;
+  --color-surface-container-high: #e2e8f0;
+  --color-surface-container-highest: #d1dce8;
   
-  --color-outline-variant: #48474b;
-  --color-error: #ff716c;
+  --color-outline-variant: #cbd5e0;
+  --color-error: #dc2626;
 
   --font-heading: "Manrope", sans-serif;
   --font-body: "Inter", sans-serif;
@@ -29,24 +32,24 @@
 
 @layer base {
   body {
-    @apply bg-background text-on-surface font-body antialiased selection:bg-primary/30;
+    @apply bg-background text-on-surface font-body antialiased selection:bg-primary/20;
   }
 }
 
 @layer components {
   .glass-panel {
-    @apply bg-[rgba(19,19,22,0.7)] backdrop-blur-[40px] border border-outline-variant/15;
+    @apply bg-[rgba(255,255,255,0.85)] backdrop-blur-[40px] border border-outline-variant/40 shadow-lg;
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-[#3adffa] to-[#00cbe6];
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-[#0099b8] to-[#005f7a];
   }
 
   .btn-gradient {
-    @apply bg-gradient-to-br from-[#3adffa] to-[#00cbe6] text-on-primary font-bold shadow-lg shadow-primary/20 transition-all active:scale-[0.98];
+    @apply bg-gradient-to-br from-[#0099b8] to-[#005f7a] text-white font-bold shadow-lg shadow-primary/25 transition-all active:scale-[0.98];
   }
 
   .no-line-card {
-    @apply bg-surface-container rounded-2xl p-6 transition-all;
+    @apply bg-surface rounded-2xl p-6 transition-all border border-outline-variant/30 shadow-sm;
   }
 }
