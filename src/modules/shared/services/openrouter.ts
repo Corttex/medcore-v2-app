@@ -1,13 +1,15 @@
 // OpenRouter AI Service — compatível com formato OpenAI
-// Modelos gratuitos disponíveis:
+// Modelos GRATUITOS disponíveis:
+//   - minimax/minimax-m2.5:free   ← padrão atual
 //   - google/gemma-4-31b-it:free
-//   - minimax/minimax-m2.5:free
+//   - qwen/qwen3-30b-a3b:free
 
 const OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 export type OpenRouterModel = 
+  | "minimax/minimax-m2.5:free"
   | "google/gemma-4-31b-it:free"
-  | "minimax/minimax-m2.5:free";
+  | "qwen/qwen3-30b-a3b:free";
 
 interface OpenRouterMessage {
   role: "system" | "user" | "assistant";
@@ -24,7 +26,7 @@ interface OpenRouterResponse {
 
 export async function callAI(
   messages: OpenRouterMessage[],
-  model: OpenRouterModel = "google/gemma-4-31b-it:free"
+  model: OpenRouterModel = "minimax/minimax-m2.5:free"
 ): Promise<string> {
   const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
   
