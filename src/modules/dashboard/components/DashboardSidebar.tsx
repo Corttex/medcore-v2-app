@@ -14,7 +14,10 @@ import {
   Lock,
   X,
   Inbox,
-  Sparkles
+  Sparkles,
+  Building2,
+  KanbanSquare,
+  Bell
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -32,6 +35,9 @@ const mainMenuItems: { icon: any; label: string; href: string; requiredPlan: Pla
   { icon: LayoutDashboard, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC" },
   { icon: Calendar, label: "Agenda", href: "/dashboard/agenda", requiredPlan: "BASIC" },
   { icon: Inbox, label: "Demandas Internas", href: "/dashboard/processes", requiredPlan: "BASIC" },
+  { icon: Bell, label: "Lembretes", href: "/dashboard/reminders", requiredPlan: "BASIC" },
+  { icon: KanbanSquare, label: "Kanban", href: "/dashboard/kanban", requiredPlan: "BASIC" },
+  { icon: Building2, label: "Unidades", href: "/dashboard/units", requiredPlan: "BASIC" },
   { icon: BarChart3, label: "Relatórios", href: "/dashboard/reports", requiredPlan: "PRO" },
   { icon: Users, label: "Reuniões", href: "/dashboard/meetings", requiredPlan: "PRO" },
   { icon: FileText, label: "Documentos", href: "/dashboard/documents", requiredPlan: "PRO" },

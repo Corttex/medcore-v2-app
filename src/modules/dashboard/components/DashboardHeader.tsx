@@ -18,11 +18,14 @@ const routeTitles: Record<string, string> = {
   "/dashboard/agenda": "Agenda Clínica",
   "/dashboard/meetings": "Reuniões e Comitês",
   "/dashboard/documents": "Repositório de Documentos",
-  "/dashboard/processes": "Gestão de Processos",
+  "/dashboard/processes": "Demandas Internas",
   "/dashboard/admin": "Administração do Sistema",
   "/dashboard/ai-exec": "IA Executiva (CORE)",
   "/dashboard/architecture": "Arquitetura Holística",
   "/dashboard/reports": "Relatórios Estratégicos",
+  "/dashboard/units": "Unidades Hospitalares",
+  "/dashboard/kanban": "Kanban de Notas",
+  "/dashboard/reminders": "Lembretes & Notificações",
 };
 
 export function DashboardHeader() {
