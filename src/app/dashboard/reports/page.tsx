@@ -71,7 +71,6 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
         {/* Main Chart Area */}
         <div className="xl:col-span-8 space-y-8">
-        <div className="xl:col-span-8 space-y-4">
           <div className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 rounded-2xl p-5 space-y-4">
             <div className="flex items-center justify-between">
               <div>
