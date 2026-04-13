@@ -1,8 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState, useRef } from "react";
 import { PinSettings } from "@/modules/auth/components/PinSettings";
-import { Shield, User, Bell, Palette, Camera, Globe, Monitor, Moon, Sun, Smartphone, Heart, ChevronRight } from "lucide-react";
+import { 
+  Shield, User, Bell, Palette, Camera, Globe, Monitor, Moon, Sun, Smartphone, 
+  ChevronRight, Link2, Mail, Apple, Wifi, Check, Loader2, Save,
+  Phone, Building2, Stethoscope, Upload
+} from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -10,203 +14,357 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export default function SettingsPage() {
+// Toggle funcional simples
+function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
   return (
-    <div className="max-w-4xl mx-auto pb-24 space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <button
+      type="button"
+      onClick={onToggle}
+      className={cn(
+        "relative w-10 h-5 rounded-full transition-colors duration-300 focus:outline-none",
+        enabled ? "bg-primary" : "bg-zinc-700"
+      )}
+    >
+      <span className={cn(
+        "absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300",
+        enabled ? "translate-x-5" : "translate-x-0"
+      )} />
+    </button>
+  );
+}
+
+export default function SettingsPage() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>("https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=200&auto=format&fit=crop");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  // Perfil
+  const [nome, setNome] = useState("Dr. Alistair Thorne");
+  const [crm, setCrm] = useState("CRM/SP 123456");
+  const [email, setEmail] = useState("alistair@medcore.com.br");
+  const [cargo, setCargo] = useState("Médico Diretor");
+  const [telefone, setTelefone] = useState("+55 11 99999-9999");
+  const [especialidade, setEspecialidade] = useState("Neurocirurgia");
+
+  // Notificações
+  const [notifs, setNotifs] = useState({
+    criticos: true,
+    ia: true,
+    juridico: false,
+    sistema: true,
+    email: false,
+    whatsapp: true,
+  });
+
+  const toggleNotif = (key: keyof typeof notifs) => {
+    setNotifs(prev => ({ ...prev, [key]: !prev[key] }));
+  };
+
+  // Tema selecionado
+  const [tema, setTema] = useState<"light" | "dark" | "system">("light");
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setAvatarPreview(url);
+    }
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    await new Promise(r => setTimeout(r, 1400));
+    setSaving(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 3000);
+  };
+
+  const integrations = [
+    { name: "Google", desc: "Agenda, E-mail e Drive", icon: "google", connected: true, color: "text-blue-400 border-blue-400/20 bg-blue-400/5" },
+    { name: "Outlook / Office 365", desc: "E-mail e Calendário Microsoft", icon: "outlook", connected: false, color: "text-sky-400 border-sky-400/20 bg-sky-400/5" },
+    { name: "Apple / iCloud", desc: "Calendário e Contatos Apple", icon: "apple", connected: false, color: "text-zinc-300 border-zinc-500/20 bg-zinc-700/10" },
+    { name: "IMAP / SMTP Custom", desc: "Qualquer e-mail corporativo", icon: "mail", connected: false, color: "text-amber-400 border-amber-400/20 bg-amber-400/5" },
+  ];
+
+  return (
+    <div className="max-w-4xl mx-auto pb-24 space-y-14 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
       {/* Header */}
-      <div className="flex flex-col gap-2 border-b border-outline-variant/30 pb-8">
+      <div className="flex flex-col gap-2 border-b border-outline-variant/30 pb-6">
         <h1 className="text-4xl font-black text-on-surface font-heading italic tracking-tighter">Configurações</h1>
-        <p className="text-on-surface-variant font-medium opacity-70">Gerencie sua segurança, preferências e identidade profissional em um só lugar.</p>
+        <p className="text-on-surface-variant font-medium opacity-70 text-sm">
+          Gerencie seu perfil, segurança, notificações e integrações.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-16">
-        
-        {/* Profile Section */}
-        <section className="space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
-              <User size={20} />
-            </div>
-            <h2 className="text-xl font-black text-on-surface font-heading italic">Perfil Profissional</h2>
+      {/* ══════════════════════════════════ */}
+      {/* PERFIL PROFISSIONAL                */}
+      {/* ══════════════════════════════════ */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+            <User size={18} />
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-8 md:p-10">
-            <div className="flex flex-col items-center md:items-start gap-6">
-              <div className="relative group">
-                <img 
-                  src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070&auto=format&fit=crop" 
-                  alt="Dr. Alistair Thorne" 
-                  className="w-32 h-32 rounded-[2rem] object-cover ring-4 ring-surface-container shadow-2xl transition-all group-hover:scale-105"
-                />
-                <button className="absolute -bottom-2 -right-2 p-3 bg-primary text-white rounded-2xl shadow-lg border-4 border-surface shadow-primary/30 hover:scale-110 transition-all">
-                  <Camera size={18} />
-                </button>
-              </div>
-              <div className="space-y-1 text-center md:text-left">
-                <p className="text-xs font-black text-primary uppercase tracking-[0.2em] mb-1">CRM/SP 123456</p>
-                <h3 className="text-2xl font-black text-on-surface font-heading italic">Dr. Alistair Thorne</h3>
-                <p className="text-xs text-on-surface-variant font-medium">Médico Diretor - Unidade Central</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block ml-1">E-mail Corporativo</label>
-                <input type="text" defaultValue="thorne@medcore.com" className="w-full bg-surface-container-highest/50 border border-outline-variant/30 rounded-2xl py-3 px-4 text-sm font-medium focus:border-primary/50 focus:ring-0 transition-all" />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block ml-1">Especialidade Principal</label>
-                <input type="text" defaultValue="Neurocirurgia Executiva" className="w-full bg-surface-container-highest/50 border border-outline-variant/30 rounded-2xl py-3 px-4 text-sm font-medium focus:border-primary/50 focus:ring-0 transition-all" />
-              </div>
-              <div className="pt-4">
-                <button className="px-6 py-3 bg-on-surface text-surface rounded-2xl text-xs font-black uppercase tracking-widest hover:opacity-90 transition-all">Atualizar Dados</button>
-              </div>
-            </div>
-          </div>
-        </section>
+          <h2 className="text-lg font-black text-on-surface font-heading italic">Perfil Profissional</h2>
+        </div>
 
-        {/* Security Section */}
-        <section className="space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
-              <Shield size={20} />
+        <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-8 space-y-8">
+          {/* Avatar */}
+          <div className="flex items-center gap-6">
+            <div className="relative group cursor-pointer flex-shrink-0" onClick={() => fileInputRef.current?.click()}>
+              <img
+                src={avatarPreview}
+                alt="Foto do perfil"
+                className="w-24 h-24 rounded-[1.5rem] object-cover ring-4 ring-surface-container shadow-xl group-hover:opacity-80 transition-all"
+              />
+              <div className="absolute inset-0 rounded-[1.5rem] bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <Upload size={20} className="text-white" />
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-primary rounded-xl flex items-center justify-center shadow-lg border-2 border-surface">
+                <Camera size={14} className="text-white" />
+              </div>
             </div>
-            <h2 className="text-xl font-black text-on-surface font-heading italic">Segurança & Autenticação</h2>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+            <div>
+              <h3 className="text-xl font-black text-on-surface font-heading italic">{nome}</h3>
+              <p className="text-xs text-primary font-bold uppercase tracking-widest mt-0.5">{crm}</p>
+              <p className="text-xs text-on-surface-variant mt-0.5">{cargo}</p>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-3 text-[10px] font-black text-primary uppercase tracking-widest hover:underline"
+              >
+                Alterar foto
+              </button>
+            </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-             <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-1 overflow-hidden">
-                <PinSettings />
-             </div>
-             
-             <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-8 md:p-10 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-black text-on-surface italic tracking-tight">Login por Biometria</h4>
-                      <p className="text-[10px] text-on-surface-variant font-medium">FaceID ou Impressão Digital</p>
-                    </div>
-                    <div className="w-10 h-5 bg-primary/20 rounded-full relative p-1 cursor-pointer">
-                      <div className="w-3 h-3 bg-primary rounded-full translate-x-5 transition-transform"></div>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between opacity-50">
-                    <div>
-                      <h4 className="text-sm font-black text-on-surface italic tracking-tight">Autenticação em 2 Etapas</h4>
-                      <p className="text-[10px] text-on-surface-variant font-medium">Via App ou SMS</p>
-                    </div>
-                    <div className="w-10 h-5 bg-zinc-800 rounded-full relative p-1 cursor-not-allowed">
-                      <div className="w-3 h-3 bg-zinc-600 rounded-full transition-transform"></div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="pt-8 border-t border-outline-variant/20">
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest mb-4">Dispositivos Conectados</p>
-                  <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant">
-                    <span className="flex items-center gap-2 italic"><Smartphone size={14} /> iPhone 15 Pro (Este)</span>
-                    <span className="text-emerald-500 font-black tracking-widest uppercase text-[9px]">Ativo</span>
-                  </div>
-                </div>
-             </div>
-          </div>
-        </section>
 
-        {/* Notifications Section */}
-        <section className="space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
-              <Bell size={20} />
-            </div>
-            <h2 className="text-xl font-black text-on-surface font-heading italic">Notificações & Alertas</h2>
+          {/* Campos */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
+              { label: "Nome Completo", value: nome, onChange: setNome, icon: User },
+              { label: "CRM / Registro", value: crm, onChange: setCrm, icon: Stethoscope },
+              { label: "E-mail Corporativo", value: email, onChange: setEmail, icon: Mail },
+              { label: "Cargo / Função", value: cargo, onChange: setCargo, icon: Building2 },
+              { label: "Telefone / WhatsApp", value: telefone, onChange: setTelefone, icon: Phone },
+              { label: "Especialidade", value: especialidade, onChange: setEspecialidade, icon: Stethoscope },
+            ].map((field, i) => (
+              <div key={i} className="space-y-1.5">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest block">{field.label}</label>
+                <div className="relative">
+                  <field.icon className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-600" size={14} />
+                  <input
+                    type="text"
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    className="w-full bg-surface-container-highest/40 border border-outline-variant/30 focus:border-primary/50 focus:ring-1 focus:ring-primary/20 outline-none rounded-xl py-2.5 pl-9 pr-4 text-sm font-medium transition-all"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
-          
-          <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-8 md:p-10">
-            <div className="space-y-6">
-              {[
-                { title: "Alertas Críticos de CTI", desc: "Notificações push em tempo real para emergências setoriais.", enabled: true },
-                { title: "Relatórios de IA", desc: "Resumos executivos gerados pelo CORE a cada final de turno.", enabled: true },
-                { title: "Demandas Jurídicas", desc: "Atualizações sobre novos processos ou movimentações críticas.", enabled: false },
-                { title: "Status do Sistema", desc: "Informações sobre períodos de manutenção ou degradação.", enabled: true },
-              ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between pb-6 border-b border-outline-variant/20 last:border-0 last:pb-0">
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════ */}
+      {/* SEGURANÇA                          */}
+      {/* ══════════════════════════════════ */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-emerald-500/20">
+            <Shield size={18} />
+          </div>
+          <h2 className="text-lg font-black text-on-surface font-heading italic">Segurança & Autenticação</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-1 overflow-hidden">
+            <PinSettings />
+          </div>
+
+          <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-6 space-y-6">
+            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Métodos de Acesso</p>
+            {[
+              { title: "Login por Biometria", desc: "FaceID ou Impressão Digital", enabled: true },
+              { title: "Autenticação 2 Fatores (2FA)", desc: "Via App TOTP (Google Auth)", enabled: false },
+              { title: "Sessão Persistente", desc: "Manter login por 30 dias", enabled: true },
+            ].map((item, i) => {
+              const [on, setOn] = useState(item.enabled);
+              return (
+                <div key={i} className="flex items-center justify-between">
                   <div>
-                    <h4 className="text-sm font-black text-on-surface italic tracking-tight">{item.title}</h4>
-                    <p className="text-[10px] text-on-surface-variant font-medium opacity-70">{item.desc}</p>
+                    <h4 className="text-sm font-black text-on-surface italic">{item.title}</h4>
+                    <p className="text-[10px] text-on-surface-variant font-medium">{item.desc}</p>
                   </div>
-                  <div className={cn(
-                    "w-10 h-5 rounded-full relative p-1 cursor-pointer transition-colors",
-                    item.enabled ? "bg-primary/20" : "bg-zinc-800"
-                  )}>
-                    <div className={cn(
-                      "w-3 h-3 rounded-full transition-all",
-                      item.enabled ? "bg-primary translate-x-5" : "bg-zinc-600 translate-x-0"
-                    )}></div>
-                  </div>
+                  <Toggle enabled={on} onToggle={() => setOn(!on)} />
                 </div>
+              );
+            })}
+
+            <div className="pt-4 border-t border-outline-variant/20">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Dispositivos Conectados</p>
+              <div className="flex items-center justify-between text-xs font-medium text-on-surface-variant">
+                <span className="flex items-center gap-2"><Smartphone size={14} /> iPhone 15 Pro <span className="text-zinc-600">(Este)</span></span>
+                <span className="text-emerald-500 font-black text-[9px] uppercase tracking-widest">Ativo</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════ */}
+      {/* INTEGRAÇÕES                        */}
+      {/* ══════════════════════════════════ */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 border border-violet-500/20">
+            <Link2 size={18} />
+          </div>
+          <h2 className="text-lg font-black text-on-surface font-heading italic">Integrações de Conta</h2>
+        </div>
+
+        <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-6 space-y-4">
+          {integrations.map((item, i) => (
+            <div key={i} className={cn("flex items-center justify-between p-4 rounded-2xl border transition-all", item.color)}>
+              <div className="flex items-center gap-4">
+                <div className={cn("w-10 h-10 rounded-xl border flex items-center justify-center", item.color)}>
+                  {item.icon === "google" && (
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                  )}
+                  {item.icon === "outlook" && <Wifi size={18} className="text-sky-400" />}
+                  {item.icon === "apple" && <Apple size={18} className="text-zinc-300" />}
+                  {item.icon === "mail" && <Mail size={18} className="text-amber-400" />}
+                </div>
+                <div>
+                  <p className="text-sm font-black text-on-surface">{item.name}</p>
+                  <p className="text-[10px] text-on-surface-variant font-medium">{item.desc}</p>
+                </div>
+              </div>
+              <button className={cn(
+                "flex items-center gap-1.5 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
+                item.connected
+                  ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                  : "bg-surface-container-highest border border-outline-variant/30 text-on-surface-variant hover:border-primary/40 hover:text-primary"
+              )}>
+                {item.connected ? <><Check size={12} /> Conectado</> : <>Conectar <ChevronRight size={12} /></>}
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════ */}
+      {/* NOTIFICAÇÕES                       */}
+      {/* ══════════════════════════════════ */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20">
+            <Bell size={18} />
+          </div>
+          <h2 className="text-lg font-black text-on-surface font-heading italic">Notificações & Alertas</h2>
+        </div>
+
+        <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-6">
+          <div className="space-y-5">
+            {[
+              { key: "criticos" as const, title: "Alertas Críticos de CTI", desc: "Push em tempo real para emergências setoriais." },
+              { key: "ia" as const, title: "Relatórios de IA", desc: "Resumos executivos ao final de cada turno." },
+              { key: "juridico" as const, title: "Demandas Jurídicas", desc: "Atualizações sobre processos e movimentações." },
+              { key: "sistema" as const, title: "Status do Sistema", desc: "Manutenção ou degradação de serviços." },
+              { key: "email" as const, title: "Notificação por E-mail", desc: "Receba um resumo diário no seu e-mail." },
+              { key: "whatsapp" as const, title: "Notificação por WhatsApp", desc: "Alertas diretos no seu número cadastrado." },
+            ].map((item) => (
+              <div key={item.key} className="flex items-center justify-between pb-5 border-b border-outline-variant/15 last:border-0 last:pb-0">
+                <div>
+                  <h4 className="text-sm font-black text-on-surface italic">{item.title}</h4>
+                  <p className="text-[10px] text-on-surface-variant font-medium opacity-70">{item.desc}</p>
+                </div>
+                <Toggle enabled={notifs[item.key]} onToggle={() => toggleNotif(item.key)} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════ */}
+      {/* APARÊNCIA                          */}
+      {/* ══════════════════════════════════ */}
+      <section className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
+            <Palette size={18} />
+          </div>
+          <h2 className="text-lg font-black text-on-surface font-heading italic">Sistema & Aparência</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-6 space-y-4">
+            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Modo Visual</p>
+            <div className="grid grid-cols-3 gap-3">
+              {([
+                { key: "light" as const, label: "Claro", icon: Sun },
+                { key: "dark" as const, label: "Escuro", icon: Moon },
+                { key: "system" as const, label: "Sistema", icon: Monitor },
+              ] as const).map((opt) => (
+                <button
+                  key={opt.key}
+                  onClick={() => setTema(opt.key)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
+                    tema === opt.key
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-transparent bg-surface-container hover:border-outline-variant/40 text-on-surface-variant"
+                  )}
+                >
+                  <opt.icon size={20} />
+                  <span className="text-[9px] font-black uppercase tracking-widest">{opt.label}</span>
+                </button>
               ))}
             </div>
           </div>
-        </section>
 
-        {/* System & Appearance */}
-        <section className="space-y-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-secondary/10 flex items-center justify-center text-secondary border border-secondary/20">
-              <Palette size={20} />
-            </div>
-            <h2 className="text-xl font-black text-on-surface font-heading italic">Sistema & Aparência</h2>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-8 md:p-10 space-y-6">
-              <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Modo Visual</h4>
-              <div className="grid grid-cols-3 gap-3">
-                <button className="flex flex-col items-center gap-2 p-3 bg-surface-container-highest border-2 border-primary rounded-2xl group transition-all">
-                   <div className="w-Full h-10 bg-surface rounded-lg mb-1 flex items-center justify-center text-on-surface opacity-50 group-hover:opacity-100 transition-opacity">
-                     <Sun size={16} />
-                   </div>
-                   <span className="text-[9px] font-black uppercase tracking-widest text-primary">Light</span>
-                </button>
-                <button className="flex flex-col items-center gap-2 p-3 bg-surface-container border-2 border-transparent hover:border-outline-variant/40 rounded-2xl group transition-all">
-                   <div className="w-Full h-10 bg-zinc-950 rounded-lg mb-1 flex items-center justify-center text-zinc-500 opacity-50 group-hover:opacity-100 transition-opacity">
-                     <Moon size={16} />
-                   </div>
-                   <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">Dark</span>
-                </button>
-                <button className="flex flex-col items-center gap-2 p-3 bg-surface-container border-2 border-transparent hover:border-outline-variant/40 rounded-2xl group transition-all">
-                   <div className="w-Full h-10 bg-gradient-to-br from-surface to-zinc-950 rounded-lg mb-1 flex items-center justify-center text-zinc-500 opacity-50 group-hover:opacity-100 transition-opacity">
-                     <Monitor size={16} />
-                   </div>
-                   <span className="text-[9px] font-black uppercase tracking-widest text-zinc-500">System</span>
-                </button>
+          <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-6 space-y-4">
+            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Idioma & Localidade</p>
+            <button className="w-full flex items-center justify-between p-4 bg-surface-container border border-outline-variant/20 rounded-2xl hover:border-primary/30 transition-all group">
+              <div className="flex items-center gap-3">
+                <Globe size={16} className="text-zinc-500 group-hover:text-primary transition-colors" />
+                <div className="text-left">
+                  <p className="text-xs font-black text-on-surface italic">Português (Brasil)</p>
+                  <p className="text-[9px] text-on-surface-variant font-medium">UTC -03:00 • BRT</p>
+                </div>
               </div>
-            </div>
+              <ChevronRight size={14} className="text-zinc-500" />
+            </button>
 
-            <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-8 md:p-10 space-y-6">
-              <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest italic">Idioma & Localidade</h4>
-              <div className="space-y-4">
-                 <button className="w-full flex items-center justify-between p-4 bg-surface-container border border-outline-variant/20 rounded-2xl hover:border-primary/30 transition-all group">
-                   <div className="flex items-center gap-3">
-                      <Globe size={18} className="text-zinc-500 group-hover:text-primary transition-colors" />
-                      <div>
-                        <p className="text-xs font-black text-on-surface italic">Português (Brasil)</p>
-                        <p className="text-[9px] text-on-surface-variant font-medium">UTC -03:00</p>
-                      </div>
-                   </div>
-                   <ChevronRight size={14} className="text-zinc-500" />
-                 </button>
+            <div className="pt-2">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-3">Plano Atual</p>
+              <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5 border border-primary/20">
+                <span className="text-xs font-black text-primary italic">VitalFlow MAX</span>
+                <button className="text-[9px] font-black text-zinc-500 uppercase tracking-widest hover:text-primary transition-colors">Gerenciar →</button>
               </div>
             </div>
           </div>
-        </section>
-
-        {/* Action Footer */}
-        <div className="pt-12 border-t border-outline-variant/30 flex justify-end gap-4">
-          <button className="px-8 py-4 text-zinc-500 text-xs font-black uppercase tracking-widest hover:text-on-surface transition-colors">Descartar Alterações</button>
-          <button className="px-8 py-4 bg-primary text-white rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-primary/20">Salvar Preferências Mentais</button>
         </div>
+      </section>
+
+      {/* Botão Salvar */}
+      <div className="pt-6 border-t border-outline-variant/30 flex justify-end gap-4">
+        <button className="px-6 py-3 text-zinc-500 text-xs font-black uppercase tracking-widest hover:text-on-surface transition-colors">
+          Descartar
+        </button>
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className={cn(
+            "flex items-center gap-2 px-8 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg",
+            saved
+              ? "bg-emerald-500 text-white shadow-emerald-500/20"
+              : "bg-primary text-white hover:scale-105 shadow-primary/20 disabled:opacity-60"
+          )}
+        >
+          {saving ? <Loader2 size={16} className="animate-spin" /> : saved ? <Check size={16} /> : <Save size={16} />}
+          {saving ? "Salvando..." : saved ? "Saved!" : "Salvar Preferências"}
+        </button>
       </div>
     </div>
   );

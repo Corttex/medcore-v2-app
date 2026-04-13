@@ -1,7 +1,11 @@
 "use client";
 
-import React from "react";
-import { LifeBuoy, MessageSquare, Mail, Phone, BookOpen, ChevronRight, Search, PlayCircle, FileText } from "lucide-react";
+import React, { useState } from "react";
+import { 
+  LifeBuoy, MessageSquare, Phone, BookOpen, ChevronRight, FileText, 
+  Ticket, Send, Plus, Clock, CheckCircle2, AlertCircle, PhoneCall,
+  Calendar, Loader2, ArrowRight, Shield
+} from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -9,176 +13,337 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+const TICKET_CATEGORIES = [
+  "Acesso / Login",
+  "Módulo com erro",
+  "Dúvida sobre plano",
+  "Financeiro / Cobrança",
+  "Integração (Google, Outlook...)",
+  "Solicitação de recurso",
+  "Outro",
+];
+
+type Ticket = {
+  id: string;
+  assunto: string;
+  categoria: string;
+  status: "aberto" | "em_andamento" | "resolvido";
+  data: string;
+  mensagens: number;
+};
+
+const mockTickets: Ticket[] = [
+  { id: "#0023", assunto: "Não consigo conectar meu Outlook", categoria: "Integração", status: "em_andamento", data: "Hoje 14:32", mensagens: 3 },
+  { id: "#0019", assunto: "Relatório PDF está sem logo", categoria: "Módulo com erro", status: "resolvido", data: "Ontem 09:15", mensagens: 5 },
+  { id: "#0014", assunto: "Dúvida sobre limites do plano PRO", categoria: "Dúvida sobre plano", status: "resolvido", data: "12/04", mensagens: 2 },
+];
+
+const statusMap = {
+  aberto: { label: "Aberto", color: "text-amber-400 bg-amber-400/10 border-amber-400/20" },
+  em_andamento: { label: "Em andamento", color: "text-primary bg-primary/10 border-primary/20" },
+  resolvido: { label: "Resolvido", color: "text-emerald-400 bg-emerald-400/10 border-emerald-400/20" },
+};
+
 export default function SupportPage() {
-  const faqs = [
-    { question: "Como configurar meu PIN de segurança?", category: "Segurança" },
-    { question: "Onde vejo meu faturamento mensal?", category: "Financeiro" },
-    { question: "Como ativar a IA Executiva no meu dashboard?", category: "Módulos" },
-    { question: "Quais são os limites do plano BASIC?", category: "Planos" },
-  ];
+  const [activeTab, setActiveTab] = useState<"chat" | "tickets" | "docs">("chat");
+  const [novoTicket, setNovoTicket] = useState(false);
+  const [assunto, setAssunto] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [enviando, setEnviando] = useState(false);
+  const [ticketCriado, setTicketCriado] = useState(false);
+  const [chatMsg, setChatMsg] = useState("");
+  const [chatSent, setChatSent] = useState(false);
+
+  const handleEnviarTicket = async () => {
+    if (!assunto || !categoria || !descricao) return;
+    setEnviando(true);
+    await new Promise(r => setTimeout(r, 1600));
+    setEnviando(false);
+    setTicketCriado(true);
+    setNovoTicket(false);
+    setAssunto(""); setCategoria(""); setDescricao("");
+  };
+
+  const handleChatSend = () => {
+    if (!chatMsg.trim()) return;
+    setChatSent(true);
+    setChatMsg("");
+  };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-1000">
+    <div className="max-w-5xl mx-auto space-y-10 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-24">
       
-      {/* Search & Hero */}
-      <div className="text-center space-y-6 pt-8">
-        <h1 className="text-5xl font-black font-heading tracking-tighter text-on-surface italic">
-          Como podemos <span className="text-primary italic">ajudar</span> hoje?
-        </h1>
-        <p className="text-on-surface-variant max-w-2xl mx-auto font-medium opacity-80">
-          Nossa equipe de suporte técnico e comercial está pronta para garantir que sua experiência com o MedCore seja impecável.
-        </p>
-        
-        <div className="max-w-xl mx-auto relative group mt-10">
-          <div className="absolute inset-x-0 -bottom-2 h-10 bg-primary/20 blur-2xl rounded-full opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-          <div className="relative flex items-center bg-surface-container-low border border-outline-variant/50 rounded-2xl px-5 py-4 shadow-sm focus-within:border-primary/50 transition-all">
-            <Search className="text-on-surface-variant/40" size={20} />
-            <input 
-              type="text" 
-              placeholder="Pesquisar tutoriais, guias e erros comuns..." 
-              className="bg-transparent border-none focus:ring-0 w-full ml-4 text-sm font-medium placeholder:text-zinc-500"
-            />
-            <kbd className="hidden sm:inline-flex items-center gap-1 px-2 py-0.5 bg-surface-container rounded-md border border-outline-variant text-[10px] font-black text-zinc-500 uppercase">
-              CMD K
-            </kbd>
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-outline-variant/30 pb-6">
+        <div>
+          <h1 className="text-4xl font-black text-on-surface font-heading italic tracking-tighter">Suporte</h1>
+          <p className="text-on-surface-variant font-medium text-sm opacity-70 mt-1">
+            Central de atendimento VitalFlow — estamos aqui para ajudar.
+          </p>
+        </div>
+        {/* Status Badge */}
+        <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 w-fit">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest">Equipe Online</span>
+          <span className="text-[10px] text-emerald-500/60 font-medium">· Resp. ~5 min</span>
+        </div>
+      </div>
+
+      {/* ══════════ CALL DE EMERGÊNCIA ══════════ */}
+      <div className="relative p-6 rounded-[2rem] bg-gradient-to-br from-red-950/60 to-rose-950/40 border border-red-500/20 overflow-hidden">
+        <div className="absolute -right-8 -top-8 w-40 h-40 bg-red-500/10 rounded-full blur-3xl" />
+        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400 shrink-0">
+              <PhoneCall size={24} />
+            </div>
+            <div>
+              <h3 className="text-lg font-black text-white italic">Call de Emergência</h3>
+              <p className="text-sm text-red-300/70 font-medium max-w-sm">
+                Para clientes dos planos <strong className="text-red-300">Max e Empresas</strong>. Linha direta com nossa equipe técnica sênior.
+              </p>
+              <p className="text-xl font-black text-red-300 mt-2 tracking-tight">+55 (11) 4002-8922</p>
+            </div>
+          </div>
+          <div className="flex flex-col gap-2 w-full md:w-auto">
+            <a href="tel:+551140028922" className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500 hover:bg-red-400 text-white font-black text-sm rounded-2xl transition-all active:scale-95 shadow-lg shadow-red-500/20">
+              <Phone size={16} /> Ligar Agora
+            </a>
+            <button className="flex items-center justify-center gap-2 px-6 py-3 bg-red-500/10 border border-red-500/20 text-red-300 font-black text-xs rounded-2xl hover:bg-red-500/20 transition-all uppercase tracking-widest">
+              <Calendar size={14} /> Agendar Chamada
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Main Support Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="group p-8 bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] hover:border-primary/40 transition-all cursor-pointer relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-            <MessageSquare size={100} />
-          </div>
-          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6 border border-primary/20 group-hover:bg-primary group-hover:text-white transition-all">
-            <MessageSquare size={28} />
-          </div>
-          <h3 className="text-xl font-black text-on-surface font-heading tracking-tight mb-2 italic">Chat em Tempo Real</h3>
-          <p className="text-xs text-on-surface-variant leading-relaxed opacity-70">Tempo médio de resposta: <span className="text-primary font-bold">~2 min</span></p>
-          <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary group-hover:gap-4 transition-all">
-            Iniciar Conversa <ChevronRight size={14} />
-          </div>
-        </div>
-
-        <div className="group p-8 bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] hover:border-emerald-500/40 transition-all cursor-pointer relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-            <Phone size={100} />
-          </div>
-          <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-500 mb-6 border border-emerald-500/20 group-hover:bg-emerald-500 group-hover:text-white transition-all">
-            <Phone size={28} />
-          </div>
-          <h3 className="text-xl font-black text-on-surface font-heading tracking-tight mb-2 italic">Call de Emergência</h3>
-          <p className="text-xs text-on-surface-variant leading-relaxed opacity-70">Exclusivo para parceiros <span className="text-emerald-600 font-bold uppercase tracking-tighter">Gold & Platinum</span></p>
-          <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-emerald-500 group-hover:gap-4 transition-all">
-            Agendar Chamada <ChevronRight size={14} />
-          </div>
-        </div>
-
-        <div className="group p-8 bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] hover:border-secondary/40 transition-all cursor-pointer relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:scale-110 transition-transform">
-            <Mail size={100} />
-          </div>
-          <div className="w-14 h-14 bg-secondary/10 rounded-2xl flex items-center justify-center text-secondary mb-6 border border-secondary/20 group-hover:bg-secondary group-hover:text-white transition-all">
-            <Mail size={28} />
-          </div>
-          <h3 className="text-xl font-black text-on-surface font-heading tracking-tight mb-2 italic">E-mail Corporativo</h3>
-          <p className="text-xs text-on-surface-variant leading-relaxed opacity-70">Para questões administrativas e faturamento.</p>
-          <div className="mt-8 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-secondary group-hover:gap-4 transition-all">
-            Abrir Ticket <ChevronRight size={14} />
-          </div>
-        </div>
+      {/* ══════════ TABS ══════════ */}
+      <div className="flex items-center gap-2 p-1 bg-surface-container-low border border-outline-variant/20 rounded-2xl w-fit">
+        {[
+          { key: "chat" as const, label: "Chat ao Vivo", icon: MessageSquare },
+          { key: "tickets" as const, label: "Meus Tickets", icon: Ticket },
+          { key: "docs" as const, label: "Documentação", icon: BookOpen },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all",
+              activeTab === tab.key
+                ? "bg-primary text-white shadow-md"
+                : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container"
+            )}
+          >
+            <tab.icon size={14} />
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Guides & FAQ */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-8">
-        <div className="lg:col-span-8 space-y-10">
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-2xl font-black text-on-surface font-heading tracking-tight italic">Tópicos Frequentes</h2>
-            <button className="text-[10px] font-black text-primary uppercase tracking-widest hover:underline">Ver Base de Conhecimento</button>
+      {/* ══════════ CONTEÚDO DOS TABS ══════════ */}
+      
+      {/* CHAT AO VIVO */}
+      {activeTab === "chat" && (
+        <div className="bg-surface-container-low border border-outline-variant/20 rounded-[2rem] overflow-hidden animate-in fade-in duration-300">
+          {/* Cabeçalho do chat */}
+          <div className="flex items-center gap-4 p-5 border-b border-outline-variant/15">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
+              <LifeBuoy className="text-primary" size={18} />
+            </div>
+            <div>
+              <p className="text-sm font-black text-on-surface italic">Suporte VitalFlow</p>
+              <p className="text-[10px] text-emerald-400 font-bold flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse inline-block" />
+                Online · Responde em minutos
+              </p>
+            </div>
           </div>
-          
-          <div className="space-y-4">
-            {faqs.map((faq, i) => (
-              <div key={i} className="group flex items-center justify-between p-6 bg-surface-container-low/50 border border-outline-variant/20 rounded-2xl hover:bg-surface-container-low hover:border-outline-variant/40 transition-all cursor-pointer">
-                <div className="flex items-center gap-4">
-                  <div className="w-2 h-2 rounded-full bg-primary/40 group-hover:bg-primary transition-all shadow-[0_0_8px_rgba(58,223,250,0.1)]"></div>
-                  <span className="text-sm font-bold text-on-surface group-hover:translate-x-1 transition-transform">{faq.question}</span>
+
+          {/* Messages */}
+          <div className="p-6 space-y-4 min-h-[280px]">
+            <div className="flex gap-3 max-w-sm">
+              <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shrink-0">
+                <LifeBuoy size={14} />
+              </div>
+              <div className="bg-surface-container-highest/40 border border-outline-variant/10 p-4 rounded-2xl rounded-tl-none">
+                <p className="text-sm text-on-surface-variant font-medium italic">
+                  Olá! 👋 Bem-vindo ao suporte VitalFlow. Como posso te ajudar hoje?
+                </p>
+              </div>
+            </div>
+
+            {chatSent && (
+              <div className="flex gap-3 flex-row-reverse max-w-sm ml-auto">
+                <div className="w-8 h-8 rounded-xl bg-zinc-700 border border-zinc-600 flex items-center justify-center text-zinc-400 shrink-0">
+                  <span className="text-[10px] font-black">EU</span>
                 </div>
-                <span className="text-[9px] font-black text-zinc-500 uppercase tracking-widest bg-outline-variant/10 px-2 py-0.5 rounded-full border border-outline-variant/20">{faq.category}</span>
+                <div className="bg-primary/20 border border-primary/20 p-4 rounded-2xl rounded-tr-none text-right">
+                  <p className="text-sm text-on-surface font-medium italic">Mensagem enviada! Em breve nossa equipe responderá.</p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Input do chat */}
+          <div className="p-5 border-t border-outline-variant/15">
+            <div className="flex items-center gap-3">
+              <input
+                type="text"
+                value={chatMsg}
+                onChange={(e) => setChatMsg(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleChatSend()}
+                placeholder="Digite sua mensagem e pressione Enter..."
+                className="flex-1 bg-surface-container-highest/40 border-2 border-outline-variant/20 hover:border-primary/30 focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none rounded-2xl px-5 py-3 text-sm font-medium transition-all placeholder:text-zinc-600"
+              />
+              <button
+                onClick={handleChatSend}
+                disabled={!chatMsg.trim()}
+                className="w-11 h-11 bg-primary text-white rounded-xl flex items-center justify-center hover:shadow-lg shadow-primary/30 transition-all active:scale-95 disabled:opacity-40"
+              >
+                <Send size={16} />
+              </button>
+            </div>
+            <p className="text-[9px] text-zinc-600 font-medium text-center mt-2">
+              Atendimento disponível seg–sex das 08h às 20h (BRT)
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* TICKETS */}
+      {activeTab === "tickets" && (
+        <div className="space-y-5 animate-in fade-in duration-300">
+          {/* Banner ticket criado */}
+          {ticketCriado && (
+            <div className="flex items-center gap-3 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+              <CheckCircle2 size={18} className="text-emerald-400" />
+              <p className="text-sm text-emerald-400 font-bold">Ticket criado com sucesso! Nossa equipe responderá em breve.</p>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-black text-on-surface italic">Meus Tickets</h2>
+            <button
+              onClick={() => setNovoTicket(!novoTicket)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary/80 transition-all"
+            >
+              <Plus size={14} /> Abrir Ticket
+            </button>
+          </div>
+
+          {/* Formulário Novo Ticket */}
+          {novoTicket && (
+            <div className="bg-surface-container-low border border-outline-variant/20 rounded-[2rem] p-6 space-y-4 animate-in slide-in-from-top-2 duration-300">
+              <h3 className="text-sm font-black text-on-surface italic">Novo Chamado de Suporte</h3>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Categoria</label>
+                <select
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  className="w-full bg-surface-container-highest/40 border border-outline-variant/30 focus:border-primary/50 outline-none rounded-xl px-4 py-3 text-sm font-medium transition-all"
+                >
+                  <option value="">Selecione a categoria...</option>
+                  {TICKET_CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Assunto</label>
+                <input
+                  value={assunto}
+                  onChange={(e) => setAssunto(e.target.value)}
+                  placeholder="Ex: Botão de exportar PDF não funciona"
+                  className="w-full bg-surface-container-highest/40 border border-outline-variant/30 focus:border-primary/50 outline-none rounded-xl px-4 py-3 text-sm font-medium transition-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Descrição detalhada</label>
+                <textarea
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                  rows={4}
+                  placeholder="Descreva o problema, o que você estava fazendo e qual erro apareceu..."
+                  className="w-full bg-surface-container-highest/40 border border-outline-variant/30 focus:border-primary/50 outline-none rounded-xl px-4 py-3 text-sm font-medium transition-all resize-none"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setNovoTicket(false)}
+                  className="flex-1 py-3 text-xs font-black text-zinc-500 uppercase tracking-widest border border-outline-variant/30 rounded-xl hover:bg-surface-container transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleEnviarTicket}
+                  disabled={!assunto || !categoria || !descricao || enviando}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-primary/80 transition-all disabled:opacity-50"
+                >
+                  {enviando ? <><Loader2 size={14} className="animate-spin" /> Enviando...</> : <><Send size={14} /> Enviar Ticket</>}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Lista de Tickets */}
+          <div className="space-y-3">
+            {mockTickets.map((ticket, i) => (
+              <div key={i} className="flex items-center justify-between p-5 bg-surface-container-low border border-outline-variant/20 rounded-2xl hover:border-outline-variant/40 transition-all cursor-pointer group">
+                <div className="flex items-center gap-4">
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-black text-zinc-600 uppercase">{ticket.id}</span>
+                    <Clock size={12} className="text-zinc-700 mt-0.5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-black text-on-surface italic">{ticket.assunto}</p>
+                    <p className="text-[10px] text-zinc-500 font-medium">{ticket.categoria} · {ticket.data} · {ticket.mensagens} mensagem(ns)</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={cn("px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest border", statusMap[ticket.status].color)}>
+                    {statusMap[ticket.status].label}
+                  </span>
+                  <ChevronRight size={14} className="text-zinc-600 group-hover:text-on-surface transition-colors" />
+                </div>
               </div>
             ))}
           </div>
         </div>
+      )}
 
-        <aside className="lg:col-span-4 space-y-6">
-          <div className="p-8 bg-primary rounded-[2.5rem] text-white relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-4 opacity-20 -rotate-12 group-hover:rotate-0 transition-transform">
-              <Sparkles size={120} />
-            </div>
-            <div className="relative z-10">
-              <h3 className="text-2xl font-black font-heading italic tracking-tighter mb-4">Aprenda com Especialistas</h3>
-              <p className="text-xs font-medium text-white/80 leading-relaxed mb-8 italic">
-                Acesse nossa Masterclass exclusiva sobre como otimizar o fluxo do seu hospital usando inteligência artificial.
-              </p>
-              <button className="w-full flex items-center justify-center gap-3 py-4 bg-white text-primary rounded-2xl text-xs font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl">
-                <PlayCircle size={18} /> Assistir Agora
+      {/* DOCUMENTAÇÃO */}
+      {activeTab === "docs" && (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { icon: Shield, title: "Segurança & LGPD", desc: "PIN, biometria, 2FA e controle de acesso.", color: "text-emerald-400" },
+              { icon: LifeBuoy, title: "Guia do Administrador", desc: "Configuração de unidades, planos e usuários.", color: "text-primary" },
+              { icon: FileText, title: "Relatórios & Exportação", desc: "Como gerar PDFs com assinatura e logo.", color: "text-violet-400" },
+              { icon: MessageSquare, title: "IA Executiva", desc: "Como usar o chat de IA e interpretar insights.", color: "text-lilac" },
+              { icon: BookOpen, title: "API & Integrações", desc: "Google, Outlook, IMAP e endpoints REST.", color: "text-amber-400" },
+              { icon: AlertCircle, title: "Erros Comuns", desc: "Soluções para problemas frequentes do sistema.", color: "text-red-400" },
+            ].map((item, i) => (
+              <button key={i} className="text-left group p-6 bg-surface-container-low border border-outline-variant/20 rounded-2xl hover:border-outline-variant/40 transition-all">
+                <item.icon className={cn("mb-4 group-hover:scale-110 transition-transform", item.color)} size={24} />
+                <h3 className="text-sm font-black text-on-surface italic mb-1">{item.title}</h3>
+                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">{item.desc}</p>
+                <div className="mt-4 flex items-center gap-1 text-[10px] font-black text-zinc-500 group-hover:text-primary transition-colors uppercase tracking-widest">
+                  Ler guia <ArrowRight size={10} />
+                </div>
               </button>
-            </div>
+            ))}
           </div>
+        </div>
+      )}
 
-          <div className="p-8 bg-surface-container-highest/20 border border-outline-variant/20 rounded-[2.5rem] space-y-6">
-            <h4 className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Documentação Útil</h4>
-            <div className="space-y-4">
-               <button className="w-full flex items-center justify-between p-3 hover:bg-surface-container transition-all rounded-xl group">
-                 <div className="flex items-center gap-3">
-                   <FileText size={16} className="text-zinc-500" />
-                   <span className="text-xs font-bold text-on-surface opacity-80">Guia do Administrador</span>
-                 </div>
-                 <ChevronRight size={14} className="opacity-0 group-hover:opacity-100" />
-               </button>
-               <button className="w-full flex items-center justify-between p-3 hover:bg-surface-container transition-all rounded-xl group">
-                 <div className="flex items-center gap-3">
-                   <BookOpen size={16} className="text-zinc-500" />
-                   <span className="text-xs font-bold text-on-surface opacity-80">API Reference</span>
-                 </div>
-                 <ChevronRight size={14} className="opacity-0 group-hover:opacity-100" />
-               </button>
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      {/* AdminMaster Hook */}
-      <footer className="pt-12 border-t border-outline-variant/30 flex flex-col items-center text-center">
-        <LifeBuoy size={40} className="text-primary/20 mb-4" />
-        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-2">MedCore Unified Support Ecosystem</p>
-        <p className="text-xs text-zinc-600 font-medium max-w-sm">
-          Informações sincronizadas via AdminMaster. Gerenciado pelo núcleo de governança institucional.
-        </p>
+      {/* Rodapé */}
+      <footer className="pt-8 border-t border-outline-variant/20 flex flex-col items-center text-center">
+        <LifeBuoy size={32} className="text-primary/20 mb-3" />
+        <p className="text-[10px] font-black text-zinc-500 uppercase tracking-[0.3em] mb-1">MedCore Unified Support Ecosystem</p>
+        <p className="text-xs text-zinc-600 font-medium">Atendimento Seg–Sex 08h–20h · sac@medcore.app.br</p>
       </footer>
     </div>
-  );
-}
-
-function Sparkles({ size, className }: { size?: number, className?: string }) {
-  return (
-    <svg 
-      width={size} 
-      height={size} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
-      <path d="M5 3v4" />
-      <path d="M19 17v4" />
-      <path d="M3 5h4" />
-      <path d="M17 19h4" />
-    </svg>
   );
 }
