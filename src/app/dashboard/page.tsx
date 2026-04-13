@@ -1,50 +1,33 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { 
   ShieldAlert, 
   ArrowUpRight, 
-  Clock, 
   TrendingUp, 
   Target, 
-  Zap,
   Activity,
   AlertTriangle,
   ChevronRight,
   ClipboardCheck,
-  Building2,
   FileText,
   AlertOctagon,
-  Brain,
-  Users
+  Zap
 } from "lucide-react";
 import Link from "next/link";
 import { StatCard } from "@/modules/dashboard/components/StatCard";
-import { PinGate } from "@/modules/auth/components/PinGate";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Building2 } from "lucide-react";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export default function DashboardPage() {
-  const [showProtected, setShowProtected] = useState(false);
-  const [pinVerified, setPinVerified] = useState(false);
 
   return (
     <>
-      {showProtected && (
-        <PinGate 
-          onSuccess={() => {
-            setPinVerified(true);
-            setShowProtected(false);
-          }}
-          onCancel={() => setShowProtected(false)}
-          title="Relatório de Visão VitalFlow"
-        />
-      )}
-
       {/* Hero Section */}
       <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
         <div className="space-y-4 max-w-3xl">
@@ -55,7 +38,7 @@ export default function DashboardPage() {
                <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest leading-none">Stream de IA ATIVO</span>
              </div>
           </div>
-          <h1 className="font-heading text-3xl lg:text-4xl font-black tracking-tighter text-on-surface leading-[0.9] italic whitespace-nowrap">
+          <h1 className="font-heading text-3xl lg:text-5xl font-black tracking-tighter text-on-surface leading-tight italic">
             VitalFlow <span className="text-gradient-lilac">Intelligence</span>
           </h1>
           <p className="text-on-surface-variant text-base lg:text-lg italic font-medium leading-relaxed max-w-2xl opacity-80">
@@ -67,13 +50,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <button 
-          onClick={() => setShowProtected(true)}
+        <Link
+          href="/dashboard/reports"
           className="btn-gradient-lilac px-6 py-4 rounded-xl flex items-center gap-3 hover:shadow-lilac/30 active:scale-95 transition-all text-xs group"
         >
           <span className="font-heading font-black">Gerar Auditoria de Visão</span>
           <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-        </button>
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
@@ -146,29 +129,7 @@ export default function DashboardPage() {
             </div>
           </section>
     
-              {/* Quick Access Grid */}
-              <section className="animate-in slide-in-from-bottom-4 duration-700 delay-200">
-                 <div className="flex items-center gap-2 mb-6">
-                    <div className="w-1 h-5 bg-lilac rounded-full"></div>
-                    <h2 className="font-heading text-lg font-black text-on-surface italic">Navegação Mestre</h2>
-                 </div>
-                 
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {[
-                      { label: 'Arquitetura', icon: Building2, href: '/dashboard/architecture', color: 'text-lilac' },
-                      { label: 'IA Executiva', icon: Brain, href: '/dashboard/ai-exec', color: 'text-lilac' },
-                      { label: 'Agenda', icon: Clock, href: '/dashboard/agenda', color: 'text-emerald-500' },
-                      { label: 'Reuniões', icon: Users, href: '/dashboard/meetings', color: 'text-amber-500' },
-                    ].map((item, i) => (
-                      <Link key={i} href={item.href} className="group p-4 bg-surface-container-low border border-outline-variant/10 rounded-[1.5rem] hover:border-lilac/30 transition-all text-center space-y-2">
-                         <item.icon size={22} className={cn("mx-auto transition-transform group-hover:scale-110", item.color)} />
-                         <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest group-hover:text-on-surface transition-colors">{item.label}</p>
-                      </Link>
-                    ))}
-                 </div>
-              </section>
-
-          {/* Recent Feed */}
+            {/* Recent Feed */}
           <section className="space-y-8 animate-in slide-in-from-bottom-4 duration-700 delay-300">
             <div className="flex items-center gap-2">
               <div className="w-1 h-6 bg-primary rounded-full"></div>

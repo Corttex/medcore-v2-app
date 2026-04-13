@@ -10,7 +10,21 @@ export const authService = {
       email,
       password: pass,
     });
-    
+    if (error) throw error;
+    return data;
+  },
+
+  /**
+   * Login via provedor Google (OAuth)
+   */
+  async signInWithGoogle() {
+    const supabase = createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/dashboard`,
+      },
+    });
     if (error) throw error;
     return data;
   },

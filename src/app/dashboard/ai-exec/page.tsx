@@ -41,13 +41,15 @@ export default function AIExecPage() {
           </div>
 
           <div className="flex items-center gap-4">
-             <button className="flex items-center gap-2 px-6 py-4 bg-surface-container-highest/50 hover:bg-surface-container-highest border border-outline-variant/10 rounded-2xl text-on-surface font-heading font-black text-sm transition-all group">
-                <RefreshCw size={18} className="text-zinc-500 group-hover:text-lilac transition-colors" />
-                Recalibrar IA
-             </button>
-             <button className="btn-gradient-lilac px-8 py-4 rounded-2xl flex items-center gap-3 hover:shadow-lilac/30 active:scale-95 transition-all text-sm font-heading font-black">
-                <Terminal size={20} />
-                Acessar Raw Logs
+              <button className="flex items-center gap-2 px-6 py-4 bg-surface-container-highest/50 hover:bg-surface-container-highest border border-outline-variant/10 rounded-2xl text-on-surface font-heading font-black text-sm transition-all group">
+                 <RefreshCw size={18} className="text-zinc-500 group-hover:text-lilac transition-colors group-hover:rotate-180 duration-500" />
+                 Recalibrar IA
+              </button>
+              <button className="relative btn-gradient-lilac px-8 py-4 rounded-2xl flex items-center gap-3 hover:shadow-lilac/40 active:scale-95 transition-all text-sm font-heading font-black overflow-hidden group">
+                 <span className="absolute inset-0 rounded-2xl border-2 border-lilac/40 animate-ping opacity-30" />
+                 <Terminal size={20} />
+                 Acessar Raw Logs
+                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
              </button>
           </div>
         </div>
@@ -111,23 +113,26 @@ export default function AIExecPage() {
 
              {/* Input Area */}
              <div className="bg-surface-container-low backdrop-blur-md border-x border-b border-outline-variant/10 rounded-b-[3rem] p-6">
+                <p className="text-[10px] font-black text-lilac uppercase tracking-widest mb-3 flex items-center gap-2">
+                  <MessageSquare size={12} /> Digite aqui para interagir com a IA
+                </p>
                 <div className="relative group">
                    <input 
                      value={input}
                      onChange={(e) => setInput(e.target.value)}
-                     placeholder="Comande o Núcleo Inteligente (Shift + Enter para nova linha)..." 
-                     className="w-full bg-surface-container-highest/30 border border-outline-variant/10 focus:border-lilac focus:ring-4 focus:ring-lilac/10 focus:outline-none h-20 px-8 pr-20 rounded-[1.5rem] text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant/40 font-medium"
+                     placeholder="Ex: Gere um resumo executivo das demandas críticas desta semana..." 
+                     className="w-full bg-surface-container-highest/50 border-2 border-lilac/30 hover:border-lilac/50 focus:border-lilac focus:ring-4 focus:ring-lilac/10 focus:outline-none h-16 px-6 pr-20 rounded-2xl text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant/50 font-medium"
                    />
-                   <button className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-lilac text-white rounded-xl flex items-center justify-center hover:shadow-[0_0_20px_rgba(167,139,250,0.4)] hover:scale-110 active:scale-95 transition-all group/btn">
-                      <Send size={20} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                   <button className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-lilac text-white rounded-xl flex items-center justify-center hover:shadow-[0_0_20px_rgba(167,139,250,0.5)] hover:scale-110 active:scale-95 transition-all group/btn">
+                      <Send size={18} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                    </button>
                 </div>
-                <div className="flex justify-between items-center mt-4 px-2">
+                <div className="flex justify-between items-center mt-3 px-1">
                    <div className="flex gap-4">
-                      <button className="text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-lilac transition-colors flex items-center gap-1.5"><Sparkles size={14}/> Gerar Insights</button>
-                      <button className="text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-lilac transition-colors flex items-center gap-1.5"><MessageSquare size={14}/> Sugestões Rápidas</button>
+                      <button className="text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-lilac transition-colors flex items-center gap-1.5"><Sparkles size={12}/> Gerar Insights</button>
+                      <button className="text-[10px] font-black text-zinc-500 uppercase tracking-widest hover:text-lilac transition-colors flex items-center gap-1.5"><MessageSquare size={12}/> Sugestões Rápidas</button>
                    </div>
-                   <p className="text-[9px] text-zinc-700 font-bold italic">IA Alpha v4.28.1-BETA6 (Criptografia AES-256)</p>
+                   <p className="text-[9px] text-zinc-700 font-bold italic">MedCode IA v4.28.1</p>
                 </div>
              </div>
 
