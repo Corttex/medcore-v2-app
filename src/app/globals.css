@@ -19,16 +19,24 @@
   --color-tertiary: #34d399;
   --color-error: #f87171;
   
-  /* Lilac Accents */
-  --color-lilac: #a78bfa;
-  --color-lilac-container: #8b5cf6;
-  --color-on-lilac: #ffffff;
+  /* Dynamic Brand / Palette Accents */
+  --color-brand: var(--brand);
+  --color-brand-container: var(--brand-container);
+  --color-on-brand: #ffffff;
 
-  --font-heading: "Manrope", sans-serif;
-  --font-body: "Inter", sans-serif;
+  --font-heading: var(--font-plus-jakarta), sans-serif;
+  --font-body: var(--font-plus-jakarta), sans-serif;
+
+  /* Premium Shadows */
+  --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(0, 0, 0, 0.2);
 }
 
 @layer base {
+  /* Global Italic Fix: Preventing clipped characters in slanted headings */
+  h1.italic, h2.italic, h3.italic, h4.italic, h5.italic, h6.italic, .font-heading.italic {
+    padding-right: 0.15em;
+  }
+
   :root {
     /* Dark Theme (Default) */
     --background: #0f121d;
@@ -36,6 +44,31 @@
     --on-surface: #e8edf5;
     --on-surface-variant: #6b7a90; /* Improved Contrast */
     --outline-variant: #2e3a52;
+    
+    /* Default Palette (Violet/Lilac) */
+    --brand: #a78bfa;
+    --brand-container: #8b5cf6;
+  }
+
+  /* Paletas Corporativas */
+  [data-palette='emerald'] {
+    --brand: #34d399;
+    --brand-container: #10b981;
+  }
+  
+  [data-palette='sapphire'] {
+    --brand: #60a5fa;
+    --brand-container: #3b82f6;
+  }
+
+  [data-palette='amber'] {
+    --brand: #fbbf24;
+    --brand-container: #f59e0b;
+  }
+
+  [data-palette='ruby'] {
+    --brand: #fb7185;
+    --brand-container: #f43f5e;
   }
 
   [data-theme='light'] {
@@ -49,32 +82,77 @@
 
   body {
     @apply bg-background text-on-surface font-body antialiased selection:bg-primary/20 transition-colors duration-300;
+    scroll-behavior: smooth;
+  }
+
+  /* Custom Premium Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(167, 139, 250, 0.1);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(167, 139, 250, 0.3);
+  }
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(167, 139, 250, 0.1) transparent;
   }
 }
 
 @layer components {
+  /* Shine Animation for Sidebar MEGA Button */
+  @keyframes shine {
+    from { transform: translateX(-100%); }
+    to { transform: translateX(200%); }
+  }
+
+  .animate-shine {
+    animation: shine 3s infinite linear;
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.95); }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 4s infinite ease-in-out;
+  }
+
   /* Sem backdrop-blur pesado — apenas borda + sombra leve */
   .glass-panel {
-    @apply bg-surface border border-outline-variant/50 shadow-md;
+    @apply bg-surface border border-outline-variant/50 shadow-card;
   }
 
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-br from-[#00b8d9] to-[#38bdf8];
   }
 
-  .text-gradient-lilac {
-    @apply bg-clip-text text-transparent bg-gradient-to-br from-lilac to-lilac-container;
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent bg-gradient-to-br from-brand to-brand-container;
   }
 
   .btn-gradient {
     @apply bg-gradient-to-br from-[#00b8d9] to-[#0099b8] text-on-primary hover:opacity-90;
   }
 
-  .btn-gradient-lilac {
-    @apply bg-gradient-to-br from-lilac to-lilac-container text-on-lilac hover:opacity-90;
+  .btn-gradient-brand {
+    @apply bg-gradient-to-br from-brand to-brand-container text-on-brand hover:opacity-90;
   }
 
   .no-line-card {
-    @apply bg-surface rounded-2xl p-6 border border-outline-variant/40 shadow-sm;
+    @apply bg-surface rounded-2xl p-6 border border-outline-variant/40 shadow-card;
   }
 }

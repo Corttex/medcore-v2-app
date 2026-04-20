@@ -14,7 +14,8 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Toggle funcional simples
+import { useTheme, type Palette as ThemePalette } from "@/modules/shared/context/ThemeContext";
+
 function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
   return (
     <button
@@ -34,6 +35,8 @@ function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void 
 }
 
 export default function SettingsPage() {
+  const { theme, toggleTheme, palette, setPalette } = useTheme();
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=200&auto=format&fit=crop");
   const [saving, setSaving] = useState(false);
@@ -60,9 +63,6 @@ export default function SettingsPage() {
   const toggleNotif = (key: keyof typeof notifs) => {
     setNotifs(prev => ({ ...prev, [key]: !prev[key] }));
   };
-
-  // Tema selecionado
-  const [tema, setTema] = useState<"light" | "dark" | "system">("light");
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -298,28 +298,53 @@ export default function SettingsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-6 space-y-4">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Modo Visual</p>
-            <div className="grid grid-cols-3 gap-3">
-              {([
-                { key: "light" as const, label: "Claro", icon: Sun },
-                { key: "dark" as const, label: "Escuro", icon: Moon },
-                { key: "system" as const, label: "Sistema", icon: Monitor },
-              ] as const).map((opt) => (
-                <button
-                  key={opt.key}
-                  onClick={() => setTema(opt.key)}
-                  className={cn(
-                    "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
-                    tema === opt.key
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-transparent bg-surface-container hover:border-outline-variant/40 text-on-surface-variant"
-                  )}
-                >
-                  <opt.icon size={20} />
-                  <span className="text-[9px] font-black uppercase tracking-widest">{opt.label}</span>
-                </button>
-              ))}
+          <div className="bg-surface-container-low border border-outline-variant/30 rounded-[2rem] p-6 space-y-6">
+            <div>
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Modo Visual</p>
+              <div className="grid grid-cols-2 gap-3">
+                {([
+                  { key: "light" as const, label: "Claro", icon: Sun },
+                  { key: "dark" as const, label: "Escuro", icon: Moon },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => theme !== opt.key && toggleTheme()}
+                    className={cn(
+                      "flex flex-col items-center gap-2 p-3 rounded-2xl border-2 transition-all",
+                      theme === opt.key
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-transparent bg-surface-container hover:border-outline-variant/40 text-on-surface-variant"
+                    )}
+                  >
+                    <opt.icon size={20} />
+                    <span className="text-[9px] font-black uppercase tracking-widest">{opt.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-outline-variant/20">
+              <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-4">Paleta de Cores Corporativa</p>
+              <div className="flex items-center gap-3">
+                {([
+                  { key: "default", color: "#8b5cf6", name: "Midnight Violet" },
+                  { key: "emerald", color: "#10b981", name: "Healthcare Emerald" },
+                  { key: "sapphire", color: "#3b82f6", name: "Corporate Sapphire" },
+                  { key: "amber", color: "#f59e0b", name: "Executive Amber" },
+                  { key: "ruby", color: "#f43f5e", name: "Urgent Ruby" },
+                ] as const).map((opt) => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setPalette(opt.key as ThemePalette)}
+                    title={opt.name}
+                    className={cn(
+                      "w-10 h-10 rounded-full border-2 transition-all hover:scale-110",
+                      palette === opt.key ? "border-on-surface scale-110 shadow-lg" : "border-transparent"
+                    )}
+                    style={{ backgroundColor: opt.color }}
+                  />
+                ))}
+              </div>
             </div>
           </div>
 

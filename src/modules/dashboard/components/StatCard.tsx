@@ -28,7 +28,7 @@ export function StatCard({ label, value, trend, icon: Icon, color = "teal" }: St
   };
 
   return (
-    <div className="p-5 glass rounded-2xl hover:border-teal-500/30 transition-all group relative overflow-hidden">
+    <div className="p-5 bg-surface border border-outline-variant/30 rounded-2xl shadow-card hover:border-teal-500/30 transition-all group relative overflow-hidden">
       {/* Decorative Glow */}
       <div className="absolute top-0 right-0 w-20 h-20 bg-teal-500/5 blur-[30px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-teal-500/10 transition-colors"></div>
 

@@ -1,223 +1,690 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { 
-  ShieldAlert, 
-  ArrowUpRight, 
+  Activity, 
+  Users, 
+  Clock, 
+  AlertCircle, 
   TrendingUp, 
-  Target, 
-  Activity,
-  AlertTriangle,
-  ChevronRight,
-  ClipboardCheck,
-  FileText,
-  AlertOctagon,
-  Zap
+  Zap, 
+  ShieldCheck, 
+  Quote, 
+  ChevronRight, 
+  ArrowUpRight,
+  ArrowDownRight,
+  BrainCircuit,
+  Download,
+  Calendar,
+  Layout,
+  MessageSquare,
+  ClipboardList,
+  Building2
 } from "lucide-react";
-import Link from "next/link";
-import { StatCard } from "@/modules/dashboard/components/StatCard";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-import { Building2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useDashboardContext } from "@/modules/dashboard/context/DashboardContext";
+import { useTheme } from "@/modules/shared/context/ThemeContext";
 
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-export default function DashboardPage() {
+// --- Custom Modern Chart Component (SVG-based) ---
+const SparklineChart = ({ data, color = "brand" }: { data: number[], color?: string }) => {
+  const max = Math.max(...data);
+  const min = Math.min(...data);
+  const range = max - min || 1;
+  const width = 100;
+  const height = 40;
+  
+  const points = data.map((val, i) => {
+    const x = (i / (data.length - 1)) * width;
+    const y = height - ((val - min) / range) * height;
+    return `${x},${y}`;
+  }).join(" ");
 
   return (
-    <>
-      {/* Hero Section */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10 animate-in fade-in slide-in-from-top-4 duration-700">
-        <div className="space-y-4 max-w-3xl">
-          <div className="flex items-center gap-2">
-             <span className="px-3 py-1 bg-lilac/10 border border-lilac/20 text-lilac text-[10px] font-black uppercase tracking-widest rounded-full">CORE VISION V2.0</span>
-             <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[9px] font-black uppercase tracking-widest rounded-full">
-               <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
-               <span className="text-[10px] text-zinc-500 font-black uppercase tracking-widest leading-none">Stream de IA ATIVO</span>
-             </div>
-          </div>
-          <h1 className="font-heading text-3xl lg:text-5xl font-black tracking-tighter text-on-surface leading-tight italic">
-            VitalFlow <span className="text-gradient-lilac">Intelligence</span>
-          </h1>
-          <p className="text-on-surface-variant text-base lg:text-lg italic font-medium leading-relaxed max-w-2xl opacity-80">
-            "O Observador Clínico não se limita a registrar dados; ele decifra a narrativa silenciosa da biologia humana para orquestrar uma precisão que salva vidas."
-          </p>
-          <div className="flex items-center gap-2 pt-2 group cursor-pointer w-fit">
-            <div className="w-6 h-[2px] bg-lilac group-hover:w-10 transition-all"></div>
-            <span className="text-[10px] font-black text-lilac uppercase tracking-[0.2em]">Protocolo de Inteligência Core</span>
-          </div>
-        </div>
+    <svg width="100%" height="40" viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
+      <defs>
+        <linearGradient id={`grad-${color}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--color-brand)" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="var(--color-brand)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path
+        d={`M 0,${height} L ${points} L ${width},${height} Z`}
+        fill={`url(#grad-${color})`}
+        className="transition-all duration-1000"
+      />
+      <polyline
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+        className={cn(
+          "transition-all duration-1000",
+          color === 'brand' ? "text-brand" : "text-emerald-500"
+        )}
+      />
+    </svg>
+  );
+};
 
-        <Link
-          href="/dashboard/reports"
-          className="btn-gradient-lilac px-6 py-4 rounded-xl flex items-center gap-3 hover:shadow-lilac/30 active:scale-95 transition-all text-xs group"
-        >
-          <span className="font-heading font-black">Gerar Auditoria de Visão</span>
-          <ArrowUpRight size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-        </Link>
+interface StatCardProps {
+  title: string;
+  value: string;
+  trend: string;
+  description: string;
+  icon: any;
+  color: 'brand' | 'emerald' | 'amber' | 'red';
+  chartData?: number[];
+}
+
+const StatCard = ({ title, value, trend, description, icon: Icon, color, chartData }: StatCardProps) => {
+  const { theme } = useTheme();
+  return (
+    <div className={cn(
+      "no-line-card !p-5 flex flex-col gap-3 group transition-all duration-500 hover:border-brand/30",
+      theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+    )}>
+      <div className="flex items-center justify-between">
+        <div className={cn(
+          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm border border-transparent",
+          color === 'emerald' ? "bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/20" : 
+          color === 'amber' ? "bg-amber-500/10 text-amber-500 group-hover:bg-amber-500/20 group-hover:border-amber-500/20" : 
+          color === 'red' ? "bg-red-500/10 text-red-500 group-hover:bg-red-500/20 group-hover:border-red-500/20" :
+          "bg-brand/10 text-brand group-hover:bg-brand/20 group-hover:border-brand/20"
+        )}>
+          <Icon size={24} />
+        </div>
+        <div className={cn(
+          "text-[10px] font-black italic px-2.5 py-1 rounded-full border tracking-widest flex items-center gap-1",
+          trend.startsWith('+') ? "text-emerald-500 border-emerald-500/20 bg-emerald-500/5" : 
+          trend.startsWith('-') ? "text-red-500 border-red-500/20 bg-red-500/5" :
+          "text-zinc-500 border-zinc-500/20 bg-zinc-500/5"
+        )}>
+          {trend.startsWith('+') ? <ArrowUpRight size={10} /> : trend.startsWith('-') ? <ArrowDownRight size={10} /> : null}
+          {trend}
+        </div>
+      </div>
+      
+      <div>
+        <h3 className="text-[11px] font-black text-brand uppercase tracking-[0.2em] leading-none mb-2 opacity-90">{title}</h3>
+        <div className="flex items-baseline gap-2">
+          <p className={cn(
+            "text-4xl font-black italic leading-tight tracking-tighter",
+            theme === 'dark' ? "text-white" : "text-zinc-900"
+          )}>{value}</p>
+        </div>
+        <p className={cn(
+          "text-[10px] font-bold uppercase tracking-wide mt-1",
+          theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+        )}>{description}</p>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+      {chartData && (
+        <div className={cn(
+          "mt-2 pt-2 border-t transition-colors",
+          theme === 'dark' ? "border-zinc-800/30" : "border-zinc-100"
+        )}>
+          <SparklineChart data={chartData} color={color === 'emerald' ? 'emerald' : 'brand'} />
+        </div>
+      )}
+    </div>
+  );
+};
+
+const MEDICAL_QUOTES = [
+  { text: "Pois onde quer que a arte da medicina seja amada, haverá também um amor pela humanidade.", author: "Hipócrates" },
+  { text: "A medicina é uma ciência da incerteza e uma arte da probabilidade.", author: "William Osler" },
+  { text: "Onde o amor pelo homem é, lá também está o amor pela Medicina.", author: "Paracelso" },
+  { text: "A cura está ligada ao tempo, mas às vezes também está ligada à oportunidade.", author: "Hipócrates" }
+];
+
+export default function DashboardPage() {
+  const { selectedUnitId, setSelectedUnitId, units } = useDashboardContext();
+  const { theme } = useTheme();
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const activeQuote = MEDICAL_QUOTES[0];
+
+  const handleRelatorioFull = () => {
+    setIsGeneratingReport(true);
+    setTimeout(() => {
+      setIsGeneratingReport(false);
+      alert("Relatório Executivo Full gerado com sucesso! Iniciando download...");
+    }, 2000);
+  };
+
+  // ═══════ NO SELECTION STATE ═══════
+  if (!selectedUnitId) {
+    return (
+      <div className="h-[80vh] flex flex-col items-center justify-center text-center space-y-8 animate-in fade-in zoom-in-95 duration-700">
+        <div className="relative">
+          <div className="absolute inset-0 bg-brand/20 blur-[100px] rounded-full animate-pulse"></div>
+          <div className={cn(
+            "w-24 h-24 rounded-[2rem] flex items-center justify-center relative z-10 border shadow-2xl transition-all duration-500",
+            theme === 'dark' ? "bg-zinc-900 border-zinc-800" : "bg-white border-zinc-200"
+          )}>
+            <Building2 size={40} className="text-brand animate-bounce" />
+          </div>
+        </div>
         
-        {/* Main Content Area */}
-        <div className="xl:col-span-8 space-y-10">
-          
-          {/* Priority Actions */}
-          <section className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 rounded-[1.5rem] p-6 relative overflow-hidden group animate-in slide-in-from-bottom-4 duration-700 delay-100">
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <ShieldAlert size={180} />
-            </div>
-            
-            <div className="flex items-center justify-between mb-6 relative z-10">
-              <div>
-                <h2 className="font-heading text-2xl font-black text-on-surface tracking-tight italic line-clamp-1">Ações Prioritárias</h2>
-                <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] mt-1">Sincronização Necessária</p>
-              </div>
-              <button className="p-3 bg-surface-container-highest/50 rounded-xl hover:bg-surface-container-highest transition-colors">
-                <Activity size={18} className="text-zinc-500" />
-              </button>
-            </div>
-
-            <div className="space-y-4 relative z-10">
-              <Link href="/dashboard/emergency" className="flex items-center justify-between p-6 bg-surface-container-highest/20 hover:bg-error/5 border border-outline-variant/10 hover:border-error/20 rounded-2xl transition-all cursor-pointer group/item">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-error/10 border border-error/20 flex items-center justify-center text-error group-hover/item:scale-110 transition-transform">
-                    <AlertOctagon size={20} />
-                  </div>
-                  <div>
-                    <h4 className="font-heading font-black text-on-surface text-lg">Sobrecarga Crítica no Centro de Trauma</h4>
-                    <p className="text-[11px] text-zinc-500 font-medium">Alerta Vermelho Nivel 4 - Alocação de Recursos Necessária</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="px-3 py-1 bg-error/10 text-error border border-error/20 text-[9px] font-black uppercase tracking-widest rounded-md">Crítico</span>
-                  <ChevronRight size={18} className="text-zinc-700 group-hover/item:text-error transition-all translate-x-0 group-hover/item:translate-x-1" />
-                </div>
-              </Link>
-
-              <Link href="/dashboard/processes" className="flex items-center justify-between p-6 bg-surface-container-highest/20 hover:bg-lilac/5 border border-outline-variant/10 hover:border-lilac/20 rounded-2xl transition-all cursor-pointer group/item">
-                <div className="flex items-center gap-5">
-                  <div className="w-12 h-12 rounded-xl bg-lilac/10 border border-lilac/20 flex items-center justify-center text-lilac group-hover/item:scale-110 transition-transform">
-                    <Zap size={24} />
-                  </div>
-                  <div>
-                    <h4 className="font-heading font-black text-on-surface text-lg">Sincronização do Protocolo de Bio-Síntese</h4>
-                    <p className="text-[11px] text-zinc-500 font-medium">Alinhamento estratégico para as iniciativas do 2º Trimestre</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="px-3 py-1 bg-lilac/10 text-lilac border border-lilac/20 text-[9px] font-black uppercase tracking-widest rounded-md">Otimizar</span>
-                  <ChevronRight size={18} className="text-zinc-700 group-hover/item:text-lilac transition-all translate-x-0 group-hover/item:translate-x-1" />
-                </div>
-              </Link>
-              <Link href="/dashboard/admin" className="flex items-center justify-between p-4 bg-surface-container-highest/20 hover:bg-emerald-500/5 border border-outline-variant/10 hover:border-emerald-500/20 rounded-xl transition-all cursor-pointer group/item">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500 group-hover/item:scale-110 transition-transform">
-                    <ClipboardCheck size={20} />
-                  </div>
-                  <div>
-                    <h4 className="font-heading font-black text-on-surface text-base">Auditoria de Governança</h4>
-                    <p className="text-[10px] text-zinc-500 font-medium tracking-tight">Validação semestral de conformidade</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <ChevronRight size={18} className="text-zinc-700 group-hover/item:text-emerald-500 transition-all" />
-                </div>
-              </Link>
-            </div>
-          </section>
-    
-            {/* Recent Feed */}
-          <section className="space-y-8 animate-in slide-in-from-bottom-4 duration-700 delay-300">
-            <div className="flex items-center gap-2">
-              <div className="w-1 h-6 bg-primary rounded-full"></div>
-              <h3 className="font-heading text-xl font-black text-on-surface italic">Fluxo de Registros</h3>
-            </div>
-
-            <div className="space-y-6">
-              {[
-                { time: "14:22", type: "REGISTROS CIRÚRGICOS", content: "Novo recorde de eficiência alcançado na ala de cardiologia robótica (Unidade 7).", color: "text-primary" },
-                { time: "11:05", type: "SINCRONIZAÇÃO FARMA", content: "Contrato de reposição farmacêutica trimestral assinado para o Hub MedCore Sul.", color: "text-emerald-500" },
-                { time: "08:30", type: "SISTEMA", content: "Auditoria de arquitetura interna concluída. 0 vulnerabilidades detectadas no núcleo Executivo de IA.", color: "text-zinc-500" }
-              ].map((item, i) => (
-                <div key={i} className="flex gap-6 group">
-                  <div className="flex flex-col items-center">
-                    <div className={cn("w-4 h-4 rounded-full border-2 border-background ring-4 ring-offset-0 bg-transparent transition-all group-hover:scale-125", 
-                      item.color.replace('text-', 'ring-').concat('/20 border-').concat(item.color.replace('text-', '')))}></div>
-                    {i !== 2 && <div className="w-[1px] flex-1 bg-outline-variant/10 my-1"></div>}
-                  </div>
-                  <div className="pb-8">
-                    <p className="text-[10px] font-black tracking-widest uppercase mb-1">
-                      <span className="text-on-surface/40">{item.time} — </span>
-                      <span className={item.color}>{item.type}</span>
-                    </p>
-                    <p className="text-on-surface-variant font-medium leading-relaxed group-hover:text-on-surface transition-colors">{item.content}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
+        <div className="max-w-md space-y-4 relative z-10">
+          <h2 className={cn(
+            "font-heading text-4xl font-black italic tracking-tighter",
+            theme === 'dark' ? "text-white" : "text-zinc-900"
+          )}>
+            Aguardando <br/>
+            <span className="text-brand">Configuração</span>
+          </h2>
+          <p className={cn(
+            "text-sm font-medium leading-relaxed",
+            theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+          )}>
+            O ecossistema VitalFlow requer uma unidade hospitalar ativa para processar inteligência clínica e dados operacionais.
+          </p>
         </div>
 
-        {/* Sidebar Status Area */}
-        <div className="xl:col-span-4 space-y-8">
-          
-          {/* Quick Stats Grid */}
-          <div className="grid grid-cols-2 gap-6">
-            <StatCard label="Compromissos" value="84%" icon={Building2} trend={{ value: "12%", isPositive: true }} color="teal" />
-            <StatCard label="Estratégicos" value="12" icon={Target} color="cyan" />
-            <StatCard label="Documentos" value="1.4k" icon={FileText} trend={{ value: "48", isPositive: true }} color="zinc" />
-            <StatCard label="Pendências" value="09" icon={AlertOctagon} trend={{ value: "02", isPositive: false }} color="zinc" />
-          </div>
+        <button 
+          onClick={() => window.location.href = '/dashboard/units'}
+          className="btn-gradient px-10 py-5 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl shadow-brand/25 active:scale-95 transition-all"
+        >
+          Configurar Unidade Agora
+        </button>
 
-          {/* Performance Indicators */}
-          <section className="bg-surface-container-low/50 backdrop-blur-md border border-outline-variant/10 rounded-[2.5rem] p-8">
-            <div className="flex items-center gap-2 mb-8">
-              <div className="w-1 h-5 bg-primary rounded-full"></div>
-              <h3 className="font-heading text-lg font-black text-on-surface italic">Indicadores de Desempenho</h3>
+        <div className="pt-12 flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-brand rounded-full animate-ping"></div>
+          <p className="text-[10px] font-black text-brand uppercase tracking-[0.3em] italic">System Standby • MedCore V2</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* ═══════ EXECUTIVE HEADER ═══════ */}
+      <div className={cn(
+        "flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 rounded-[2.5rem] border backdrop-blur-sm transition-all duration-500",
+        theme === 'dark' ? "bg-zinc-900/20 border-zinc-800/30" : "bg-white/80 border-zinc-200 shadow-sm"
+      )}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="w-2 h-8 bg-brand rounded-full shadow-[0_0_15px_rgba(167,139,250,0.4)] animate-pulse" />
+            <h1 className={cn(
+              "font-heading text-4xl lg:text-5xl font-black tracking-tighter italic",
+              theme === 'dark' ? "text-white" : "text-zinc-900"
+            )}>
+              VitalFlow <span className="text-brand">Intelligence</span>
+            </h1>
+          </div>
+          <div className="flex items-start gap-4">
+            <Quote size={20} className="text-brand/40 shrink-0 mt-1" />
+            <p className={cn(
+              "text-xs font-medium leading-relaxed max-w-2xl italic border-l border-brand/20 pl-4 py-1",
+              theme === 'dark' ? "text-zinc-400" : "text-zinc-500"
+            )}>
+              "{activeQuote.text}" <span className="text-brand/60 block mt-1 font-black uppercase tracking-widest text-[9px]"> — {activeQuote.author}</span>
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className={cn(
+            "hidden lg:flex items-center gap-2 px-6 py-3 border rounded-full transition-all",
+            theme === 'dark' ? "bg-zinc-950/40 border-zinc-800/50" : "bg-zinc-50 border-zinc-200"
+          )}>
+            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+            <span className="text-[10px] font-black text-brand uppercase tracking-widest italic leading-none">Criptografia Ativa • SSL E2E</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════ KEY INDICATORS GRID ═══════ */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard 
+          title="Eficiência Operacional" 
+          value="98.2%" 
+          trend="+2.4%" 
+          description="Performance Geral da Rede"
+          icon={Activity}
+          color="brand"
+          chartData={[65, 78, 72, 85, 92, 88, 98]}
+        />
+        <StatCard 
+          title="Total de Pacientes" 
+          value="1,240" 
+          trend="+12%" 
+          description="Fluxo de Atendimento 24h"
+          icon={Users}
+          color="brand"
+          chartData={[300, 450, 600, 550, 800, 950, 1240]}
+        />
+        <StatCard 
+          title="Tempo Médio Triagem" 
+          value="4.2m" 
+          trend="-1.5m" 
+          description="SLA de Atendimento Inicial"
+          icon={Clock}
+          color="emerald"
+          chartData={[8, 7, 6.5, 5.8, 5.2, 4.8, 4.2]}
+        />
+        <StatCard 
+          title="Alertas Críticos" 
+          value="3" 
+          trend="Estável" 
+          description="Ocorrências de Alta Prioridade"
+          icon={AlertCircle}
+          color="amber"
+        />
+      </div>
+
+      {/* ═══════ MAIN ANALYTICS SECTION ═══════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+        
+        {/* OPERATIONAL OCCUPANCY */}
+        <div className={cn(
+          "lg:col-span-2 no-line-card !p-6 space-y-6 transition-all duration-500",
+          theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+        )}>
+          <div className={cn(
+            "flex items-center justify-between border-b pb-4",
+            theme === 'dark' ? "border-zinc-800/50" : "border-zinc-100"
+          )}>
+            <h2 className={cn(
+              "font-heading text-sm font-black uppercase tracking-[0.2em] italic flex items-center gap-3",
+              theme === 'dark' ? "text-white" : "text-zinc-900"
+            )}>
+              <TrendingUp size={18} className="text-brand" />
+              Ocupação Operacional
+            </h2>
+            <button 
+              onClick={handleRelatorioFull}
+              disabled={isGeneratingReport}
+              className={cn(
+                "text-[10px] font-black text-brand uppercase tracking-widest border border-brand/30 px-4 py-2 rounded-xl bg-brand/5 hover:bg-brand/10 transition-all flex items-center gap-2",
+                isGeneratingReport && "opacity-50 cursor-wait"
+              )}
+            >
+              {isGeneratingReport ? (
+                <>
+                  <div className="w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+                  Gerando...
+                </>
+              ) : (
+                <>
+                  <Download size={14} />
+                  Relatório Full
+                </>
+              )}
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+            <div className={cn(
+              "rounded-2xl p-4 border hover:border-brand/30 transition-all",
+              theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100"
+            )}>
+              <p className={cn(
+                "text-[10px] font-black uppercase tracking-widest mb-3",
+                theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+              )}>Leitos de UTI</p>
+              <div className="flex items-end justify-between gap-2">
+                <span className={cn(
+                  "text-3xl font-black italic",
+                  theme === 'dark' ? "text-white" : "text-zinc-900"
+                )}>89%</span>
+                <span className="text-[10px] text-red-500 font-bold mb-1 uppercase tracking-tighter">Capacidade Crítica</span>
+              </div>
+              <div className={cn(
+                "w-full h-2 rounded-full mt-3 overflow-hidden border",
+                theme === 'dark' ? "bg-zinc-900 border-zinc-800" : "bg-zinc-200 border-zinc-300/50"
+              )}>
+                <div className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full" style={{ width: '89%' }}></div>
+              </div>
             </div>
 
-            <div className="space-y-8">
-              {[
-                { label: "PRECISÃO CLÍNICA", value: "99.4%", progress: 99.4, color: "bg-emerald-500" },
-                { label: "ADERÊNCIA AO PROTOCOLO", value: "87.2%", progress: 87.2, color: "bg-primary" },
-                { label: "OTIMIZAÇÃO DE RECURSOS", value: "64.0%", progress: 64, color: "bg-secondary" },
-                { label: "VELOCIDADE DE FLUXO DE PACIENTES", value: "42.1%", progress: 42.1, color: "bg-zinc-700" }
-              ].map((item, i) => (
-                <div key={i} className="space-y-3">
-                  <div className="flex justify-between items-end">
-                    <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em]">{item.label}</label>
-                    <span className="font-heading font-black text-sm text-on-surface">{item.value}</span>
-                  </div>
-                  <div className="h-2 bg-surface-container-highest/50 rounded-full overflow-hidden">
+            <div className={cn(
+              "rounded-2xl p-4 border hover:border-brand/30 transition-all",
+              theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100"
+            )}>
+              <p className={cn(
+                "text-[10px] font-black uppercase tracking-widest mb-3",
+                theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+              )}>Bloco Cirúrgico</p>
+              <div className="flex items-end justify-between gap-2">
+                <span className={cn(
+                  "text-3xl font-black italic",
+                  theme === 'dark' ? "text-white" : "text-zinc-900"
+                )}>64%</span>
+                <span className="text-[10px] text-emerald-500 font-bold mb-1 uppercase tracking-tighter">Fluxo Otimizado</span>
+              </div>
+              <div className={cn(
+                "w-full h-2 rounded-full mt-3 overflow-hidden border",
+                theme === 'dark' ? "bg-zinc-900 border-zinc-800" : "bg-zinc-200 border-zinc-300/50"
+              )}>
+                <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full" style={{ width: '64%' }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* STAFF SATURATION */}
+        <div className={cn(
+          "no-line-card !p-6 flex flex-col transition-all duration-500",
+          theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+        )}>
+          <h2 className={cn(
+            "font-heading text-sm font-black uppercase tracking-[0.2em] italic flex items-center gap-3 border-b pb-4 mb-6",
+            theme === 'dark' ? "text-white border-zinc-800/50" : "text-zinc-900 border-zinc-100"
+          )}>
+            <Zap size={18} className="text-brand" />
+            Saturação Staff
+          </h2>
+          <div className="flex-1 space-y-5">
+             {[
+               { name: "Enfermagem", val: 78 },
+               { name: "Medicina", val: 45 },
+               { name: "Técnicos", val: 92 }
+             ].map((item) => (
+               <div key={item.name} className="space-y-2">
+                 <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
+                   <span className="text-zinc-400">{item.name}</span>
+                   <span className={cn(
+                     "font-black italic text-sm",
+                     item.val > 90 ? "text-red-400" : item.val > 70 ? "text-amber-400" : "text-emerald-400"
+                   )}>{item.val}%</span>
+                 </div>
+                 <div className="w-full h-1.5 bg-zinc-900 rounded-full overflow-hidden border border-zinc-800/50">
                     <div 
-                      className={cn("h-full rounded-full transition-all duration-1000 ease-out", item.color)} 
-                      style={{ width: `${item.progress}%` }}
-                    ></div>
+                      className={cn(
+                        "h-full rounded-full transition-all duration-1000",
+                        item.val > 90 ? "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.3)]" : 
+                        item.val > 70 ? "bg-amber-500" : "bg-emerald-500"
+                      )} 
+                      style={{ width: `${item.val}%` }} 
+                    />
+                 </div>
+               </div>
+             ))}
+          </div>
+          <p className="mt-4 text-[9px] text-zinc-500 font-bold uppercase tracking-widest text-center">IA Recomenda: Remanejamento em 15m</p>
+        </div>
+
+        {/* AI AUDIT */}
+        <div className={cn(
+          "no-line-card !p-6 flex flex-col transition-all duration-500",
+          theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+        )}>
+           <h2 className={cn(
+            "font-heading text-sm font-black uppercase tracking-[0.2em] italic flex items-center gap-3 border-b pb-4 mb-6",
+            theme === 'dark' ? "text-white border-zinc-800/50" : "text-zinc-900 border-zinc-100"
+          )}>
+            <ShieldCheck size={18} className="text-brand" />
+            Auditoria IA
+          </h2>
+          <div className="flex-1 space-y-6">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="flex gap-4 relative group cursor-default">
+                {i < 3 && <div className={cn(
+                  "absolute left-2 top-5 bottom-[-24px] w-[1px] transition-colors",
+                  theme === 'dark' ? "bg-zinc-800 group-hover:bg-brand/30" : "bg-zinc-100 group-hover:bg-brand/30"
+                )}></div>}
+                <div className="w-4 h-4 rounded-lg bg-brand/10 border border-brand/30 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all group-hover:bg-brand/20 group-hover:scale-110">
+                  <div className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse"></div>
+                </div>
+                <div>
+                  <p className={cn(
+                    "text-xs font-black leading-none mb-1 transition-colors",
+                    theme === 'dark' ? "text-white group-hover:text-brand" : "text-zinc-900 group-hover:text-brand"
+                  )}>Protocolo {i === 1 ? 'Sepse' : i === 2 ? 'IAM' : 'AVC'}</p>
+                  <p className={cn(
+                    "text-[9px] font-bold uppercase tracking-widest",
+                    theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                  )}>Validado • 14:0{i} PM</p>
+                  <div className="mt-1.5 flex items-center gap-2">
+                    <span className={cn(
+                      "px-1.5 py-0.5 rounded-md text-[8px] font-black border",
+                      theme === 'dark' ? "bg-zinc-950 text-zinc-400 border-zinc-800" : "bg-zinc-50 text-zinc-500 border-zinc-100"
+                    )}>SCORE: 0.982</span>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
+          <button className={cn(
+            "mt-4 w-full py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all flex items-center justify-center gap-2",
+            theme === 'dark' ? "text-zinc-500 border-zinc-800/50 hover:bg-zinc-800/30" : "text-zinc-400 border-zinc-100 hover:bg-zinc-50 hover:text-zinc-600"
+          )}>
+            Ver Log Completo <ChevronRight size={12} />
+          </button>
+        </div>
+      </div>
 
-            <div className="mt-12 p-6 rounded-2xl bg-surface-container-highest/30 border border-outline-variant/10 flex items-start gap-4 group cursor-pointer hover:bg-surface-container-highest/50 transition-all">
-               <div className="w-12 h-12 rounded-xl border border-primary/20 bg-primary/5 flex items-center justify-center relative overflow-hidden shrink-0">
-                  <div className="absolute inset-0 bg-primary/10 animate-pulse"></div>
-                  <span className="text-[10px] font-black text-primary rotate-90">CORE</span>
+      {/* ═══════ AGENDA, KANBAN & MEETINGS REPORTS ═══════ */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        
+        {/* AGENDA REPORT */}
+        <div className={cn(
+          "no-line-card hover:border-brand/30 transition-all group",
+          theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+        )}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-brand/10 text-brand">
+                <Calendar size={18} />
+              </div>
+              <h3 className={cn(
+                "text-xs font-black uppercase tracking-widest italic",
+                theme === 'dark' ? "text-white" : "text-zinc-900"
+              )}>Visão de Agenda</h3>
+            </div>
+            <span className="text-[10px] font-black text-brand uppercase tracking-tighter bg-brand/5 px-2 py-0.5 rounded-md border border-brand/20">Hoje</span>
+          </div>
+          <div className="space-y-4">
+            <div className="flex justify-between items-end">
+              <div>
+                <p className={cn(
+                  "text-[10px] font-black uppercase tracking-widest",
+                  theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                )}>Atendimentos do Dia</p>
+                <p className={cn(
+                  "text-2xl font-black italic",
+                  theme === 'dark' ? "text-white" : "text-zinc-900"
+                )}>42 / 60</p>
+              </div>
+              <div className="text-right">
+                <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest leading-none">SLA Otimizado</p>
+                <div className={cn(
+                  "w-24 h-1.5 rounded-full mt-1.5 overflow-hidden",
+                  theme === 'dark' ? "bg-zinc-900" : "bg-zinc-100"
+                )}>
+                  <div className="h-full bg-emerald-500" style={{ width: '70%' }}></div>
+                </div>
+              </div>
+            </div>
+            <div className={cn(
+              "p-3 rounded-2xl border flex items-center gap-4",
+              theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100"
+            )}>
+               <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0">
+                  <Users size={18} />
                </div>
                <div>
-                 <h4 className="text-xs font-black text-on-surface uppercase tracking-widest mb-1">Insight do Observador IA</h4>
-                 <p className="text-[10px] text-zinc-500 font-medium leading-relaxed italic">
-                   A análise neural sugere que a otimização da aderência aos protocolos poderia aumentar a receita institucional em 14,3% neste trimestre.
-                 </p>
+                  <p className={cn(
+                    "text-[10px] font-black uppercase tracking-widest",
+                    theme === 'dark' ? "text-zinc-400" : "text-zinc-400"
+                  )}>Taxa de Absenteísmo</p>
+                  <p className={cn(
+                    "text-sm font-black",
+                    theme === 'dark' ? "text-white" : "text-zinc-900"
+                  )}>12.4% <span className="text-[9px] text-red-400 ml-1">↑ 2.1%</span></p>
                </div>
             </div>
-          </section>
-
+          </div>
         </div>
 
+        {/* KANBAN/BILLING REPORT */}
+        <div className={cn(
+          "no-line-card hover:border-brand/30 transition-all group",
+          theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+        )}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500">
+                <ClipboardList size={18} />
+              </div>
+              <h3 className={cn(
+                "text-xs font-black uppercase tracking-widest italic",
+                theme === 'dark' ? "text-white" : "text-zinc-900"
+              )}>Fluxo de Notas</h3>
+            </div>
+            <span className="text-[10px] font-black text-amber-500 uppercase tracking-tighter bg-amber-500/5 px-2 py-0.5 rounded-md border border-amber-500/20">Crítico</span>
+          </div>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+               <div className={cn(
+                 "p-3 rounded-2xl border",
+                 theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100"
+               )}>
+                  <p className={cn(
+                    "text-[9px] font-black uppercase tracking-widest",
+                    theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                  )}>Pendentes</p>
+                  <p className="text-xl font-black text-amber-500 italic">156</p>
+               </div>
+               <div className={cn(
+                 "p-3 rounded-2xl border",
+                 theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100"
+               )}>
+                  <p className={cn(
+                    "text-[9px] font-black uppercase tracking-widest",
+                    theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                  )}>Faturamento</p>
+                  <p className="text-xl font-black text-emerald-500 italic">R$ 420k</p>
+               </div>
+            </div>
+            <div className={cn(
+              "flex items-center gap-3 text-[10px] font-black uppercase tracking-widest",
+              theme === 'dark' ? "text-zinc-400" : "text-zinc-500"
+            )}>
+               <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+               Gargalo identificado: Setor de Triagem B
+            </div>
+          </div>
+        </div>
+
+        {/* STRATEGIC MEETINGS REPORT */}
+        <div className={cn(
+          "no-line-card hover:border-brand/30 transition-all group",
+          theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+        )}>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-brand/10 text-brand">
+                <MessageSquare size={18} />
+              </div>
+              <h3 className={cn(
+                "text-xs font-black uppercase tracking-widest italic",
+                theme === 'dark' ? "text-white" : "text-zinc-900"
+              )}>Reuniões & Decisões</h3>
+            </div>
+            <span className="text-[10px] font-black text-brand uppercase tracking-tighter bg-brand/5 px-2 py-0.5 rounded-md border border-brand/20">Próxima</span>
+          </div>
+          <div className="space-y-4 flex-1">
+             <div className={cn(
+               "p-3 rounded-2xl border",
+               theme === 'dark' ? "bg-gradient-to-br from-brand/20 via-brand/5 to-transparent border-brand/20" : "bg-brand/5 border-brand/10"
+             )}>
+                <p className="text-[10px] font-black text-brand uppercase tracking-widest mb-1">Board Strategy • 16:30</p>
+                <p className={cn(
+                  "text-sm font-black italic",
+                  theme === 'dark' ? "text-white" : "text-zinc-900"
+                )}>"Expansão da Rede Digital V2"</p>
+             </div>
+             <div className="flex items-center gap-3">
+                <div className="flex -space-x-2">
+                   {[1, 2, 3].map(i => (
+                     <div key={i} className={cn(
+                       "w-6 h-6 rounded-full border overflow-hidden",
+                       theme === 'dark' ? "border-zinc-900 bg-zinc-800" : "border-white bg-zinc-100"
+                     )}>
+                        <img src={`https://i.pravatar.cc/150?u=${i}`} alt="user" />
+                     </div>
+                   ))}
+                </div>
+                <span className={cn(
+                  "text-[9px] font-bold uppercase tracking-widest",
+                  theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                )}>+5 diretores confirmados</span>
+             </div>
+          </div>
+        </div>
       </div>
-    </>
+
+
+      {/* ═══════ AI INSIGHTS ═══════ */}
+      <div className={cn(
+        "no-line-card !p-0 overflow-hidden transition-all duration-500",
+        theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
+      )}>
+        <div className="grid grid-cols-1 md:grid-cols-3">
+           <div className={cn(
+             "p-6 border-b md:border-b-0 md:border-r space-y-4",
+             theme === 'dark' ? "border-zinc-800/50" : "border-zinc-100"
+           )}>
+              <div className="w-12 h-12 rounded-2xl bg-brand/10 border border-brand/20 flex items-center justify-center text-brand">
+                <BrainCircuit size={24} />
+              </div>
+              <div>
+                <h3 className={cn(
+                  "font-heading font-black italic tracking-tight mb-2",
+                  theme === 'dark' ? "text-white" : "text-zinc-900"
+                )}>Predição de Fluxo</h3>
+                <p className={cn(
+                  "text-xs leading-relaxed",
+                  theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                )}>
+                  Nossa IA antecipa um aumento de <span className="text-brand font-bold">12% na demanda</span> para as próximas 4 horas com base nos dados meteorológicos e históricos locais.
+                </p>
+              </div>
+           </div>
+           <div className={cn(
+             "p-6 border-b md:border-b-0 md:border-r space-y-4",
+             theme === 'dark' ? "border-zinc-800/50" : "border-zinc-100"
+           )}>
+              <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+                <ShieldCheck size={24} />
+              </div>
+              <div>
+                <h3 className={cn(
+                  "font-heading font-black italic tracking-tight mb-2",
+                  theme === 'dark' ? "text-white" : "text-zinc-900"
+                )}>Compliance de Dados</h3>
+                <p className={cn(
+                  "text-xs leading-relaxed",
+                  theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                )}>
+                  Todos os registros clínicos foram <span className="text-emerald-500 font-bold">auditados em tempo real</span>. Risco de não-conformidade reduzido a próximo de zero.
+                </p>
+              </div>
+           </div>
+           <div className="p-6 space-y-4">
+              <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+                <Zap size={24} />
+              </div>
+              <div>
+                <h3 className={cn(
+                  "font-heading font-black italic tracking-tight mb-2",
+                  theme === 'dark' ? "text-white" : "text-zinc-900"
+                )}>Otimização de Custos</h3>
+                <p className={cn(
+                  "text-xs leading-relaxed",
+                  theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                )}>
+                  Identificamos <span className="text-amber-500 font-bold">4 oportunidades</span> de realocação de recursos que podem economizar até R$ 45k no ciclo operacional atual.
+                </p>
+              </div>
+           </div>
+        </div>
+      </div>
+    </div>
   );
 }
