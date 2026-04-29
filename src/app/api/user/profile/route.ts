@@ -27,7 +27,7 @@ export async function POST(request: Request) {
         especialidade,
         email_corporativo,
         updated_at: new Date().toISOString(),
-      })
+      } as any)
       .eq("id", session.user.id)
       .select()
       .single();
