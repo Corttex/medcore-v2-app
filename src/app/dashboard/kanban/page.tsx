@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { Plus, GripVertical, Trash2, Tag, Calendar, User, Flag } from "lucide-react";
+import React, { useState } from "react";
+import { Plus, Trash2, Tag, Calendar, User, Flag } from "lucide-react";
+import { sanitize } from "@/lib/sanitize";
 
 type Priority = "low" | "medium" | "high" | "critical";
 type Column = "todo" | "doing" | "done" | "archived";
@@ -48,8 +49,13 @@ export default function KanbanPage() {
     if (!form.title.trim()) return;
     const newCard: KanbanCard = {
       ...form,
+      title: sanitize(form.title),
+      description: sanitize(form.description),
+      assignee: sanitize(form.assignee),
       id: Date.now().toString(),
-      tags: form.tags ? form.tags.split(",").map(t => t.trim()).filter(Boolean) : [],
+      tags: form.tags 
+        ? form.tags.split(",").map(t => sanitize(t.trim())).filter(Boolean) 
+        : [],
     };
     setCards([...cards, newCard]);
     setShowForm(false);

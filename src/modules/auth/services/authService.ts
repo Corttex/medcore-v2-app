@@ -1,100 +1,106 @@
 import { createClient } from "@/core/supabase/client";
+import { sanitize } from "@/lib/sanitize";
 
 export const authService = {
   /**
-   * Realiza login com e-mail e senha
+   * Realiza login via API segura (Next.js API Routes)
    */
   async signIn(email: string, pass: string) {
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password: pass,
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        email: sanitize(email), 
+        password: pass 
+      }),
     });
-    if (error) throw error;
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erro ao realizar login");
     return data;
   },
 
   /**
-   * Login via provedor Google (OAuth)
-   */
-  async signInWithGoogle() {
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: `${window.location.origin}/dashboard`,
-      },
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Registra um novo usuário
+   * Registra via API segura
    */
   async signUp(email: string, pass: string, fullName: string) {
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password: pass,
-      options: {
-        data: {
-          full_name: fullName,
-        },
-      },
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ 
+        email: sanitize(email), 
+        password: pass, 
+        fullName: sanitize(fullName) 
+      }),
     });
 
-    if (error) throw error;
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erro ao criar conta");
     return data;
   },
 
   /**
-   * Realiza logout
+   * Realiza logout limpando a sessão JWT
    */
   async signOut() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    // Também limpa a sessão do Supabase no client por garantia
     const supabase = createClient();
     await supabase.auth.signOut();
   },
 
   /**
-   * Atualiza o PIN de 4 dígitos do usuário logado
+   * Atualiza o PIN de 4 dígitos via API segura
    */
   async updatePin(pin: string) {
-    const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) throw new Error("Usuário não autenticado");
+    const res = await fetch("/api/auth/pin/update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin: sanitize(pin) }),
+    });
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ pin_hash: pin }) // Nota: Em prod usaríamos hashing (bcrypt/argon2) 
-      .eq("id", user.id);
-
-    if (error) throw error;
-    return { success: true };
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Erro ao atualizar PIN operacional");
+    return data;
   },
 
   /**
-   * Valida o PIN de acesso para auditoria/diretoria
+   * Valida o PIN de acesso via API segura
    */
   async verifyPin(pin: string) {
+    const res = await fetch("/api/auth/pin/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ pin: sanitize(pin) }),
+    });
+
+    const data = await res.json();
+    if (!res.ok && res.status !== 403) throw new Error(data.error || "Erro na validação de segurança");
+    return data;
+  },
+
+  /**
+   * Inicia autenticação via Google OAuth (Supabase)
+   */
+  async signInWithGoogle() {
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
     
-    if (!user) throw new Error("Usuário não autenticado");
+    // IMPORTANTE: Adicione o domínio da Vercel em 'Redirect URLs' no Dashboard do Supabase
+    // URL: https://medcore-v2.vercel.app/api/auth/callback
+    const redirectUrl = `${window.location.origin}/api/auth/callback`;
+    
+    console.log("Iniciando Google OAuth com redirect:", redirectUrl);
 
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("pin_hash")
-      .eq("id", user.id)
-      .single();
-
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: redirectUrl,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
     if (error) throw error;
-    
-    if (data?.pin_hash === pin) {
-      return { success: true };
-    }
-    
-    return { success: false, message: "PIN incorreto" };
   }
 };

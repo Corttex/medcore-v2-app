@@ -6,12 +6,8 @@ import {
   Ticket, Send, Plus, Clock, CheckCircle2, AlertCircle, PhoneCall,
   Calendar, Loader2, ArrowRight, Shield
 } from "lucide-react";
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
-
-function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+import { sanitize } from "@/lib/sanitize";
+import { cn } from "@/lib/utils";
 
 const TICKET_CATEGORIES = [
   "Acesso / Login",
@@ -58,6 +54,11 @@ export default function SupportPage() {
   const handleEnviarTicket = async () => {
     if (!assunto || !categoria || !descricao) return;
     setEnviando(true);
+    
+    // Sanitização antes de enviar
+    const cleanAssunto = sanitize(assunto);
+    const cleanDescricao = sanitize(descricao);
+    
     await new Promise(r => setTimeout(r, 1600));
     setEnviando(false);
     setTicketCriado(true);
@@ -67,6 +68,7 @@ export default function SupportPage() {
 
   const handleChatSend = () => {
     if (!chatMsg.trim()) return;
+    const cleanMsg = sanitize(chatMsg);
     setChatSent(true);
     setChatMsg("");
   };

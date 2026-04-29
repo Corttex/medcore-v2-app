@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Video, Mic, Share2, Users, Calendar, Clock, ChevronRight, Play, Settings2, MoreHorizontal } from "lucide-react";
+import { createClient } from "@/core/supabase/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -9,13 +10,46 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const activeRooms = [
-  { id: "ROOM-784", title: "Conselho Técnico: Unid. Trauma", participants: 12, host: "Dr. Alistair Thorne", status: "LIVE", type: "CRÍTICO" },
-  { id: "ROOM-201", title: "Sincronização de IA Core", participants: 4, host: "Sistema Alpha", status: "WAITING", type: "ESTRATÉGICO" },
-  { id: "ROOM-442", title: "Review de Faturamento Trimestral", participants: 8, host: "Dra. Helena Silva", status: "SCHEDULED", type: "ADMIN" },
-];
+interface Meeting {
+  id: string;
+  title: string;
+  date: string;
+  time: string;
+  status: string;
+  type: string;
+  participants?: number;
+  host?: string;
+}
 
 export default function MeetingsPage() {
+  const supabase = createClient();
+  const [meetings, setMeetings] = useState<Meeting[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchMeetings() {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('meetings')
+        .select('*')
+        .order('date', { ascending: true })
+        .order('time', { ascending: true });
+
+      if (!error && data) {
+        setMeetings(data.map(m => ({
+          ...m,
+          participants: 0, // Mocked for now until guests table is fully integrated
+          host: "Sistema"
+        })));
+      }
+      setLoading(false);
+    }
+    fetchMeetings();
+  }, [supabase]);
+
+  const activeRooms = meetings.filter(m => m.status === 'LIVE' || m.status === 'Agendada').slice(0, 4);
+  const todayMeetings = meetings.filter(m => m.date === new Date().toISOString().split('T')[0]);
+
   return (
     <>
       <div className="space-y-12 animate-in fade-in duration-700">
@@ -66,7 +100,7 @@ export default function MeetingsPage() {
                        <div className="flex justify-between items-start">
                           <div className={cn("px-3 py-1 rounded-md text-[9px] font-black uppercase tracking-widest", 
                             room.status === 'LIVE' ? 'bg-error/10 text-error border border-error/20' : 
-                            room.status === 'WAITING' ? 'bg-lilac/10 text-lilac border border-lilac/20' : 'bg-zinc-800 text-zinc-500'
+                            room.status === 'Agendada' ? 'bg-lilac/10 text-lilac border border-lilac/20' : 'bg-zinc-800 text-zinc-500'
                           )}>
                             {room.status === 'LIVE' && <span className="inline-block w-1.5 h-1.5 bg-error rounded-full mr-2 animate-pulse"></span>}
                             {room.status}
@@ -76,7 +110,7 @@ export default function MeetingsPage() {
 
                        <div className="space-y-2">
                           <h4 className="font-heading text-2xl font-black text-on-surface tracking-tight italic group-hover:text-lilac transition-colors leading-tight">{room.title}</h4>
-                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">ID: {room.id} • Host: {room.host}</p>
+                          <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">ID: {room.id.slice(0, 8)} • Host: {room.host}</p>
                        </div>
 
                        <div className="flex items-center justify-between pt-6 border-t border-outline-variant/10">
@@ -86,7 +120,7 @@ export default function MeetingsPage() {
                                   <div key={j} className="w-8 h-8 rounded-full border-2 border-background bg-surface-container-highest flex items-center justify-center text-[10px] font-black text-zinc-500">P{j}</div>
                                 ))}
                              </div>
-                             <span className="text-[10px] text-zinc-500 font-black">+{room.participants - 3} ativos</span>
+                             <span className="text-[10px] text-zinc-500 font-black">+{room.participants! > 3 ? room.participants! - 3 : 0} ativos</span>
                           </div>
                           <button className={cn("w-12 h-12 flex items-center justify-center rounded-2xl transition-all shadow-2xl", 
                             room.status === 'LIVE' ? 'bg-error text-white shadow-error/20 hover:scale-110' : 'bg-surface-container-highest text-zinc-500'
@@ -97,6 +131,9 @@ export default function MeetingsPage() {
                     </div>
                   </div>
                 ))}
+                {activeRooms.length === 0 && !loading && (
+                   <div className="col-span-full py-12 text-center text-on-surface-variant italic opacity-50">Nenhuma sala ativa encontrada.</div>
+                )}
              </div>
           </div>
 
@@ -109,21 +146,21 @@ export default function MeetingsPage() {
                 </div>
 
                 <div className="space-y-6">
-                   {[
-                     { time: "18:00", title: "Briefing de Encerramento", type: "SINCRONIZAÇÃO" },
-                     { time: "20:30", title: "Treinamento MedCore V2", type: "EDUCAÇÃO" }
-                   ].map((meet, j) => (
+                   {todayMeetings.map((meet, j) => (
                      <div key={j} className="flex gap-5 p-5 bg-surface-container-highest/20 hover:bg-surface-container-highest/40 border border-outline-variant/5 rounded-2xl transition-all cursor-pointer group/item">
                         <div className="flex flex-col items-center justify-center min-w-[60px] border-r border-outline-variant/10 pr-5">
-                           <span className="text-sm font-black text-on-surface font-heading">{meet.time}</span>
+                           <span className="text-sm font-black text-on-surface font-heading">{meet.time?.substring(0, 5)}</span>
                            <span className="text-[8px] font-black text-zinc-600 uppercase">UTC-3</span>
                         </div>
                         <div>
-                           <h5 className="text-[11px] font-black text-lilac uppercase tracking-widest mb-1">{meet.type}</h5>
+                           <h5 className="text-[11px] font-black text-lilac uppercase tracking-widest mb-1">{meet.type || 'SINCRO'}</h5>
                            <p className="text-sm font-bold text-on-surface group-hover/item:text-lilac transition-colors">{meet.title}</p>
                         </div>
                      </div>
                    ))}
+                   {todayMeetings.length === 0 && !loading && (
+                     <p className="text-[10px] text-zinc-600 italic">Sem reuniões para hoje.</p>
+                   )}
                 </div>
 
                 <div className="mt-12 p-6 rounded-2xl bg-surface-container-highest/30 border border-outline-variant/10 flex items-center gap-4">

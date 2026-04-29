@@ -9,12 +9,15 @@ import {
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { sanitize } from "@/lib/sanitize";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 import { useTheme, type Palette as ThemePalette } from "@/modules/shared/context/ThemeContext";
+import { useUser } from "@/modules/shared/context/UserContext";
+import { useEffect } from "react";
 
 function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {
   return (
@@ -36,6 +39,7 @@ function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void 
 
 export default function SettingsPage() {
   const { theme, toggleTheme, palette, setPalette } = useTheme();
+  const { user, refreshUser } = useUser();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>("https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=200&auto=format&fit=crop");
@@ -43,12 +47,27 @@ export default function SettingsPage() {
   const [saved, setSaved] = useState(false);
 
   // Perfil
-  const [nome, setNome] = useState("Dr. Alistair Thorne");
-  const [crm, setCrm] = useState("CRM/SP 123456");
-  const [email, setEmail] = useState("alistair@medcore.com.br");
-  const [cargo, setCargo] = useState("Médico Diretor");
-  const [telefone, setTelefone] = useState("+55 11 99999-9999");
-  const [especialidade, setEspecialidade] = useState("Neurocirurgia");
+  const [nome, setNome] = useState("");
+  const [crm, setCrm] = useState("");
+  const [email, setEmail] = useState("");
+  const [cargo, setCargo] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [especialidade, setEspecialidade] = useState("");
+
+  // Inicializa os dados com base no usuário logado
+  useEffect(() => {
+    if (user) {
+      setNome(user.full_name || "");
+      setCrm(user.crm || "");
+      setEmail(user.email_corporativo || user.email || "");
+      setCargo(user.cargo || "");
+      setTelefone(user.telefone || "");
+      setEspecialidade(user.especialidade || "");
+      if (user.avatar_url) {
+        setAvatarPreview(user.avatar_url);
+      }
+    }
+  }, [user]);
 
   // Notificações
   const [notifs, setNotifs] = useState({
@@ -74,10 +93,39 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    await new Promise(r => setTimeout(r, 1400));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+    
+    // Sanitização dos campos
+    const sanitizedName = sanitize(nome);
+    const sanitizedEmail = sanitize(email);
+    const sanitizedCargo = sanitize(cargo);
+    const sanitizedTelefone = sanitize(telefone);
+    const sanitizedEspecialidade = sanitize(especialidade);
+    const sanitizedCrm = sanitize(crm);
+
+    try {
+      const res = await fetch("/api/user/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          full_name: sanitizedName,
+          email_corporativo: sanitizedEmail,
+          cargo: sanitizedCargo,
+          telefone: sanitizedTelefone,
+          especialidade: sanitizedEspecialidade,
+          crm: sanitizedCrm
+        })
+      });
+
+      if (res.ok) {
+        await refreshUser();
+        setSaved(true);
+        setTimeout(() => setSaved(false), 3000);
+      }
+    } catch (err) {
+      console.error("Erro ao salvar perfil:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const integrations = [

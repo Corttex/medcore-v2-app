@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createClient } from "@/core/supabase/client";
 import { 
   Activity, 
   Users, 
@@ -140,10 +141,64 @@ const MEDICAL_QUOTES = [
 ];
 
 export default function DashboardPage() {
-  const { selectedUnitId, setSelectedUnitId, units } = useDashboardContext();
+  const { selectedUnitId } = useDashboardContext();
   const { theme } = useTheme();
+  const supabase = React.useMemo(() => createClient(), []);
+  
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const activeQuote = MEDICAL_QUOTES[0];
+  const [activeQuote, setActiveQuote] = useState(MEDICAL_QUOTES[0]);
+  const [stats, setStats] = useState({
+    patients: 0,
+    meetings: 0,
+    reminders: 0,
+    criticalAlerts: 0
+  });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Roda uma vez para escolher uma frase aleatória
+    setActiveQuote(MEDICAL_QUOTES[Math.floor(Math.random() * MEDICAL_QUOTES.length)]);
+  }, []);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      setLoading(true);
+      try {
+        // Fetch Patients Count
+        const { count: patientsCount } = await supabase
+          .from('pacientes')
+          .select('*', { count: 'exact', head: true });
+
+        // Fetch Meetings Count (Today)
+        const today = new Date().toISOString().split('T')[0];
+        const { count: meetingsCount } = await supabase
+          .from('meetings')
+          .select('*', { count: 'exact', head: true })
+          .eq('date', today);
+
+        // Fetch Reminders Count (Pending)
+        const { count: remindersCount } = await supabase
+          .from('reminders')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'pending');
+
+        setStats({
+          patients: patientsCount || 0,
+          meetings: meetingsCount || 0,
+          reminders: remindersCount || 0,
+          criticalAlerts: 0 // Implementar lógica real se houver tabela de alertas
+        });
+      } catch (err) {
+        console.error("Erro ao carregar dados do dashboard:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (selectedUnitId) {
+      fetchDashboardData();
+    }
+  }, [selectedUnitId, supabase]);
 
   const handleRelatorioFull = () => {
     setIsGeneratingReport(true);
@@ -250,27 +305,27 @@ export default function DashboardPage() {
         />
         <StatCard 
           title="Total de Pacientes" 
-          value="1,240" 
-          trend="+12%" 
-          description="Fluxo de Atendimento 24h"
+          value={stats.patients.toLocaleString()} 
+          trend="+0" 
+          description="Base de Dados Supabase"
           icon={Users}
           color="brand"
-          chartData={[300, 450, 600, 550, 800, 950, 1240]}
+          chartData={[10, 20, 15, 30, stats.patients]}
         />
         <StatCard 
-          title="Tempo Médio Triagem" 
-          value="4.2m" 
-          trend="-1.5m" 
-          description="SLA de Atendimento Inicial"
-          icon={Clock}
+          title="Reuniões Hoje" 
+          value={stats.meetings.toString()} 
+          trend="0" 
+          description="Sincronização Ativa"
+          icon={Calendar}
           color="emerald"
-          chartData={[8, 7, 6.5, 5.8, 5.2, 4.8, 4.2]}
+          chartData={[1, 2, 0, 3, stats.meetings]}
         />
         <StatCard 
-          title="Alertas Críticos" 
-          value="3" 
-          trend="Estável" 
-          description="Ocorrências de Alta Prioridade"
+          title="Lembretes Pendentes" 
+          value={stats.reminders.toString()} 
+          trend={stats.reminders > 5 ? "Alta" : "Estável"} 
+          description="Ações Prioritárias"
           icon={AlertCircle}
           color="amber"
         />

@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "@/modules/shared/context/ThemeContext";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { sanitize } from "@/lib/sanitize";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -72,11 +73,20 @@ export default function UnitsPage() {
 
   const handleSave = () => {
     if (!form.name.trim()) return;
+
+    const sanitizedForm = {
+      ...form,
+      name: sanitize(form.name),
+      address: sanitize(form.address),
+      responsible: sanitize(form.responsible),
+      phone: sanitize(form.phone),
+    };
+
     if (editingUnit) {
-      setUnits(units.map(u => u.id === editingUnit.id ? { ...editingUnit, ...form } : u));
+      setUnits(units.map(u => u.id === editingUnit.id ? { ...editingUnit, ...sanitizedForm } : u));
     } else {
       const newId = Date.now().toString();
-      setUnits([...units, { ...form, id: newId, active: true }]);
+      setUnits([...units, { ...sanitizedForm, id: newId, active: true }]);
     }
     setShowForm(false);
     setEditingUnit(null);

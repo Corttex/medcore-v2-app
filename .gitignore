@@ -21,3 +21,5 @@ build
 .agent/html_artifacts
 .agent/knowledge
 .agent/scratch
+
+.vercel

@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Plus, AlertTriangle, Clock, FileText, Brain, Loader2, ChevronRight, X, Sparkles, CheckCircle2 } from "lucide-react";
+import { sanitize } from "@/lib/sanitize";
 
 type LegalStatus = "Recebido" | "Análise Interna" | "Enviado ao Jurídico" | "Aguardando Devolutiva" | "Em Resolução" | "Concluído";
 
@@ -87,7 +88,17 @@ export default function LegalPage() {
 
   const saveProcess = () => {
     if (!form.title.trim()) return;
-    const newP: LegalProcess = { ...form, id: Date.now().toString(), status: "Recebido", documents: [], aiAnalysis: "", createdAt: new Date().toISOString().split("T")[0] };
+    
+    const cleanForm = {
+      number: sanitize(form.number),
+      title: sanitize(form.title),
+      description: sanitize(form.description),
+      responsible: sanitize(form.responsible),
+      deadline: sanitize(form.deadline),
+      priority: form.priority
+    };
+
+    const newP: LegalProcess = { ...cleanForm, id: Date.now().toString(), status: "Recebido", documents: [], aiAnalysis: "", createdAt: new Date().toISOString().split("T")[0] };
     setProcesses(prev => [...prev, newP]);
     setShowForm(false);
     setForm({ number: "", title: "", description: "", responsible: "", deadline: "", priority: "Média" });

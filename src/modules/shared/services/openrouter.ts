@@ -1,4 +1,5 @@
 // OpenRouter AI Service — compatível com formato OpenAI
+import { sanitize } from "@/lib/sanitize";
 // Modelos GRATUITOS disponíveis:
 //   - minimax/minimax-m2.5:free   ← padrão atual
 //   - google/gemma-4-31b-it:free
@@ -56,7 +57,8 @@ export async function callAI(
   }
 
   const data: OpenRouterResponse = await response.json();
-  return data.choices[0]?.message?.content ?? "Sem resposta da IA.";
+  const content = data.choices[0]?.message?.content ?? "Sem resposta da IA.";
+  return sanitize(content);
 }
 
 // Prompt pré-fabricado para análise de processos jurídicos

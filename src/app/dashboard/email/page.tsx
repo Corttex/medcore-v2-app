@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Mail, Star, Trash2, Archive, RefreshCw, Reply, Forward, Sparkles, Loader2, Search, Inbox, Send, Plus, X } from "lucide-react";
+import { sanitize } from "@/lib/utils";
 
 type EmailSource = "Gmail" | "Outlook" | "Teams";
 type EmailStatus = "unread" | "read" | "starred" | "archived";
@@ -98,12 +99,36 @@ export default function EmailPage() {
       {tab === "compose" ? (
         <div className="bg-surface rounded-2xl border border-outline-variant/40 shadow-sm p-6 space-y-4 max-w-2xl">
           <h2 className="font-heading font-black text-xl text-on-surface">Novo E-mail</h2>
-          <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="Para: email@destinatario.com" value={compose.to} onChange={e => setCompose({ ...compose, to: e.target.value })}/>
-          <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="Assunto" value={compose.subject} onChange={e => setCompose({ ...compose, subject: e.target.value })}/>
-          <textarea className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary resize-none h-48" placeholder="Mensagem..." value={compose.body} onChange={e => setCompose({ ...compose, body: e.target.value })}/>
+          <input 
+            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" 
+            placeholder="Para: email@destinatario.com" 
+            value={compose.to} 
+            onChange={e => setCompose({ ...compose, to: sanitize(e.target.value) })}
+          />
+          <input 
+            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" 
+            placeholder="Assunto" 
+            value={compose.subject} 
+            onChange={e => setCompose({ ...compose, subject: sanitize(e.target.value) })}
+          />
+          <textarea 
+            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary resize-none h-48" 
+            placeholder="Mensagem..." 
+            value={compose.body} 
+            onChange={e => setCompose({ ...compose, body: sanitize(e.target.value) })}
+          />
           <div className="flex gap-3">
             <button onClick={() => setTab("inbox")} className="px-5 py-3 rounded-2xl border border-outline-variant/50 text-sm font-bold text-on-surface-variant">Cancelar</button>
-            <button className="btn-gradient px-6 py-3 rounded-2xl text-sm font-black flex items-center gap-2"><Send size={16}/> Enviar (OAuth2 necessário)</button>
+            <button 
+              className="btn-gradient px-6 py-3 rounded-2xl text-sm font-black flex items-center gap-2"
+              onClick={() => {
+                // Aqui seria o envio real, já sanitizado
+                console.log("Enviando e-mail sanitizado:", compose);
+                alert("Simulação: E-mail enviado com segurança!");
+              }}
+            >
+              <Send size={16}/> Enviar (OAuth2 necessário)
+            </button>
           </div>
         </div>
       ) : (
@@ -125,7 +150,12 @@ export default function EmailPage() {
             {/* Search */}
             <div className="relative">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"/>
-              <input className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm focus:outline-none focus:border-primary" placeholder="Pesquisar..." value={search} onChange={e => setSearch(e.target.value)}/>
+              <input 
+                className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm focus:outline-none focus:border-primary" 
+                placeholder="Pesquisar..." 
+                value={search} 
+                onChange={e => setSearch(sanitize(e.target.value))}
+              />
             </div>
 
             {displayed.filter(e => e.status !== "archived").map(email => (

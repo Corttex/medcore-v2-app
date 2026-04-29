@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Calendar as CalendarIcon, Clock, MapPin, ChevronLeft, ChevronRight, Plus, Pin, Repeat, X } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { sanitize } from "@/lib/sanitize";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -56,13 +57,19 @@ export default function AgendaPage() {
 
   const handleAdd = () => {
     if (!form.title.trim()) return;
+    
+    // Sanitização de entradas
+    const sanitizedTitle = sanitize(form.title);
+    const sanitizedLocation = sanitize(form.location);
+    const sanitizedAttendees = sanitize(form.attendees);
+
     const newEvent: AgendaEvent = {
       id: Date.now().toString(),
       time: form.time || "09:00",
       duration: form.duration,
-      title: form.title,
-      location: form.location,
-      attendees: form.attendees.split(",").map(a => a.trim()).filter(Boolean),
+      title: sanitizedTitle,
+      location: sanitizedLocation,
+      attendees: sanitizedAttendees.split(",").map(a => a.trim()).filter(Boolean),
       status: "PENDENTE",
       type: form.isFixed ? "FIXO" : form.type,
       isFixed: form.isFixed,

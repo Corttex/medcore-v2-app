@@ -1,22 +1,31 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { FileText, Search, Filter, Folder, Download, Eye, Clock, ShieldCheck, MoreVertical, Plus } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { sanitize } from "@/lib/utils";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const documents = [
-  { name: "Prontuário_Alistair_Core_V2.pdf", type: "PRONTUÁRIO", size: "2.4MB", date: "Hoje, 14:22", status: "AUDITADO", auditor: "IA Alpha" },
-  { name: "Protocolo_Cirurgia_Robotica.docx", type: "PROTOCOLO", size: "1.1MB", date: "Ontem, 09:15", status: "PENDENTE", auditor: "—" },
-  { name: "Relatorio_Faturamento_Q3.xlsx", type: "FINANCEIRO", size: "840KB", date: "12 Nov, 2026", status: "AUDITADO", auditor: "Dr. Thorne" },
-  { name: "Diagnostico_Imagem_LXM_48.zip", type: "EXAME", size: "142MB", date: "10 Nov, 2026", status: "AUDITADO", auditor: "IA Alpha" },
+const initialDocuments = [
+  { name: "Manual_Operacional_MedCore.pdf", type: "SISTEMA", size: "1.2MB", date: "Hoje", status: "AUDITADO", auditor: "Sistema" },
 ];
 
+import { useUser } from "@/modules/shared/context/UserContext";
+
 export default function DocumentsPage() {
+  const { user } = useUser();
+  const [search, setSearch] = useState("");
+  const [documents] = useState(initialDocuments);
+
+  const filteredDocuments = documents.filter(doc => 
+    doc.name.toLowerCase().includes(search.toLowerCase()) || 
+    doc.type.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <>
       <div className="space-y-12 animate-in fade-in duration-700">
@@ -38,7 +47,12 @@ export default function DocumentsPage() {
           <div className="flex items-center gap-4">
              <div className="bg-surface-container-highest/50 px-5 py-3 rounded-2xl border border-outline-variant/10 focus-within:border-lilac/40 transition-all flex items-center group">
                 <Search size={18} className="text-zinc-600 group-focus-within:text-lilac transition-colors" />
-                <input placeholder="Buscar no repositório..." className="bg-transparent border-none focus:ring-0 text-sm ml-3 w-64 text-on-surface" />
+                <input 
+                  placeholder="Buscar no repositório..." 
+                  className="bg-transparent border-none focus:ring-0 text-sm ml-3 w-64 text-on-surface" 
+                  value={search}
+                  onChange={(e) => setSearch(sanitize(e.target.value))}
+                />
              </div>
              <button className="btn-gradient-lilac px-8 py-4 rounded-2xl flex items-center gap-3 hover:shadow-lilac/30 active:scale-95 transition-all text-sm font-heading font-black">
                 <Plus size={20} />

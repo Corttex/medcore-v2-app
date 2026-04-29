@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
   Shield,
   LayoutDashboard,
@@ -193,6 +194,17 @@ const mainModules = [
 
 export default function Home() {
   const [activeDemo, setActiveDemo] = useState(0);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Detecta se voltamos do Google OAuth com código na URL errada
+  useEffect(() => {
+    const code = searchParams.get("code");
+    if (code) {
+      console.log("Detectado código de autenticação na Home, redirecionando para callback...");
+      router.push(`/api/auth/callback?code=${code}`);
+    }
+  }, [searchParams, router]);
 
   return (
     <main className="relative min-h-screen bg-black text-white overflow-x-hidden selection:bg-teal-500 selection:text-black">

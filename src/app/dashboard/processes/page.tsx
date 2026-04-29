@@ -2,6 +2,8 @@
 
 import React, { useState, useRef } from "react";
 import { Plus, Users, MapPin, FileText, Clock, Coffee, Monitor, Download, X, ChevronDown, Loader2, Sparkles } from "lucide-react";
+import { sanitize } from "@/lib/sanitize";
+import { SafeInput } from "@/modules/shared/components/SafeInput";
 
 interface Guest { name: string; role: string; }
 interface Meeting {
@@ -66,17 +68,28 @@ export default function DemandasPage() {
 
   const addGuest = () => {
     if (!guestInput.name.trim()) return;
-    setForm(f => ({ ...f, guests: [...f.guests, { ...guestInput }] }));
+    setForm(f => ({ ...f, guests: [...f.guests, { name: guestInput.name, role: guestInput.role }] }));
     setGuestInput({ name: "", role: "" });
   };
 
   const saveMeeting = () => {
     if (!form.title.trim() || !form.date) return;
+    const sanitizedForm = {
+        ...form,
+        title: form.title,
+        location: form.location,
+        subject: form.subject,
+        agenda: form.agenda,
+        minutes: form.minutes,
+        food: form.food,
+        equipment: form.equipment,
+        deadlines: form.deadlines,
+    };
     if (selected) {
-      setMeetings(m => m.map(x => x.id === selected.id ? { ...form, id: selected.id } : x));
-      setSelected({ ...form, id: selected.id });
+      setMeetings(m => m.map(x => x.id === selected.id ? { ...sanitizedForm, id: selected.id } : x));
+      setSelected({ ...sanitizedForm, id: selected.id });
     } else {
-      const newM = { ...form, id: Date.now().toString() };
+      const newM = { ...sanitizedForm, id: Date.now().toString() };
       setMeetings(m => [...m, newM]);
     }
     setShowForm(false);
@@ -289,12 +302,13 @@ Gere uma ata formal, objetiva e em português brasileiro, com cabeçalho, corpo 
                     {aiLoading ? "Gerando..." : "Gerar com IA"}
                   </button>
                 </div>
-                <textarea
-                  className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary resize-none h-48"
+                <SafeInput
+                  as="textarea"
+                  className="resize-none h-48"
                   placeholder="Registre as notas e decisões da reunião aqui..."
                   value={selected.minutes}
-                  onChange={e => {
-                    const updated = { ...selected, minutes: e.target.value };
+                  onSafeChange={val => {
+                    const updated = { ...selected, minutes: val };
                     setSelected(updated);
                     setMeetings(m => m.map(x => x.id === selected.id ? updated : x));
                   }}
@@ -364,7 +378,7 @@ Gere uma ata formal, objetiva e em português brasileiro, com cabeçalho, corpo 
               <button onClick={() => setShowForm(false)} className="w-8 h-8 rounded-xl bg-surface-container flex items-center justify-center text-on-surface-variant"><X size={16} /></button>
             </div>
 
-            <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="Título da reunião *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
+            <SafeInput placeholder="Título da reunião *" value={form.title} onSafeChange={val => setForm({ ...form, title: val })} />
 
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -389,14 +403,14 @@ Gere uma ata formal, objetiva e em português brasileiro, com cabeçalho, corpo 
               </div>
             </div>
 
-            <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="Local / Link da reunião" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} />
+            <SafeInput placeholder="Local / Link da reunião" value={form.location} onSafeChange={val => setForm({ ...form, location: val })} />
 
             {/* Guests */}
             <div>
               <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-2 block">Convidados</label>
               <div className="flex gap-2 mb-2">
-                <input className="flex-1 bg-surface-container-low border border-outline-variant/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Nome" value={guestInput.name} onChange={e => setGuestInput({ ...guestInput, name: e.target.value })} onKeyDown={e => e.key === "Enter" && addGuest()} />
-                <input className="w-28 bg-surface-container-low border border-outline-variant/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="Cargo" value={guestInput.role} onChange={e => setGuestInput({ ...guestInput, role: e.target.value })} onKeyDown={e => e.key === "Enter" && addGuest()} />
+                <SafeInput className="!px-3 !py-2 !flex-1" placeholder="Nome" value={guestInput.name} onSafeChange={val => setGuestInput({ ...guestInput, name: val })} onKeyDown={e => e.key === "Enter" && addGuest()} />
+                <SafeInput className="!px-3 !py-2 !w-28" placeholder="Cargo" value={guestInput.role} onSafeChange={val => setGuestInput({ ...guestInput, role: val })} onKeyDown={e => e.key === "Enter" && addGuest()} />
                 <button onClick={addGuest} className="px-3 py-2 bg-primary/10 text-primary rounded-xl font-bold text-sm border border-primary/20 hover:bg-primary/20"><Plus size={16} /></button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -409,14 +423,14 @@ Gere uma ata formal, objetiva e em português brasileiro, com cabeçalho, corpo 
               </div>
             </div>
 
-            <textarea className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary resize-none h-20" placeholder="Assunto / Objetivo da reunião" value={form.subject} onChange={e => setForm({ ...form, subject: e.target.value })} />
-            <textarea className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary resize-none h-24" placeholder="Pauta (itens numerados)" value={form.agenda} onChange={e => setForm({ ...form, agenda: e.target.value })} />
+            <SafeInput as="textarea" className="resize-none h-20" placeholder="Assunto / Objetivo da reunião" value={form.subject} onSafeChange={val => setForm({ ...form, subject: val })} />
+            <SafeInput as="textarea" className="resize-none h-24" placeholder="Pauta (itens numerados)" value={form.agenda} onSafeChange={val => setForm({ ...form, agenda: val })} />
 
             <div className="grid grid-cols-2 gap-3">
-              <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="☕ Alimentação" value={form.food} onChange={e => setForm({ ...form, food: e.target.value })} />
-              <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="🖥️ Equipamentos" value={form.equipment} onChange={e => setForm({ ...form, equipment: e.target.value })} />
+              <SafeInput placeholder="☕ Alimentação" value={form.food} onSafeChange={val => setForm({ ...form, food: val })} />
+              <SafeInput placeholder="🖥️ Equipamentos" value={form.equipment} onSafeChange={val => setForm({ ...form, equipment: val })} />
             </div>
-            <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" placeholder="⏰ Prazos e ações definidas" value={form.deadlines} onChange={e => setForm({ ...form, deadlines: e.target.value })} />
+            <SafeInput placeholder="⏰ Prazos e ações definidas" value={form.deadlines} onSafeChange={val => setForm({ ...form, deadlines: val })} />
 
             <div className="flex gap-3 pt-2">
               <button onClick={() => setShowForm(false)} className="flex-1 py-3 rounded-2xl border border-outline-variant/50 text-on-surface-variant text-sm font-bold">Cancelar</button>

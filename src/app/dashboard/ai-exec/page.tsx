@@ -5,6 +5,8 @@ import { BrainCircuit, Send, Sparkles, Activity, ShieldCheck, Zap, ArrowRight, M
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import { sanitize } from "@/lib/sanitize";
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -15,8 +17,24 @@ const aiInsights = [
   { type: "ESTRATÉGICO", content: "Análise de mercado sugere integração imediata com o Hub Regional de Telemedicina para expansão de cobertura.", color: "text-amber-500" },
 ];
 
+import { useUser } from "@/modules/shared/context/UserContext";
+
 export default function AIExecPage() {
+  const { user } = useUser();
   const [input, setInput] = useState("");
+  
+  const initials = user?.full_name 
+    ? user.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+    : "OP";
+    
+  const firstName = user?.full_name ? user.full_name.split(' ')[0] : "Operador";
+  const handleSend = () => {
+    if (!input.trim()) return;
+    const cleanInput = sanitize(input);
+    console.log("AI Command:", cleanInput);
+    // Processamento da IA ocorreria aqui
+    setInput("");
+  };
 
   return (
     <>
@@ -70,7 +88,7 @@ export default function AIExecPage() {
                    <div className="space-y-4">
                       <div className="bg-surface-container-highest/40 border border-outline-variant/5 p-6 rounded-3xl rounded-tl-none">
                          <p className="text-on-surface-variant font-medium leading-relaxed italic">
-                            Saudações, Dr. Thorne. Estou analisando o fluxo VitalFlow de hoje. Detectei um desvio na precisão diagnóstica da ala cardíaca que requer sua atenção. Como deseja proceder?
+                            Saudações, {firstName ? `Dr(a). ${firstName}` : "Operador"}. Estou analisando o fluxo VitalFlow de hoje. Detectei um desvio na precisão diagnóstica da ala cardíaca que requer sua atenção. Como deseja proceder?
                          </p>
                       </div>
                       <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest pl-2">SISTEMA ALPHA CORE • AGORA</p>
@@ -79,7 +97,7 @@ export default function AIExecPage() {
 
                 <div className="flex gap-6 max-w-3xl ml-auto flex-row-reverse">
                    <div className="w-12 h-12 rounded-2xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-zinc-500 shrink-0">
-                      <span className="text-xs font-black">AT</span>
+                      <span className="text-xs font-black">{initials}</span>
                    </div>
                    <div className="space-y-4 text-right">
                       <div className="bg-lilac/20 border border-lilac/20 p-6 rounded-3xl rounded-tr-none">
@@ -87,7 +105,7 @@ export default function AIExecPage() {
                             Execute uma varredura completa nos últimos 12 laudos da ala cardíaca e compare com o protocolo Vital-C3.
                          </p>
                       </div>
-                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest pr-2">DR. ALISTAIR THORNE • HÁ 1MIN</p>
+                      <p className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest pr-2">{user?.full_name || "OPERADOR"} • HÁ 1MIN</p>
                    </div>
                 </div>
 
@@ -120,10 +138,15 @@ export default function AIExecPage() {
                    <input 
                      value={input}
                      onChange={(e) => setInput(e.target.value)}
+                     onKeyDown={(e) => e.key === "Enter" && handleSend()}
                      placeholder="Ex: Gere um resumo executivo das demandas críticas desta semana..." 
                      className="w-full bg-surface-container-highest/50 border-2 border-lilac/30 hover:border-lilac/50 focus:border-lilac focus:ring-4 focus:ring-lilac/10 focus:outline-none h-16 px-6 pr-20 rounded-2xl text-sm text-on-surface transition-all duration-300 placeholder:text-outline-variant/50 font-medium"
                    />
-                   <button className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-lilac text-white rounded-xl flex items-center justify-center hover:shadow-[0_0_20px_rgba(167,139,250,0.5)] hover:scale-110 active:scale-95 transition-all group/btn">
+                   <button 
+                     onClick={handleSend}
+                     disabled={!input.trim()}
+                     className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-lilac text-white rounded-xl flex items-center justify-center hover:shadow-[0_0_20px_rgba(167,139,250,0.5)] hover:scale-110 active:scale-95 transition-all group/btn disabled:opacity-50"
+                   >
                       <Send size={18} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                    </button>
                 </div>

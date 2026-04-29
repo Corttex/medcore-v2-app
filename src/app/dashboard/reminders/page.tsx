@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Bell, Plus, Repeat, Calendar, Clock, CheckCircle2, Trash2, MessageCircle, Mail, AlertTriangle, Pin } from "lucide-react";
+import { createClient } from "@/core/supabase/client";
+import { SafeInput } from "@/modules/shared/components/SafeInput";
 
 type ReminderType = "once" | "weekly" | "monthly" | "yearly";
 type ReminderStatus = "pending" | "done";
@@ -19,6 +21,7 @@ interface Reminder {
   whatsappNumber: string;
   email: string;
   isFixed: boolean;
+  user_id?: string;
 }
 
 const TYPE_CONFIG: Record<ReminderType, { label: string; icon: string }> = {
@@ -28,12 +31,6 @@ const TYPE_CONFIG: Record<ReminderType, { label: string; icon: string }> = {
   yearly:  { label: "Anual",     icon: "🗓️" },
 };
 
-const initialReminders: Reminder[] = [
-  { id: "1", title: "Renovação Licença ANVISA", description: "Verificar status e protocolar renovação antecipada.", date: "2026-05-10", time: "09:00", type: "yearly", status: "pending", notifyEmail: true, notifyWhatsapp: false, whatsappNumber: "", email: "adm@hospital.com", isFixed: true },
-  { id: "2", title: "Reunião Semanal de Diretoria", description: "Segunda-feira às 8h — Sala de Conferência A", date: "2026-04-14", time: "08:00", type: "weekly", status: "pending", notifyEmail: false, notifyWhatsapp: true, whatsappNumber: "5511999990000", email: "", isFixed: true },
-  { id: "3", title: "Envio de Relatório ao Conselho", description: "Relatório mensal de indicadores clínicos.", date: "2026-04-30", time: "17:00", type: "monthly", status: "pending", notifyEmail: true, notifyWhatsapp: false, whatsappNumber: "", email: "conselho@hospital.com", isFixed: false },
-];
-
 function daysUntil(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -42,7 +39,9 @@ function daysUntil(dateStr: string): number {
 }
 
 export default function RemindersPage() {
-  const [reminders, setReminders] = useState<Reminder[]>(initialReminders);
+  const supabase = createClient();
+  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState<"all" | "fixed" | "once">("all");
   const [form, setForm] = useState<Omit<Reminder, "id" | "status">>({
@@ -50,15 +49,88 @@ export default function RemindersPage() {
     notifyEmail: false, notifyWhatsapp: false, whatsappNumber: "", email: "", isFixed: false,
   });
 
-  const handleSave = () => {
-    if (!form.title.trim() || !form.date) return;
-    setReminders([...reminders, { ...form, id: Date.now().toString(), status: "pending" }]);
-    setShowForm(false);
-    setForm({ title: "", description: "", date: "", time: "", type: "once", notifyEmail: false, notifyWhatsapp: false, whatsappNumber: "", email: "", isFixed: false });
+  useEffect(() => {
+    fetchReminders();
+  }, []);
+
+  const fetchReminders = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("reminders")
+      .select("*")
+      .order("date", { ascending: true });
+    
+    if (error) {
+      console.error("Error fetching reminders:", error);
+    } else if (data) {
+      setReminders(data.map(r => ({
+        ...r,
+        notifyEmail: r.notify_email,
+        notifyWhatsapp: r.notify_whatsapp,
+        whatsappNumber: r.whatsapp_number,
+        isFixed: r.is_fixed,
+        type: r.type as ReminderType,
+        status: r.status as ReminderStatus
+      })));
+    }
+    setLoading(false);
   };
 
-  const toggleDone = (id: string) => setReminders(reminders.map(r => r.id === id ? { ...r, status: r.status === "done" ? "pending" : "done" } : r));
-  const deleteReminder = (id: string) => setReminders(reminders.filter(r => r.id !== id));
+  const handleSave = async () => {
+    if (!form.title.trim() || !form.date) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const newReminder = {
+      title: form.title,
+      description: form.description,
+      date: form.date,
+      time: form.time || null,
+      type: form.type,
+      status: "pending",
+      notify_email: form.notifyEmail,
+      notify_whatsapp: form.notifyWhatsapp,
+      whatsapp_number: form.whatsappNumber,
+      email: form.email,
+      is_fixed: form.isFixed,
+      user_id: user.id
+    };
+
+    const { error } = await supabase
+      .from("reminders")
+      .insert([newReminder]);
+
+    if (error) {
+      console.error("Error saving reminder:", error);
+      alert("Erro ao salvar lembrete.");
+    } else {
+      fetchReminders();
+      setShowForm(false);
+      setForm({ title: "", description: "", date: "", time: "", type: "once", notifyEmail: false, notifyWhatsapp: false, whatsappNumber: "", email: "", isFixed: false });
+    }
+  };
+
+  const toggleDone = async (reminder: Reminder) => {
+    const newStatus = reminder.status === "done" ? "pending" : "done";
+    const { error } = await supabase
+      .from("reminders")
+      .update({ status: newStatus })
+      .eq("id", reminder.id);
+    
+    if (error) console.error("Error updating status:", error);
+    else fetchReminders();
+  };
+
+  const deleteReminder = async (id: string) => {
+    const { error } = await supabase
+      .from("reminders")
+      .delete()
+      .eq("id", id);
+    
+    if (error) console.error("Error deleting reminder:", error);
+    else fetchReminders();
+  };
 
   const sendWhatsApp = (r: Reminder) => {
     const msg = encodeURIComponent(`🔔 Lembrete MedCore\n\n*${r.title}*\n${r.description}\n📅 ${new Date(r.date).toLocaleDateString("pt-BR")} às ${r.time}`);
@@ -116,8 +188,8 @@ export default function RemindersPage() {
         <div className="fixed inset-0 bg-on-surface/30 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-surface rounded-3xl border border-outline-variant/40 shadow-2xl w-full max-w-lg p-8 space-y-4 animate-in fade-in zoom-in-95 max-h-[90vh] overflow-y-auto">
             <h2 className="font-heading text-2xl font-black text-on-surface">Novo Lembrete</h2>
-            <input className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary" placeholder="Título *" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
-            <textarea className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm text-on-surface focus:outline-none focus:border-primary resize-none h-20" placeholder="Descrição..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} />
+            <SafeInput placeholder="Título *" value={form.title} onSafeChange={val => setForm({ ...form, title: val })} />
+            <SafeInput as="textarea" className="resize-none h-20" placeholder="Descrição..." value={form.description} onSafeChange={val => setForm({ ...form, description: val })} />
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest mb-1 block">Data *</label>
@@ -150,7 +222,7 @@ export default function RemindersPage() {
                 <span className="text-sm text-on-surface">Enviar por Email</span>
               </label>
               {form.notifyEmail && (
-                <input className="w-full bg-surface border border-outline-variant/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="email@hospital.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} />
+                <SafeInput className="!px-3 !py-2" placeholder="email@hospital.com" value={form.email} onSafeChange={val => setForm({ ...form, email: val })} />
               )}
               <label className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" className="w-4 h-4 accent-primary" checked={form.notifyWhatsapp} onChange={e => setForm({ ...form, notifyWhatsapp: e.target.checked })} />
@@ -158,7 +230,7 @@ export default function RemindersPage() {
                 <span className="text-sm text-on-surface">Enviar por WhatsApp</span>
               </label>
               {form.notifyWhatsapp && (
-                <input className="w-full bg-surface border border-outline-variant/50 rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-primary" placeholder="55119999... (com código do país)" value={form.whatsappNumber} onChange={e => setForm({ ...form, whatsappNumber: e.target.value })} />
+                <SafeInput className="!px-3 !py-2" placeholder="55119999... (com código do país)" value={form.whatsappNumber} onSafeChange={val => setForm({ ...form, whatsappNumber: val })} />
               )}
             </div>
 
@@ -178,7 +250,7 @@ export default function RemindersPage() {
           const isOverdue = days < 0 && reminder.status === "pending";
           return (
             <div key={reminder.id} className={`group flex items-start gap-4 p-5 bg-surface rounded-2xl border transition-all shadow-sm ${reminder.status === "done" ? "opacity-50 border-outline-variant/30" : isOverdue ? "border-error/40 bg-red-50/50" : isUrgent ? "border-amber-400/40 bg-amber-50/50" : "border-outline-variant/40 hover:shadow-md"}`}>
-              <button onClick={() => toggleDone(reminder.id)} className="mt-0.5 shrink-0">
+              <button onClick={() => toggleDone(reminder)} className="mt-0.5 shrink-0">
                 <CheckCircle2 size={20} className={reminder.status === "done" ? "text-emerald-500" : "text-outline-variant"} />
               </button>
 

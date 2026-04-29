@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Link as LinkIcon, ShieldCheck, Copy, Check, Clock, Globe } from "lucide-react";
+import { sanitize } from "@/lib/sanitize";
 
 type ExecutiveRole = "Diretor" | "Auditor" | "Jurídico";
 
@@ -17,7 +18,8 @@ export function AccessLinkGenerator() {
     // Simulação de geração de token (Em prod isso seria salvo no DB via access_links)
     const token = Math.random().toString(36).substring(2, 15);
     const baseUrl = window.location.origin;
-    setGeneratedLink(`${baseUrl}/shared/${token}?role=${role.toLowerCase()}`);
+    const cleanRole = sanitize(role);
+    setGeneratedLink(`${baseUrl}/shared/${token}?role=${cleanRole.toLowerCase()}`);
   };
 
   const copyToClipboard = () => {

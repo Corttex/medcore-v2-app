@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Mail, Lock, User, Loader2, UserPlus, ShieldCheck, ArrowRight, Zap, Activity } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/modules/shared/components/Logo";
+import { sanitize } from "@/lib/sanitize";
 
 export function RegisterForm() {
   const [email, setEmail] = useState("");
@@ -39,7 +40,11 @@ export function RegisterForm() {
 
     setLoading(true);
     try {
-      await authService.signUp(email, password, fullName);
+      const cleanEmail = sanitize(email);
+      const cleanPassword = sanitize(password);
+      const cleanFullName = sanitize(fullName);
+      
+      await authService.signUp(cleanEmail, cleanPassword, cleanFullName);
       // MOCK O usuário já entra no dashboard nativamente
       router.push("/dashboard");
     } catch (err: any) {

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { createClient } from "@/core/supabase/client";
 
 export interface Unit {
   id: string;
@@ -8,12 +9,6 @@ export interface Unit {
   type: string;
   active: boolean;
 }
-
-const MOCK_UNITS: Unit[] = [
-  { id: "1", name: "Hospital Central São Lucas", type: "Hospital", active: true },
-  { id: "2", name: "UPA Norte", type: "UPA", active: true },
-  { id: "3", name: "Clínica Sul", type: "Clínica", active: true },
-];
 
 interface DashboardContextType {
   isMobileMenuOpen: boolean;
@@ -28,8 +23,26 @@ const DashboardContext = createContext<DashboardContextType | undefined>(undefin
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>("1"); // Inicia com unidade padrão
-  const [units] = useState<Unit[]>(MOCK_UNITS);
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const supabase = React.useMemo(() => createClient(), []);
+
+  React.useEffect(() => {
+    async function fetchUnits() {
+      const { data, error } = await supabase
+        .from('units')
+        .select('*')
+        .eq('active', true);
+      
+      if (!error && data) {
+        setUnits(data);
+        if (data.length > 0 && !selectedUnitId) {
+          setSelectedUnitId(data[0].id);
+        }
+      }
+    }
+    fetchUnits();
+  }, [supabase, selectedUnitId]);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 

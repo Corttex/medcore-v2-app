@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { Plus, Upload, Camera, FileText, CheckCircle2, Clock, AlertTriangle, X, Loader2, Sparkles, Share2, Download, Building2 } from "lucide-react";
+import { sanitize } from "@/lib/sanitize";
 
 type AccountStatus = "Em Aberto" | "Pago" | "Aguardando NF" | "Aguardando Recibo" | "Contestado";
 type AccountCategory = "ENERGIA" | "AGUA_ESGOTO" | "TELEFONE_INTERNET" | "LICENCA_ANVISA" | "LICENCA_VIGILANCIA" | "MANUTENCAO" | "EQUIPAMENTOS" | "INSUMOS_MEDICOS" | "FOLHA_PAGAMENTO" | "SERVICOS_TERCEIROS" | "OUTROS";
@@ -84,7 +85,19 @@ export default function AccountsPage() {
 
   const saveAccount = () => {
     if (!form.title.trim()) return;
-    const newAccount: Account = { ...form, id: Date.now().toString(), imageUrl: preview, createdAt: new Date().toISOString().split("T")[0], aiCategory: "" };
+
+    const newAccount: Account = { 
+      ...form, 
+      title: sanitize(form.title),
+      supplier: sanitize(form.supplier),
+      value: sanitize(form.value),
+      unit: sanitize(form.unit),
+      notes: sanitize(form.notes),
+      id: Date.now().toString(), 
+      imageUrl: preview, 
+      createdAt: new Date().toISOString().split("T")[0], 
+      aiCategory: "" 
+    };
     setAccounts(prev => [...prev, newAccount]);
     setShowForm(false);
     setForm(emptyForm);

@@ -10,6 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import Link from "next/link";
+import { useUser } from "@/modules/shared/context/UserContext";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -39,6 +40,7 @@ export function DashboardHeader() {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
+  const { user, logout: handleLogout } = useUser();
   const currentTitle = routeTitles[pathname] || "Dashboard";
   
   const [showNotifications, setShowNotifications] = useState(false);
@@ -191,18 +193,31 @@ export function DashboardHeader() {
             className="flex items-center gap-3 md:gap-4 transition-all group cursor-pointer hover:opacity-80"
           >
             <div className="text-right hidden sm:block flex-shrink-0">
-              <p className="text-sm font-black text-on-surface font-heading leading-tight truncate">Dr. Thorne</p>
-              <p className="text-[10px] text-brand font-black uppercase tracking-[0.2em] mt-0.5 truncate">CMO</p>
+              <p className="text-sm font-black text-on-surface font-heading leading-tight truncate">
+                {user?.full_name || user?.email?.split("@")[0] || "Operador"}
+              </p>
+              <p className="text-[10px] text-brand font-black uppercase tracking-[0.2em] mt-0.5 truncate">
+                {user?.role || "Acesso"}
+              </p>
             </div>
             <div className="relative shrink-0">
-              <img 
-                src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=2070&auto=format&fit=crop" 
-                alt="Dr. Alistair Thorne" 
-                className={cn(
-                  "w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover ring-2 shadow-md transition-all",
+              {user?.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={user.full_name || "Perfil"} 
+                  className={cn(
+                    "w-10 h-10 md:w-12 md:h-12 rounded-xl object-cover ring-2 shadow-md transition-all",
+                    showProfileMenu ? "ring-brand" : "ring-brand/20 group-hover:ring-brand/50"
+                  )}
+                />
+              ) : (
+                <div className={cn(
+                  "w-10 h-10 md:w-12 md:h-12 rounded-xl bg-brand/10 flex items-center justify-center text-brand font-black ring-2 transition-all",
                   showProfileMenu ? "ring-brand" : "ring-brand/20 group-hover:ring-brand/50"
-                )}
-              />
+                )}>
+                  {user?.full_name?.charAt(0) || user?.email?.charAt(0) || "U"}
+                </div>
+              )}
               <div className="absolute -bottom-1 -right-1 w-3 h-3 md:w-4 md:h-4 bg-emerald-500 rounded-full border-2 border-white shadow-lg"></div>
             </div>
           </div>
@@ -211,6 +226,11 @@ export function DashboardHeader() {
             <div className="absolute right-0 mt-3 w-56 bg-surface border border-outline-variant/60 rounded-2xl shadow-xl p-2 animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
               <div className="px-3 py-2 mb-2 border-b border-outline-variant/30">
                 <p className="text-xs font-black text-on-surface font-heading uppercase tracking-widest">Painel Pessoal</p>
+                {user?.id && (
+                  <p className="text-[8px] text-zinc-500 font-mono mt-1 break-all select-all" title="Seu identificador único (UUID)">
+                    ID: {user.id}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <Link 
@@ -231,8 +251,8 @@ export function DashboardHeader() {
                 </Link>
                 <div className="h-[1px] bg-outline-variant/30 my-1 mx-2"></div>
                 <button 
-                  onClick={() => { /* Logout logic */ }}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-error hover:bg-error/10 transition-all"
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-error hover:bg-error/10 transition-all w-full"
                 >
                   <AlertTriangle size={16} />
                   Encerrar Sessão
