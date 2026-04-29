@@ -62,7 +62,7 @@ export default function RegisterPage() {
         <div className="absolute top-[20%] right-[-10%] w-[50%] h-[50%] bg-violet-600/10 rounded-full blur-[150px] pointer-events-none"></div>
         <div className="absolute bottom-[20%] left-[-10%] w-[40%] h-[40%] bg-teal-600/5 rounded-full blur-[120px] pointer-events-none"></div>
 
-        <div className="w-full max-w-[360px] relative z-10 flex flex-col items-center animate-in fade-in slide-in-from-right-8 duration-700 delay-200">
+        <div className="w-full max-w-[480px] relative z-10 flex flex-col items-center animate-in fade-in slide-in-from-right-8 duration-700 delay-200">
           <div className="lg:hidden mb-12">
             <Logo />
           </div>

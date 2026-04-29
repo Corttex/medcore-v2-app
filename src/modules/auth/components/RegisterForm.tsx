@@ -72,10 +72,10 @@ export function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-[360px] mx-auto animate-in fade-in zoom-in-95 duration-700">
+    <div className="w-full max-w-[440px] mx-auto animate-in fade-in zoom-in-95 duration-700">
       <div className="mb-4 flex flex-col items-center">
         <Logo width={160} height={48} />
-        <p className="mt-1 text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 italic">
+        <p className="mt-1 text-xs font-black uppercase tracking-[0.2em] text-zinc-500 italic">
           Seu painel totalmente personalizado
         </p>
       </div>
@@ -90,7 +90,7 @@ export function RegisterForm() {
 
           <form onSubmit={handleRegister} className="space-y-3">
             <div className="space-y-1 group">
-              <label className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Nome Completo</label>
+              <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Nome Completo</label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-brand transition-colors" size={14} />
                 <input
@@ -98,14 +98,14 @@ export function RegisterForm() {
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-10 pl-9 pr-4 text-white text-xs outline-none transition-all placeholder:text-zinc-700"
+                  className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-12 pl-9 pr-4 text-white text-sm outline-none transition-all placeholder:text-zinc-600"
                   placeholder="Maria Silva"
                 />
               </div>
             </div>
 
             <div className="space-y-1 group">
-              <label className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">E-mail Corporativo</label>
+              <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">E-mail Corporativo</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-brand transition-colors" size={14} />
                 <input
@@ -113,7 +113,7 @@ export function RegisterForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-10 pl-9 pr-4 text-white text-xs outline-none transition-all placeholder:text-zinc-700"
+                  className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-12 pl-9 pr-4 text-white text-sm outline-none transition-all placeholder:text-zinc-600"
                   placeholder="voce@hospital.com.br"
                 />
               </div>
@@ -121,7 +121,7 @@ export function RegisterForm() {
 
             <div className="grid grid-cols-2 gap-3">
                <div className="space-y-1 group">
-                  <label className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Senha</label>
+                  <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Senha</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-brand transition-colors" size={14} />
                     <input
@@ -129,13 +129,13 @@ export function RegisterForm() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-10 pl-9 pr-2 text-white text-xs outline-none transition-all placeholder:text-zinc-700"
+                      className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-12 pl-9 pr-2 text-white text-sm outline-none transition-all placeholder:text-zinc-600"
                       placeholder="••••••••"
                     />
                   </div>
                </div>
                <div className="space-y-1 group">
-                  <label className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Repetir Senha</label>
+                  <label className="text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">Repetir Senha</label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 group-focus-within:text-brand transition-colors" size={14} />
                     <input
@@ -143,7 +143,7 @@ export function RegisterForm() {
                       required
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-10 pl-9 pr-2 text-white text-xs outline-none transition-all placeholder:text-zinc-700"
+                      className="w-full bg-zinc-900 border border-zinc-800 focus:border-brand focus:ring-2 focus:ring-brand/10 rounded-xl h-12 pl-9 pr-2 text-white text-sm outline-none transition-all placeholder:text-zinc-600"
                       placeholder="••••••••"
                     />
                   </div>
@@ -152,7 +152,7 @@ export function RegisterForm() {
 
             {/* Password Real-time Visual Rules */}
             {password.length > 0 && (
-              <div className="flex justify-between text-[8px] font-black uppercase tracking-widest px-1 mt-1">
+              <div className="flex justify-between text-[10px] font-black uppercase tracking-widest px-1 mt-1">
                 <span className={password.length >= 8 ? "text-emerald-500" : "text-zinc-600 transition-colors"}>8+ Caracteres</span>
                 <span className={/[A-Z]/.test(password) ? "text-emerald-500" : "text-zinc-600 transition-colors"}>1 Maiúscula</span>
                 <span className={/[0-9]/.test(password) ? "text-emerald-500" : "text-zinc-600 transition-colors"}>1 Número</span>
@@ -168,8 +168,8 @@ export function RegisterForm() {
                 onChange={(e) => setTermsAccepted(e.target.checked)}
                 className="mt-0.5 accent-brand w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-900 shrink-0 cursor-pointer"
               />
-              <label htmlFor="terms_register" className="text-[9px] text-zinc-400 font-medium leading-tight cursor-pointer">
-                Li e concordo com os <Link href="/terms" className="text-brand font-bold hover:underline">Termos de Uso</Link> e <Link href="/privacy" className="text-brand font-bold hover:underline">Política de Privacidade</Link>.
+              <label htmlFor="terms_register" className="text-xs text-zinc-400 font-medium leading-tight cursor-pointer">
+                Li e concordo com os <Link href="/termos" className="text-brand font-bold hover:underline">Termos de Uso</Link> e <Link href="/privacidade" className="text-brand font-bold hover:underline">Política de Privacidade</Link>.
                 <span className="block mt-0.5 text-zinc-500">Obrigatório para acesso à plataforma.</span>
               </label>
             </div>
@@ -183,7 +183,7 @@ export function RegisterForm() {
             <button
               type="submit"
               disabled={loading || !termsAccepted}
-              className="w-full flex items-center justify-center gap-2 h-11 rounded-xl bg-brand-container hover:bg-brand text-white font-black text-xs transition-all disabled:opacity-50 disabled:grayscale shadow-xl shadow-brand/10 active:scale-[0.98] group"
+              className="w-full flex items-center justify-center gap-2 h-13 rounded-xl bg-brand-container hover:bg-brand text-white font-black text-sm transition-all disabled:opacity-50 disabled:grayscale shadow-xl shadow-brand/10 active:scale-[0.98] group"
             >
               {loading ? (
                 <Loader2 className="animate-spin" size={16} />
@@ -199,7 +199,7 @@ export function RegisterForm() {
 
           <div className="relative flex items-center py-3">
             <div className="flex-grow border-t border-zinc-800" />
-            <span className="flex-shrink mx-3 text-zinc-600 text-[8px] uppercase tracking-[0.4em] font-black">ou continue</span>
+            <span className="flex-shrink mx-3 text-zinc-600 text-[10px] uppercase tracking-[0.4em] font-black">ou continue</span>
             <div className="flex-grow border-t border-zinc-800" />
           </div>
 
@@ -207,7 +207,7 @@ export function RegisterForm() {
             type="button"
             onClick={handleGoogleSignIn}
             disabled={googleLoading}
-            className="w-full flex items-center justify-center gap-2 h-11 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-brand/40 text-xs font-black text-white/80 hover:text-white transition-all disabled:opacity-50 disabled:grayscale group shadow-inner mb-5"
+            className="w-full flex items-center justify-center gap-2 h-13 rounded-xl border border-zinc-800 bg-zinc-900/50 hover:bg-zinc-800 hover:border-brand/40 text-sm font-black text-white/80 hover:text-white transition-all disabled:opacity-50 disabled:grayscale group shadow-inner mb-5"
           >
             {googleLoading ? (
               <Loader2 size={16} className="animate-spin text-zinc-400" />
@@ -225,13 +225,13 @@ export function RegisterForm() {
               <div className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-brand opacity-80 mb-0.5">
                 <ShieldCheck size={8} /> Precisão
               </div>
-              <div className="font-heading font-black text-xs text-white">99.9%</div>
+              <div className="font-heading font-black text-sm text-white">99.9%</div>
             </div>
             <div className="flex flex-col items-center justify-center text-center border-l border-zinc-800/50">
               <div className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-brand opacity-80 mb-0.5">
                 <Zap size={8} /> Latência
               </div>
-              <div className="font-heading font-black text-xs text-white">&lt;12ms</div>
+              <div className="font-heading font-black text-sm text-white">&lt;12ms</div>
             </div>
             <div className="flex flex-col items-center justify-center text-center border-l border-zinc-800/50">
               <div className="flex items-center gap-1 text-[8px] font-black uppercase tracking-widest text-brand opacity-80 mb-0.5">
@@ -239,7 +239,7 @@ export function RegisterForm() {
               </div>
               <div className="flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-brand shadow-[0_0_6px_var(--color-brand)] animate-pulse"></span>
-                <span className="font-heading font-black text-[9px] uppercase tracking-tighter text-white">Active</span>
+                <span className="font-heading font-black text-xs uppercase tracking-tighter text-white">Active</span>
               </div>
             </div>
           </div>
