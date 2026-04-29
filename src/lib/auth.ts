@@ -6,7 +6,7 @@ const secret = new TextEncoder().encode(
   process.env.JWT_SECRET || "fallback-secret-key-replace-in-prod"
 );
 
-export const SESSION_EXPIRATION = 3 * 60 * 1000; // 3 minutos em ms
+export const SESSION_EXPIRATION = 8 * 60 * 60 * 1000; // 8 horas em ms
 
 /**
  * Cria um novo token de sessão JWT.
@@ -15,7 +15,7 @@ export async function encrypt(payload: any) {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("3m")
+    .setExpirationTime("8h")
     .sign(secret);
 }
 
