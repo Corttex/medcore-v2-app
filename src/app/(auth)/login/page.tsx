@@ -3,6 +3,7 @@
 import { LoginForm } from "@/modules/auth/components/LoginForm";
 import { Logo } from "@/modules/shared/components/Logo";
 import { ShieldCheck, Activity, Lock, Globe, Cpu, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (
