@@ -2,7 +2,13 @@ import { NextResponse, type NextRequest } from "next/server";
 import { decrypt } from "@/lib/auth";
 
 // Whitelist de rotas públicas
-const publicRoutes = ["/login", "/register", "/api/auth/login", "/api/auth/register", "/api/auth/callback", "/favicon.ico", "/images"];
+const publicRoutes = [
+  "/login", "/register",
+  "/api/auth/login", "/api/auth/register", "/api/auth/callback",
+  "/favicon.ico", "/images",
+  "/termos", "/privacidade", "/suporte",
+  "/terms", "/privacy",
+];
 
 export async function middleware(request: NextRequest) {
   const { nextUrl } = request;
