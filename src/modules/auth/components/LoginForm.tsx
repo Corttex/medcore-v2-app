@@ -86,12 +86,12 @@ export function LoginForm() {
         <form onSubmit={handleLogin} className="space-y-5">
           <div className="space-y-4">
             <div className="space-y-2 group">
-              <label className="block text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2" htmlFor="email">
+              <label className="block text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-2" htmlFor="email">
                 E-mail Corporativo
               </label>
               <div className="relative">
                 <input 
-                  className="w-full bg-zinc-900/50 border border-white/5 focus:border-brand/50 focus:ring-4 focus:ring-brand/5 focus:outline-none h-12 px-5 rounded-2xl text-xs text-white transition-all duration-300 placeholder:text-zinc-700 font-medium"
+                  className="w-full bg-zinc-900/50 border border-white/5 focus:border-brand/50 focus:ring-4 focus:ring-brand/5 focus:outline-none h-13 px-5 rounded-2xl text-sm text-white transition-all duration-300 placeholder:text-zinc-600 font-medium"
                   id="email" 
                   placeholder="Seu e-mail profissional" 
                   type="email"
@@ -105,16 +105,16 @@ export function LoginForm() {
 
             <div className="space-y-2 group">
               <div className="flex justify-between items-center px-2">
-                <label className="block text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]" htmlFor="password">
+                <label className="block text-[11px] font-black text-zinc-500 uppercase tracking-[0.2em]" htmlFor="password">
                   Senha Operacional
                 </label>
-                <Link className="text-[9px] font-black text-brand/60 hover:text-brand transition-colors uppercase tracking-[0.2em] underline underline-offset-4" href="#">
+                <Link className="text-[11px] font-black text-brand/60 hover:text-brand transition-colors uppercase tracking-[0.2em] underline underline-offset-4" href="#">
                   Esqueceu a senha?
                 </Link>
               </div>
               <div className="relative">
                 <input 
-                  className="w-full bg-zinc-900/50 border border-white/5 focus:border-brand/50 focus:ring-4 focus:ring-brand/5 focus:outline-none h-12 px-5 rounded-2xl text-xs text-white transition-all duration-300 placeholder:text-zinc-700"
+                  className="w-full bg-zinc-900/50 border border-white/5 focus:border-brand/50 focus:ring-4 focus:ring-brand/5 focus:outline-none h-13 px-5 rounded-2xl text-sm text-white transition-all duration-300 placeholder:text-zinc-600"
                   id="password" 
                   placeholder="••••••••••••" 
                   type="password"
@@ -137,13 +137,13 @@ export function LoginForm() {
                 className="accent-brand w-4 h-4 rounded-md border-white/10 bg-zinc-900 cursor-pointer"
               />
             </div>
-            <label htmlFor="terms" className="text-[9px] text-zinc-500 font-medium leading-normal cursor-pointer select-none">
+            <label htmlFor="terms" className="text-xs text-zinc-500 font-medium leading-normal cursor-pointer select-none">
               Confirmo estar ciente das <Link href="/termos" className="text-brand font-bold">políticas de segurança</Link> e <Link href="/privacidade" className="text-brand font-bold">privacidade</Link>.
             </label>
           </div>
 
           <button 
-            className="w-full bg-brand hover:bg-brand-container h-12 rounded-2xl font-heading font-black text-[11px] text-white uppercase tracking-widest shadow-2xl shadow-brand/20 flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale group/btn" 
+            className="w-full bg-brand hover:bg-brand-container h-13 rounded-2xl font-heading font-black text-sm text-white uppercase tracking-widest shadow-2xl shadow-brand/20 flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale group/btn" 
             type="submit"
             disabled={loading || !termsAccepted}
           >
@@ -167,7 +167,7 @@ export function LoginForm() {
             type="button"
             onClick={handleGoogleLogin}
             disabled={loading || !termsAccepted}
-            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 h-12 rounded-2xl font-heading font-black text-[11px] text-white uppercase tracking-widest flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale group/google"
+            className="w-full bg-white/5 hover:bg-white/10 border border-white/10 h-13 rounded-2xl font-heading font-black text-sm text-white uppercase tracking-widest flex items-center justify-center gap-3 active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale group/google"
           >
             <svg className="w-4 h-4 transition-transform group-hover/google:scale-110" viewBox="0 0 24 24">
               <path
