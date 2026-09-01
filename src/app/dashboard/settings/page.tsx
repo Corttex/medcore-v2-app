@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { PinSettings } from "@/modules/auth/components/PinSettings";
+import { PinSettings } from "@/features/auth/components/PinSettings";
 import { 
   Shield, User, Bell, Palette, Camera, Globe, Monitor, Moon, Sun, Smartphone, 
   ChevronRight, Link2, Mail, Apple, Wifi, Check, Loader2, Save,
@@ -15,8 +15,8 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-import { useTheme, type Palette as ThemePalette } from "@/modules/shared/context/ThemeContext";
-import { useUser } from "@/modules/shared/context/UserContext";
+import { useTheme, type Palette as ThemePalette } from "@/context/ThemeContext";
+import { useUser } from "@/context/UserContext";
 import { useEffect } from "react";
 
 function Toggle({ enabled, onToggle }: { enabled: boolean; onToggle: () => void }) {

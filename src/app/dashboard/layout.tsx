@@ -1,9 +1,9 @@
-import { DashboardSidebar } from "@/modules/dashboard/components/DashboardSidebar";
-import { DashboardHeader } from "@/modules/dashboard/components/DashboardHeader";
-import { DashboardProvider } from "@/modules/dashboard/context/DashboardContext";
-import { PlanProvider } from "@/modules/shared/context/PlanContext";
-import { ModuleProvider } from "@/modules/shared/context/ModuleContext";
-import { UnitGate } from "@/modules/dashboard/components/UnitGate";
+import { DashboardSidebar } from "@/features/dashboard/components/DashboardSidebar";
+import { DashboardHeader } from "@/features/dashboard/components/DashboardHeader";
+import { DashboardProvider } from "@/features/dashboard/context/DashboardContext";
+import { PlanProvider } from "@/context/PlanContext";
+import { ModuleProvider } from "@/context/ModuleContext";
+import { UnitGate } from "@/features/dashboard/components/UnitGate";
 
 export default function DashboardLayout({
   children,

@@ -1,20 +1,10 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/core/supabase/server";
 import { setSession } from "@/lib/auth";
-import { sanitize } from "@/lib/sanitize";
+import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
-    if (!supabaseUrl || !supabaseKey) {
-      return NextResponse.json(
-        { error: "Configuração de servidor incompleta" },
-        { status: 500 }
-      );
-    }
-
     let body;
     try {
       body = await request.json();
@@ -22,9 +12,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Corpo da requisição inválido" }, { status: 400 });
     }
 
-    const email = sanitize(body.email);
-    const fullName = sanitize(body.fullName);
-    const password = body.password;
+    const { email, password, fullName } = body;
 
     if (!email || !password || !fullName) {
       return NextResponse.json(
@@ -33,37 +21,39 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = await createClient();
-
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
-          role: "viewer",
-        },
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
     });
 
-    if (error || !data.user) {
+    if (existingUser) {
       return NextResponse.json(
-        { error: error?.message || "Erro ao criar conta" },
+        { error: "Este email já está em uso" },
         { status: 400 }
       );
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        fullName,
+        role: "viewer",
+      },
+    });
+
     await setSession({
-      id: data.user.id,
-      email: data.user.email,
-      role: "viewer",
+      id: user.id,
+      email: user.email,
+      role: user.role,
     });
 
     return NextResponse.json({
       success: true,
       user: {
-        id: data.user.id,
-        email: data.user.email,
+        id: user.id,
+        email: user.email,
       },
     });
 

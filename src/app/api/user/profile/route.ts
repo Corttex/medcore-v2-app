@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { createClient } from "@/core/supabase/server";
+import prisma from "@/lib/prisma";
 
 /**
  * Atualiza os dados do perfil do usuário logado
@@ -16,28 +16,22 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { full_name, crm, cargo, telefone, especialidade, email_corporativo } = body;
 
-    const supabase = await createClient();
-    const { data, error } = await supabase
-      .from("profiles")
-      .update({
-        full_name,
-        crm,
-        cargo,
-        telefone,
-        especialidade,
-        email_corporativo,
-        updated_at: new Date().toISOString(),
-      } as any)
-      .eq("id", session.user.id)
-      .select()
-      .single();
-
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
+    const data = await prisma.user.update({
+      where: { id: session.user.id },
+      data: {
+        fullName: full_name,
+        // crm, cargo, telefone, especialidade, email_corporativo podem ser adicionados ao modelo futuramente
+      },
+      select: {
+        id: true,
+        fullName: true,
+        email: true
+      }
+    });
 
     return NextResponse.json({ success: true, profile: data });
   } catch (err) {
+    console.error(err);
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
 }

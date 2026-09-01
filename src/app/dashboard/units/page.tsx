@@ -14,9 +14,9 @@ import {
   Activity,
   AlertCircle 
 } from "lucide-react";
-import { useDashboardContext } from "@/modules/dashboard/context/DashboardContext";
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { useRouter } from "next/navigation";
-import { useTheme } from "@/modules/shared/context/ThemeContext";
+import { useTheme } from "@/context/ThemeContext";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { sanitize } from "@/lib/sanitize";

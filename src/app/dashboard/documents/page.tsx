@@ -14,7 +14,7 @@ const initialDocuments = [
   { name: "Manual_Operacional_MedCore.pdf", type: "SISTEMA", size: "1.2MB", date: "Hoje", status: "AUDITADO", auditor: "Sistema" },
 ];
 
-import { useUser } from "@/modules/shared/context/UserContext";
+import { useUser } from "@/context/UserContext";
 
 export default function DocumentsPage() {
   const { user } = useUser();

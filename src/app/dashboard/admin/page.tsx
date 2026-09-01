@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import { AccessLinkGenerator } from "@/modules/admin/components/AccessLinkGenerator";
+import { AccessLinkGenerator } from "@/features/admin/components/AccessLinkGenerator";
 import { 
   Shield, Users, ListFilter, Activity, ShieldCheck, Lock, Globe, Fingerprint, 
   ChevronRight, TrendingUp, DollarSign, UserMinus, ToggleRight, Radio, Server,
-  Brain, BarChart3, AlertCircle, Sparkles
+  Brain, BarChart3, AlertCircle, Sparkles, Lightbulb, Plus
 } from "lucide-react";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -169,6 +169,52 @@ export default function AdminPage() {
 
           <section className="animate-in slide-in-from-bottom-4 duration-700">
             <AccessLinkGenerator />
+          </section>
+
+          <section className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-10 relative overflow-hidden group shadow-sm transition-all animate-in slide-in-from-bottom-5 duration-700">
+             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div className="space-y-1">
+                  <h3 className="text-2xl font-black text-on-surface font-heading tracking-tight italic flex items-center gap-3">
+                    <Lightbulb className="text-amber-500" /> Ideias & Inovações
+                  </h3>
+                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Painel de Backlog e Melhorias Contínuas</p>
+                </div>
+                <button className="px-4 py-3 md:py-2 bg-primary text-on-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                  <Plus size={16} /> Cadastrar Nova Ideia
+                </button>
+             </div>
+             
+             <div className="space-y-4">
+                <div className="p-5 bg-surface-container-highest/20 border border-outline-variant/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 group/idea hover:bg-surface-container-highest/40 transition-all">
+                  <div>
+                     <h4 className="text-sm font-bold text-on-surface italic mb-1">Chatbot de Agendamento WhatsApp</h4>
+                     <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">Implementar um fluxo de IA para pacientes marcarem consultas via WhatsApp, integrando direto na tela de Agenda.</p>
+                  </div>
+                  <span className="shrink-0 px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-widest rounded-full border border-emerald-500/20 w-fit">Aprovado para V3</span>
+                </div>
+                
+                <div className="p-5 bg-surface-container-highest/20 border border-outline-variant/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 group/idea hover:bg-surface-container-highest/40 transition-all">
+                  <div>
+                     <h4 className="text-sm font-bold text-on-surface italic mb-1">OCR Nativo para Receitas (Drive & Scanner)</h4>
+                     <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">Permitir que a câmera do tablet escaneie receitas de outros médicos e transcreva automaticamente para o Prontuário.</p>
+                  </div>
+                  <span className="shrink-0 px-3 py-1 bg-amber-500/10 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded-full border border-amber-500/20 w-fit">Em Análise Técnica</span>
+                </div>
+                
+                <div className="p-5 bg-surface-container-highest/20 border border-outline-variant/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 group/idea hover:bg-surface-container-highest/40 transition-all">
+                  <div>
+                     <h4 className="text-sm font-bold text-on-surface italic mb-1">Conciliação Bancária Automática (Asaas)</h4>
+                     <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">Cruzamento de extratos com NFs emitidas sem intervenção humana, alertando apenas divergências no Kanban.</p>
+                  </div>
+                  <span className="shrink-0 px-3 py-1 bg-lilac/10 text-lilac text-[9px] font-black uppercase tracking-widest rounded-full border border-lilac/20 w-fit">Backlog / Ideia</span>
+                </div>
+             </div>
+
+             <div className="mt-8 pt-6 border-t border-outline-variant/10">
+                <p className="text-[11px] text-zinc-400 font-medium italic">
+                  * Este painel é de uso exclusivo do Operador Master. Anote aqui necessidades pontuais (ex: "precisamos de um botão para exportar PDF aqui") para criarmos soluções proativas, desenvolvendo as melhorias em background sem a necessidade de avaliação burocrática dos usuários comuns.
+                </p>
+             </div>
           </section>
         </div>
 

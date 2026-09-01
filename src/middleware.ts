@@ -1,50 +1,55 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { decrypt } from "@/lib/auth";
-
-// Whitelist de rotas públicas
-const publicRoutes = [
-  "/login", "/register",
-  "/api/auth/login", "/api/auth/register", "/api/auth/callback",
-  "/favicon.ico", "/images",
-  "/termos", "/privacidade", "/suporte",
-  "/terms", "/privacy",
-];
+import { NextRequest, NextResponse } from "next/server";
+import { updateSession, getSession } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const { nextUrl } = request;
-  const session = request.cookies.get("orion_session")?.value;
-
-  const isPublicRoute = nextUrl.pathname === "/" || publicRoutes.some(route => nextUrl.pathname.startsWith(route));
-  const isStaticAsset = nextUrl.pathname.match(/\.(svg|png|jpg|jpeg|gif|webp)$/);
-
-  // Se estiver logado e tentar acessar a Home, manda para o Dashboard
-  if (nextUrl.pathname === "/" && session && (await decrypt(session))) {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
-  }
-
-  if (isPublicRoute || isStaticAsset) {
+  // Ignora rotas públicas e recursos estáticos
+  if (
+    request.nextUrl.pathname.startsWith("/_next") ||
+    request.nextUrl.pathname.startsWith("/api") ||
+    request.nextUrl.pathname.startsWith("/images") ||
+    request.nextUrl.pathname === "/login" ||
+    request.nextUrl.pathname === "/"
+  ) {
     return NextResponse.next();
   }
 
-  // Se não houver sessão ou for inválida
-  if (!session || !(await decrypt(session))) {
-    // Para chamadas de API, retorna 401 Unauthorized em vez de redirecionar
-    if (nextUrl.pathname.startsWith("/api/")) {
-      return NextResponse.json(
-        { error: "Sessão expirada ou acesso não autorizado" },
-        { status: 401 }
-      );
+  // Atualiza a expiração da sessão e pega o token
+  const session = await getSession();
+
+  // Se for uma rota protegida e não tiver sessão, manda pro login
+  if (request.nextUrl.pathname.startsWith("/dashboard")) {
+    if (!session) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("error", "unauthorized");
+      return NextResponse.redirect(url);
     }
-    
-    // Para rotas de página, redireciona para login
-    return NextResponse.redirect(new URL("/login", request.url));
+
+    // Proteção rigorosa para rota Admin / SuperAdmin
+    if (request.nextUrl.pathname.startsWith("/dashboard/admin")) {
+      const role = session.user?.role;
+      if (role !== "super_admin") {
+        // Redireciona usuários normais para o dashboard principal
+        const url = request.nextUrl.clone();
+        url.pathname = "/dashboard";
+        url.searchParams.set("error", "forbidden");
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
-  return NextResponse.next();
+  // Renova a sessão do usuário ativo
+  return await updateSession(request);
 }
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

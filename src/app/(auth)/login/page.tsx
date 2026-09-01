@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LoginForm } from "@/modules/auth/components/LoginForm";
-import { Logo } from "@/modules/shared/components/Logo";
+import { LoginForm } from "@/features/authentication/LoginForm";
+import { Logo } from "@/components/ui/Logo";
 import { ShieldCheck, Activity, Lock, Globe, Cpu, CheckCircle2, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 

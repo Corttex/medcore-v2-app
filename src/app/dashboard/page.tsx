@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { createClient } from "@/core/supabase/client";
+
 import { 
   Activity, 
   Users, 
@@ -23,8 +23,8 @@ import {
   Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useDashboardContext } from "@/modules/dashboard/context/DashboardContext";
-import { useTheme } from "@/modules/shared/context/ThemeContext";
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
+import { useTheme } from "@/context/ThemeContext";
 
 // --- Custom Modern Chart Component (SVG-based) ---
 const SparklineChart = ({ data, color = "brand" }: { data: number[], color?: string }) => {
@@ -143,7 +143,6 @@ const MEDICAL_QUOTES = [
 export default function DashboardPage() {
   const { selectedUnitId } = useDashboardContext();
   const { theme } = useTheme();
-  const supabase = React.useMemo(() => createClient(), []);
   
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [activeQuote, setActiveQuote] = useState(MEDICAL_QUOTES[0]);
@@ -164,30 +163,16 @@ export default function DashboardPage() {
     async function fetchDashboardData() {
       setLoading(true);
       try {
-        // Fetch Patients Count
-        const { count: patientsCount } = await supabase
-          .from('pacientes')
-          .select('*', { count: 'exact', head: true });
-
-        // Fetch Meetings Count (Today)
-        const today = new Date().toISOString().split('T')[0];
-        const { count: meetingsCount } = await supabase
-          .from('meetings')
-          .select('*', { count: 'exact', head: true })
-          .eq('date', today);
-
-        // Fetch Reminders Count (Pending)
-        const { count: remindersCount } = await supabase
-          .from('reminders')
-          .select('*', { count: 'exact', head: true })
-          .eq('status', 'pending');
-
-        setStats({
-          patients: patientsCount || 0,
-          meetings: meetingsCount || 0,
-          reminders: remindersCount || 0,
-          criticalAlerts: 0 // Implementar lógica real se houver tabela de alertas
-        });
+        const res = await fetch("/api/stats");
+        if (res.ok) {
+          const data = await res.json();
+          setStats({
+            patients: data.patients || 0,
+            meetings: data.meetings || 0,
+            reminders: data.reminders || 0,
+            criticalAlerts: data.criticalAlerts || 0
+          });
+        }
       } catch (err) {
         console.error("Erro ao carregar dados do dashboard:", err);
       } finally {
@@ -198,7 +183,7 @@ export default function DashboardPage() {
     if (selectedUnitId) {
       fetchDashboardData();
     }
-  }, [selectedUnitId, supabase]);
+  }, [selectedUnitId]);
 
   const handleRelatorioFull = () => {
     setIsGeneratingReport(true);

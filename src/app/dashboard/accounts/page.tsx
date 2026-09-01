@@ -72,7 +72,7 @@ export default function AccountsPage() {
   const categorizeWithAI = async (a: Account) => {
     setAiLoading(a.id);
     try {
-      const { categorizeAccount } = await import("@/modules/shared/services/openrouter");
+      const { categorizeAccount } = await import("@/lib/services/openrouter");
       const raw = await categorizeAccount(`${a.title} — Fornecedor: ${a.supplier} — Valor: ${a.value}`);
       let cat = "OUTROS"; let desc = "";
       try { const parsed = JSON.parse(raw); cat = parsed.categoria; desc = parsed.descricao_curta; } catch { cat = "OUTROS"; }

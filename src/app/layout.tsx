@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/modules/shared/context/ThemeContext";
-import { UserProvider } from "@/modules/shared/context/UserContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { UserProvider } from "@/context/UserContext";
 
 const inter = Inter({
   subsets: ["latin"],

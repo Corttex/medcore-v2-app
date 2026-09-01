@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  fullName  String?
+  role      String   @default("viewer")
+  pin       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SystemModule {
+  id                 String   @id
+  name               String
+  isEnabled          Boolean  @default(true)
+  isInMaintenance    Boolean  @default(false)
+  maintenanceMessage String?  @default("Estamos aprimorando este módulo para oferecer uma experiência melhor. Voltaremos em breve.")
+  updatedAt          DateTime @default(now()) @updatedAt
+}
+
+model Paciente {
+  id        String   @id @default(uuid())
+  nome      String
+  cpf       String?
+  email     String?
+  telefone  String?
+  createdAt DateTime @default(now())
+}
+
+model AsaasInvoice {
+  id         String   @id @default(uuid())
+  status     String
+  valor      Float
+  vencimento DateTime?
+  pacienteId String?
+  createdAt  DateTime @default(now())
+}
+
+model Unit {
+  id       String   @id @default(uuid())
+  name     String
+  type     String
+  active   Boolean  @default(true)
+}
+
+model Reminder {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  date            String
+  time            String?
+  type            String
+  status          String
+  notify_email    Boolean  @default(false)
+  notify_whatsapp Boolean  @default(false)
+  whatsapp_number String?
+  email           String?
+  is_fixed        Boolean  @default(false)
+  user_id         String?
+  createdAt       DateTime @default(now())
+}
+
+model Meeting {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  date        String
+  time        String?
+  duration    Int?
+  link        String?
+  type        String
+  status      String
+  participants String?
+  user_id     String?
+  createdAt   DateTime @default(now())
+}

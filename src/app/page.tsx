@@ -26,6 +26,8 @@ import {
   Check
 } from "lucide-react";
 
+import PageWrapper from "@/components/animations/PageWrapper";
+
 // ─── PLANOS ───────────────────────────────────
 const plans = [
   {
@@ -245,9 +247,9 @@ export default function Home() {
           Plataforma de Gestão Hospitalar com IA
         </div>
 
-        <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] italic mb-6 animate-in fade-in zoom-in-95 duration-700 delay-150">
+        <h1 className="text-5xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-tight italic mb-6 animate-in fade-in zoom-in-95 duration-700 delay-150">
           O Sistema que os<br />
-          <span className="bg-gradient-to-r from-teal-400 via-cyan-300 to-violet-400 bg-clip-text text-transparent">
+          <span className="inline-block bg-gradient-to-r from-teal-400 via-cyan-300 to-violet-400 bg-clip-text text-transparent pb-4 pr-4">
             Hospitais Precisam
           </span>
         </h1>

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { Video, Mic, Share2, Users, Calendar, Clock, ChevronRight, Play, Settings2, MoreHorizontal } from "lucide-react";
-import { createClient } from "@/core/supabase/client";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -22,30 +21,29 @@ interface Meeting {
 }
 
 export default function MeetingsPage() {
-  const supabase = createClient();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchMeetings() {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('meetings')
-        .select('*')
-        .order('date', { ascending: true })
-        .order('time', { ascending: true });
-
-      if (!error && data) {
-        setMeetings(data.map(m => ({
-          ...m,
-          participants: 0, // Mocked for now until guests table is fully integrated
-          host: "Sistema"
-        })));
+      try {
+        const res = await fetch("/api/meetings");
+        if (res.ok) {
+          const data = await res.json();
+          setMeetings(data.map((m: any) => ({
+            ...m,
+            participants: 0, // Mocked for now until guests table is fully integrated
+            host: "Sistema"
+          })));
+        }
+      } catch (error) {
+        console.error("Erro ao buscar reuniões:", error);
       }
       setLoading(false);
     }
     fetchMeetings();
-  }, [supabase]);
+  }, []);
 
   const activeRooms = meetings.filter(m => m.status === 'LIVE' || m.status === 'Agendada').slice(0, 4);
   const todayMeetings = meetings.filter(m => m.date === new Date().toISOString().split('T')[0]);

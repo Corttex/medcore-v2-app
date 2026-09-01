@@ -1,7 +1,7 @@
 "use client";
 
-import { RegisterForm } from "@/modules/auth/components/RegisterForm";
-import { Logo } from "@/modules/shared/components/Logo";
+import { RegisterForm } from "@/features/auth/components/RegisterForm";
+import { Logo } from "@/components/ui/Logo";
 import { ShieldCheck, Zap, Activity, Users } from "lucide-react";
 
 export default function RegisterPage() {

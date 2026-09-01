@@ -72,7 +72,7 @@ export default function LegalPage() {
   const runAI = async (p: LegalProcess) => {
     setAiLoading(true);
     try {
-      const { analyzeProcess } = await import("@/modules/shared/services/openrouter");
+      const { analyzeProcess } = await import("@/lib/services/openrouter");
       const analysis = await analyzeProcess(
         `[${p.number}] ${p.title} — ${p.description}`,
         new Date(p.deadline).toLocaleDateString("pt-BR")

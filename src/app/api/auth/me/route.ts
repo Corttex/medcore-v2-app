@@ -1,10 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { createClient } from "@/core/supabase/server";
+import prisma from "@/lib/prisma";
 
-/**
- * Retorna os dados da sessão atual (JWT Orion) enriquecidos com dados do banco
- */
 export async function GET() {
   const session = await getSession();
   
@@ -12,18 +9,19 @@ export async function GET() {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
-  // Busca dados frescos do perfil no banco de dados
-  const supabase = await createClient();
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", session.user.id)
-    .single();
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, email: true, fullName: true, role: true, createdAt: true }
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+  }
 
   return NextResponse.json({
     user: {
       ...session.user,
-      ...profile
+      ...user
     },
     expires: session.expires
   });

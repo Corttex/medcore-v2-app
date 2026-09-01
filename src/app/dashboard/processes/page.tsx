@@ -3,7 +3,7 @@
 import React, { useState, useRef } from "react";
 import { Plus, Users, MapPin, FileText, Clock, Coffee, Monitor, Download, X, ChevronDown, Loader2, Sparkles } from "lucide-react";
 import { sanitize } from "@/lib/sanitize";
-import { SafeInput } from "@/modules/shared/components/SafeInput";
+import { SafeInput } from "@/components/ui/SafeInput";
 
 interface Guest { name: string; role: string; }
 interface Meeting {
@@ -105,7 +105,7 @@ export default function DemandasPage() {
   const generateAIMinutes = async (m: Meeting) => {
     setAiLoading(true);
     try {
-      const { callAI } = await import("@/modules/shared/services/openrouter");
+      const { callAI } = await import("@/lib/services/openrouter");
       const prompt = `Gere uma ATA profissional de reunião com base nas informações:
 Título: ${m.title}
 Data: ${m.date} às ${m.time}

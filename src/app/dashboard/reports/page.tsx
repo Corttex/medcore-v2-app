@@ -17,7 +17,7 @@ import {
   Brain,
   FileText
 } from "lucide-react";
-import { StatCard } from "@/modules/dashboard/components/StatCard";
+import { StatCard } from "@/features/dashboard/components/StatCard";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 

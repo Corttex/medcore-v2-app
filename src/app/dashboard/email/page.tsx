@@ -53,7 +53,7 @@ export default function EmailPage() {
   const summarizeAI = async (email: Email) => {
     setAiLoading(true);
     try {
-      const { callAI } = await import("@/modules/shared/services/openrouter");
+      const { callAI } = await import("@/lib/services/openrouter");
       const result = await callAI([
         { role: "system", content: "Você é um assistente executivo. Resuma o e-mail em português, extraindo: ação necessária, prazo (se houver) e urgência (Alta/Média/Baixa). Seja conciso." },
         { role: "user", content: `De: ${email.from} <${email.fromEmail}>\nAssunto: ${email.subject}\n\n${email.body}` },

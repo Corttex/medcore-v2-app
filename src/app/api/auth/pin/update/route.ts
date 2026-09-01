@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/core/supabase/server";
 import { getSession } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 import { getSanitizedBody } from "@/lib/sanitize";
 import bcrypt from "bcryptjs";
 
-/**
- * Endpoint para atualizar o PIN operacional do usuário.
- * Requer sessão JWT Orion válida.
- */
 export async function POST(request: Request) {
   try {
     const session = await getSession();
@@ -21,20 +17,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "PIN deve conter pelo menos 4 dígitos" }, { status: 400 });
     }
 
-    const supabase = await createClient();
-    
-    // Hash do PIN para armazenamento seguro
     const pinHash = await bcrypt.hash(pin, 10);
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ pin_hash: pinHash })
-      .eq("id", session.user.id);
-
-    if (error) {
-      console.error("Database Update Error:", error);
-      return NextResponse.json({ error: "Erro ao atualizar registro operacional" }, { status: 500 });
-    }
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { pin: pinHash }
+    });
 
     return NextResponse.json({ success: true, message: "PIN atualizado com sucesso" });
 

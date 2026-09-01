@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Bell, Plus, Repeat, Calendar, Clock, CheckCircle2, Trash2, MessageCircle, Mail, AlertTriangle, Pin } from "lucide-react";
-import { createClient } from "@/core/supabase/client";
-import { SafeInput } from "@/modules/shared/components/SafeInput";
+
+import { SafeInput } from "@/components/ui/SafeInput";
 
 type ReminderType = "once" | "weekly" | "monthly" | "yearly";
 type ReminderStatus = "pending" | "done";
@@ -39,7 +39,6 @@ function daysUntil(dateStr: string): number {
 }
 
 export default function RemindersPage() {
-  const supabase = createClient();
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -55,32 +54,28 @@ export default function RemindersPage() {
 
   const fetchReminders = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("reminders")
-      .select("*")
-      .order("date", { ascending: true });
-    
-    if (error) {
+    try {
+      const res = await fetch("/api/reminders");
+      if (res.ok) {
+        const data = await res.json();
+        setReminders(data.map((r: any) => ({
+          ...r,
+          notifyEmail: r.notify_email,
+          notifyWhatsapp: r.notify_whatsapp,
+          whatsappNumber: r.whatsapp_number,
+          isFixed: r.is_fixed,
+          type: r.type as ReminderType,
+          status: r.status as ReminderStatus
+        })));
+      }
+    } catch (error) {
       console.error("Error fetching reminders:", error);
-    } else if (data) {
-      setReminders(data.map(r => ({
-        ...r,
-        notifyEmail: r.notify_email,
-        notifyWhatsapp: r.notify_whatsapp,
-        whatsappNumber: r.whatsapp_number,
-        isFixed: r.is_fixed,
-        type: r.type as ReminderType,
-        status: r.status as ReminderStatus
-      })));
     }
     setLoading(false);
   };
 
   const handleSave = async () => {
     if (!form.title.trim() || !form.date) return;
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
 
     const newReminder = {
       title: form.title,
@@ -94,42 +89,52 @@ export default function RemindersPage() {
       whatsapp_number: form.whatsappNumber,
       email: form.email,
       is_fixed: form.isFixed,
-      user_id: user.id
     };
 
-    const { error } = await supabase
-      .from("reminders")
-      .insert([newReminder]);
-
-    if (error) {
+    try {
+      const res = await fetch("/api/reminders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newReminder)
+      });
+      if (res.ok) {
+        fetchReminders();
+        setShowForm(false);
+        setForm({ title: "", description: "", date: "", time: "", type: "once", notifyEmail: false, notifyWhatsapp: false, whatsappNumber: "", email: "", isFixed: false });
+      } else {
+        alert("Erro ao salvar lembrete.");
+      }
+    } catch (error) {
       console.error("Error saving reminder:", error);
       alert("Erro ao salvar lembrete.");
-    } else {
-      fetchReminders();
-      setShowForm(false);
-      setForm({ title: "", description: "", date: "", time: "", type: "once", notifyEmail: false, notifyWhatsapp: false, whatsappNumber: "", email: "", isFixed: false });
     }
   };
 
   const toggleDone = async (reminder: Reminder) => {
     const newStatus = reminder.status === "done" ? "pending" : "done";
-    const { error } = await supabase
-      .from("reminders")
-      .update({ status: newStatus })
-      .eq("id", reminder.id);
-    
-    if (error) console.error("Error updating status:", error);
-    else fetchReminders();
+    try {
+      const res = await fetch("/api/reminders", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: reminder.id, status: newStatus })
+      });
+      if (res.ok) {
+        fetchReminders();
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
   };
 
   const deleteReminder = async (id: string) => {
-    const { error } = await supabase
-      .from("reminders")
-      .delete()
-      .eq("id", id);
-    
-    if (error) console.error("Error deleting reminder:", error);
-    else fetchReminders();
+    try {
+      const res = await fetch(`/api/reminders?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        fetchReminders();
+      }
+    } catch (error) {
+      console.error("Error deleting reminder:", error);
+    }
   };
 
   const sendWhatsApp = (r: Reminder) => {
