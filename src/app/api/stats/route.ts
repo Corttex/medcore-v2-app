@@ -23,8 +23,13 @@ export async function GET() {
       meetings: meetingsCount,
       reminders: remindersCount,
       criticalAlerts: 0
+    }, {
+      headers: {
+        "Cache-Control": "private, max-age=5, stale-while-revalidate=30"
+      }
     });
   } catch (error) {
     return NextResponse.json({ error: "Erro ao buscar estatísticas" }, { status: 500 });
   }
 }
+

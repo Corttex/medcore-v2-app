@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
-
 export interface Unit {
   id: string;
   name: string;
@@ -22,35 +21,18 @@ interface DashboardContextType {
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
 
+const defaultUnit: Unit = {
+  id: "default-unit-1",
+  name: "Hospital Central MedCore",
+  type: "Hospital Geral",
+  active: true
+};
+
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
-  const [units, setUnits] = useState<Unit[]>([]);
-  const [loadingUnits, setLoadingUnits] = useState<boolean>(true);
-  React.useEffect(() => {
-    async function fetchUnits() {
-      try {
-        setLoadingUnits(true);
-        // Fallback unit em caso de tabela vazia (substituindo Supabase)
-        // No futuro isso deve bater em /api/units
-        const defaultUnit: Unit = {
-          id: "default-unit-1",
-          name: "Hospital Central MedCore",
-          type: "Hospital Geral",
-          active: true
-        };
-        setUnits([defaultUnit]);
-        if (!selectedUnitId) {
-          setSelectedUnitId(defaultUnit.id);
-        }
-      } catch (err) {
-        console.error("Erro ao buscar unidades:", err);
-      } finally {
-        setLoadingUnits(false);
-      }
-    }
-    fetchUnits();
-  }, [selectedUnitId]);
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>("default-unit-1");
+  const [units, setUnits] = useState<Unit[]>([defaultUnit]);
+  const [loadingUnits, setLoadingUnits] = useState<boolean>(false);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
@@ -78,3 +60,4 @@ export function useDashboardContext() {
   }
   return context;
 }
+

@@ -25,7 +25,15 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== "undefined") {
+      const cached = localStorage.getItem("medcore_user_cache");
+      if (cached) {
+        try { return JSON.parse(cached); } catch (e) {}
+      }
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
@@ -34,11 +42,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("medcore_user_cache", JSON.stringify(data.user));
+        }
       } else {
         setUser(null);
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("medcore_user_cache");
+        }
       }
     } catch (err) {
-      setUser(null);
+      // mantém o cache existente se houver oscilação de rede
     } finally {
       setLoading(false);
     }
@@ -49,10 +63,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = async () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("medcore_user_cache");
+    }
     await fetch("/api/auth/logout", { method: "POST" });
     setUser(null);
     window.location.href = "/login";
   };
+
 
   return (
     <UserContext.Provider value={{ user, loading, logout, refreshUser: fetchUser }}>

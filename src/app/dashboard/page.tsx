@@ -25,6 +25,8 @@ import {
 import { cn } from "@/lib/utils";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
+import { GsapAnimated } from "@/components/ui/GsapAnimated";
+
 
 // --- Custom Modern Chart Component (SVG-based) ---
 const SparklineChart = ({ data, color = "brand" }: { data: number[], color?: string }) => {
@@ -239,7 +241,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <GsapAnimated direction="up" duration={0.35} className="space-y-6">
       {/* ═══════ EXECUTIVE HEADER ═══════ */}
       <div className={cn(
         "flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 rounded-[2.5rem] border backdrop-blur-sm transition-all duration-500",
@@ -725,6 +727,7 @@ export default function DashboardPage() {
            </div>
         </div>
       </div>
-    </div>
+    </GsapAnimated>
   );
 }
+

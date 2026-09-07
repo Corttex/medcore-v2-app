@@ -1,35 +1,46 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateSession, getSession } from "@/lib/auth";
+import { decrypt, SESSION_EXPIRATION, encrypt } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  // Ignora rotas públicas e recursos estáticos
+  const { pathname } = request.nextUrl;
+
+  // Ignora rotas estáticas, públicas e APIs se não for admin
   if (
-    request.nextUrl.pathname.startsWith("/_next") ||
-    request.nextUrl.pathname.startsWith("/api") ||
-    request.nextUrl.pathname.startsWith("/images") ||
-    request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/"
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/api") ||
+    pathname.startsWith("/images") ||
+    pathname.endsWith(".ico") ||
+    pathname.endsWith(".svg") ||
+    pathname.endsWith(".png") ||
+    pathname === "/login" ||
+    pathname === "/"
   ) {
     return NextResponse.next();
   }
 
-  // Atualiza a expiração da sessão e pega o token
-  const session = await getSession();
+  const sessionToken = request.cookies.get("orion_session")?.value;
 
-  // Se for uma rota protegida e não tiver sessão, manda pro login
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    if (!session) {
+  // Se tentar acessar o dashboard sem cookie de sessão
+  if (pathname.startsWith("/dashboard")) {
+    if (!sessionToken) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("error", "unauthorized");
       return NextResponse.redirect(url);
     }
 
-    // Proteção rigorosa para rota Admin / SuperAdmin
-    if (request.nextUrl.pathname.startsWith("/dashboard/admin")) {
-      const role = session.user?.role;
+    const payload = await decrypt(sessionToken);
+    if (!payload) {
+      const url = request.nextUrl.clone();
+      url.pathname = "/login";
+      url.searchParams.set("error", "unauthorized");
+      return NextResponse.redirect(url);
+    }
+
+    // Proteção para rota Admin / SuperAdmin
+    if (pathname.startsWith("/dashboard/admin")) {
+      const role = payload.user?.role;
       if (role !== "super_admin") {
-        // Redireciona usuários normais para o dashboard principal
         const url = request.nextUrl.clone();
         url.pathname = "/dashboard";
         url.searchParams.set("error", "forbidden");
@@ -38,18 +49,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Renova a sessão do usuário ativo
-  return await updateSession(request);
+  return NextResponse.next();
 }
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
-    '/((?!_next/static|_next/image|favicon.ico).*)',
+    "/dashboard/:path*",
+    "/admin/:path*",
   ],
 };
+
