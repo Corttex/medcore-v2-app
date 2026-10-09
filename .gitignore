@@ -10,6 +10,7 @@ build
 
 .DS_Store
 *.pem
+tsconfig.tsbuildinfo
 
 # Database local
 prisma/*.db

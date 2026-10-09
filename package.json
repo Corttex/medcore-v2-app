@@ -7,7 +7,7 @@
     "build": "npx prisma generate && npx prisma db push --accept-data-loss && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma skills sync || exit 0",
+    "postinstall": "prisma generate || exit 0",
     "worker:whatsapp": "npx tsx src/lib/queue/whatsappWorker.ts"
   },
   "dependencies": {
