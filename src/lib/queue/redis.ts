@@ -4,7 +4,8 @@ import Redis from 'ioredis';
 const redisConfig = {
   host: process.env.REDIS_HOST || '127.0.0.1',
   port: parseInt(process.env.REDIS_PORT || '6379'),
-  maxRetriesPerRequest: null // Necessário para o BullMQ
+  maxRetriesPerRequest: null, // Necessário para o BullMQ
+  lazyConnect: true
 };
 
 export const connection = new Redis(redisConfig);

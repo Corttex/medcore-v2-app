@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Red+Hat+Display:wght@400;500;700;900&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
@@ -32,8 +33,8 @@
   --color-brand-container: var(--brand-container);
   --color-on-brand: #ffffff;
 
-  --font-heading: var(--font-heading-next), sans-serif;
-  --font-body: var(--font-body-next), sans-serif;
+  --font-heading: 'Red Hat Display', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
 
   /* Premium Shadows */
   --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(0, 0, 0, 0.2);

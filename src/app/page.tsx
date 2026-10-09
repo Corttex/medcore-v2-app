@@ -176,8 +176,9 @@ const mainModules = [
   },
 ];
 
-export default function Home() {
-  const [activeDemo, setActiveDemo] = useState(0);
+import { Suspense } from "react";
+
+function AuthCallbackHandler() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -188,8 +189,17 @@ export default function Home() {
     }
   }, [searchParams, router]);
 
+  return null;
+}
+
+export default function Home() {
+  const [activeDemo, setActiveDemo] = useState(0);
+
   return (
     <main className="relative min-h-screen bg-transparent text-zinc-900 dark:text-white overflow-x-hidden">
+      <Suspense fallback={null}>
+        <AuthCallbackHandler />
+      </Suspense>
       {/* Background Shapes / Accents like RD Station */}
       <div className="absolute top-0 right-0 w-[50%] h-[800px] bg-[var(--color-rd-cyan)] opacity-[0.03] rounded-bl-[150px] pointer-events-none" />
 
