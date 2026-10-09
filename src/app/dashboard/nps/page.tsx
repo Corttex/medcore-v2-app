@@ -209,11 +209,17 @@ export default function NpsPage() {
         
         {/* Score Geral NPS */}
         <div className="p-6 rounded-3xl border border-rd-cyan/40 bg-gradient-to-br from-surface to-surface-container shadow-lg relative overflow-hidden flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <span className="text-xs md:text-sm font-bold uppercase tracking-wider text-on-surface-variant">
+          <div className="flex items-center justify-between gap-2 min-w-0">
+            <span className="text-xs md:text-sm font-bold uppercase tracking-wider text-on-surface-variant whitespace-nowrap shrink-0">
               Score NPS Geral
             </span>
-            <span className="px-2.5 py-1 rounded-full text-sm font-extrabold uppercase bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold whitespace-nowrap shrink-0 border transition-colors ${
+              scoreNPS >= 75
+                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                : scoreNPS >= 50
+                ? "bg-sky-500/15 text-sky-600 dark:text-sky-400 border-sky-500/30"
+                : "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+            }`}>
               {scoreNPS >= 75 ? "Zona de Excelência" : scoreNPS >= 50 ? "Zona de Qualidade" : "Zona de Aperfeiçoamento"}
             </span>
           </div>
