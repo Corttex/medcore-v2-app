@@ -15,32 +15,32 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark");
+  const [theme, setTheme] = useState<Theme>("light");
   const [palette, setPaletteState] = useState<Palette>("default");
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("medcore-theme") as Theme;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.setAttribute("data-theme", savedTheme);
+  const applyTheme = (targetTheme: Theme) => {
+    setTheme(targetTheme);
+    document.documentElement.setAttribute("data-theme", targetTheme);
+    if (targetTheme === "dark") {
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.setAttribute("data-theme", "dark");
+      document.documentElement.classList.remove("dark");
     }
+  };
 
-    const savedPalette = localStorage.getItem("medcore-palette") as Palette;
-    if (savedPalette) {
-      setPaletteState(savedPalette);
-      document.documentElement.setAttribute("data-palette", savedPalette);
-    } else {
-      document.documentElement.setAttribute("data-palette", "default");
-    }
+  useEffect(() => {
+    const savedTheme = (localStorage.getItem("medcore-theme") as Theme) || "light";
+    applyTheme(savedTheme);
+
+    const savedPalette = (localStorage.getItem("medcore-palette") as Palette) || "default";
+    setPaletteState(savedPalette);
+    document.documentElement.setAttribute("data-palette", savedPalette);
   }, []);
 
   const toggleTheme = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
     localStorage.setItem("medcore-theme", newTheme);
-    document.documentElement.setAttribute("data-theme", newTheme);
+    applyTheme(newTheme);
   };
 
   const setPalette = (newPalette: Palette) => {

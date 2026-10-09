@@ -23,12 +23,12 @@ export function StatCard({ label, value, trend, icon: Icon, color = "teal" }: St
     teal: "text-teal-400 bg-teal-500/10 border-teal-500/20 shadow-[0_0_20px_rgba(45,212,191,0.05)]",
     cyan: "text-cyan-400 bg-cyan-500/10 border-cyan-500/20 shadow-[0_0_20px_rgba(6,182,212,0.05)]",
     zinc: "text-zinc-400 bg-zinc-500/10 border-zinc-500/20 shadow-[0_0_20px_rgba(113,113,122,0.05)]",
-    lilac: "text-lilac bg-lilac/10 border-lilac/20 shadow-[0_0_20px_rgba(167,139,250,0.05)]",
+    lilac: "text-rd-cyan bg-rd-cyan/10 border-rd-cyan/20 shadow-[0_0_20px_var(--color-rd-cyan)]",
     emerald: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.05)]",
   };
 
   return (
-    <div className="p-5 bg-surface border border-outline-variant/30 rounded-2xl shadow-card hover:border-teal-500/30 transition-all group relative overflow-hidden">
+    <div className="p-5 bg-surface border border-white/10 rounded-2xl shadow-card hover:border-teal-500/30 transition-all group relative overflow-hidden">
       {/* Decorative Glow */}
       <div className="absolute top-0 right-0 w-20 h-20 bg-teal-500/5 blur-[30px] rounded-full -translate-y-1/2 translate-x-1/2 group-hover:bg-teal-500/10 transition-colors"></div>
 
@@ -38,7 +38,7 @@ export function StatCard({ label, value, trend, icon: Icon, color = "teal" }: St
         </div>
         {trend && (
           <span className={cn(
-            "text-[9px] font-black tracking-widest uppercase px-2 py-0.5 rounded-full border",
+            "text-xs font-semibold tracking-widest uppercase px-2 py-0.5 rounded-full border",
             trend.isPositive 
               ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" 
               : "bg-red-500/10 text-red-500 border-red-500/20"
@@ -48,8 +48,8 @@ export function StatCard({ label, value, trend, icon: Icon, color = "teal" }: St
         )}
       </div>
       <div className="relative z-10">
-        <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-2">{label}</p>
-        <h3 className="text-2xl font-black text-on-surface font-heading tracking-tight group-hover:text-teal-400 transition-colors">{value}</h3>
+        <p className="text-xs text-zinc-500 font-semibold uppercase tracking-[0.2em] mb-2">{label}</p>
+        <h3 className="text-3xl font-semibold text-on-surface font-heading tracking-tight group-hover:text-teal-400 transition-colors">{value}</h3>
       </div>
     </div>
   );

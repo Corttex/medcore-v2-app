@@ -42,7 +42,7 @@ export function AccessLinkGenerator() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3">
-          <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+          <label className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
             <UserPlus size={12} /> Nível de Acesso
           </label>
           <select 
@@ -58,7 +58,7 @@ export function AccessLinkGenerator() {
         </div>
 
         <div className="space-y-3">
-          <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+          <label className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
             <Clock size={12} /> Duração do Convite
           </label>
           <select 
@@ -85,7 +85,7 @@ export function AccessLinkGenerator() {
       {generatedLink && (
         <div className="mt-6 p-4 bg-surface-container border border-primary/20 rounded-xl flex items-center justify-between gap-4 animate-in fade-in slide-in-from-bottom-2">
           <div className="overflow-hidden">
-            <p className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Link Gerado com Sucesso</p>
+            <p className="text-sm font-black text-primary uppercase tracking-widest mb-1">Link Gerado com Sucesso</p>
             <p className="text-sm font-medium text-on-surface truncate font-mono bg-surface-container-highest/50 p-2 rounded-lg inline-block">
               {generatedLink}
             </p>

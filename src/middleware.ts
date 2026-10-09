@@ -3,6 +3,16 @@ import { decrypt, SESSION_EXPIRATION, encrypt } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const hostname = request.headers.get("host") || "";
+
+  // Subdomain routing: if host starts with "ponto.", rewrite to /ponto
+  if (hostname.startsWith("ponto.")) {
+    if (pathname === "/") {
+      const url = request.nextUrl.clone();
+      url.pathname = "/ponto";
+      return NextResponse.rewrite(url);
+    }
+  }
 
   // Ignora rotas estáticas, públicas e APIs se não for admin
   if (
@@ -54,6 +64,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    "/",
     "/dashboard/:path*",
     "/admin/:path*",
   ],

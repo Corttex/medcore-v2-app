@@ -1,3 +1,4 @@
+"use client";
 import React from 'react';
 import Image from 'next/image';
 import { clsx, type ClassValue } from 'clsx';
@@ -34,7 +35,7 @@ export function Logo({
   const logoSrc = theme === "dark" ? "/Logos/medcore-white.svg" : "/Logos/medcore-black.svg";
 
   return (
-    <div className={cn("flex items-center justify-center w-full group", className)}>
+    <div className={cn("inline-flex items-center group", className)}>
       <div className="relative group-hover:drop-shadow-[0_0_20px_rgba(58,223,250,0.3)] transition-all duration-500">
         <Image 
           src={logoSrc} 

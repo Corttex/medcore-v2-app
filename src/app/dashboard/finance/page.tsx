@@ -32,7 +32,7 @@ export default function FinanceDashboard() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            <h1 className="text-3xl font-medium tracking-tight text-white flex items-center gap-3">
               <DollarSign className="w-8 h-8 text-emerald-400" />
               Gestão Financeira
             </h1>
@@ -56,7 +56,7 @@ export default function FinanceDashboard() {
               <TrendingUp className="w-16 h-16" />
             </div>
             <p className="text-neutral-400 text-sm font-medium mb-1">Receita (Mês Atual)</p>
-            <h3 className="text-3xl font-bold text-white mb-2">R$ 145.200,00</h3>
+            <h3 className="text-3xl font-medium text-white mb-2">R$ 145.200,00</h3>
             <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium">
               <ArrowUpRight className="w-4 h-4" />
               <span>+12.5% em relação ao mês anterior</span>
@@ -68,7 +68,7 @@ export default function FinanceDashboard() {
               <TrendingDown className="w-16 h-16" />
             </div>
             <p className="text-neutral-400 text-sm font-medium mb-1">Despesas & Repasses</p>
-            <h3 className="text-3xl font-bold text-white mb-2">R$ 42.850,00</h3>
+            <h3 className="text-3xl font-medium text-white mb-2">R$ 42.850,00</h3>
             <div className="flex items-center gap-2 text-rose-400 text-sm font-medium">
               <ArrowDownRight className="w-4 h-4" />
               <span>+3.2% em relação ao mês anterior</span>
@@ -80,7 +80,7 @@ export default function FinanceDashboard() {
               <FileText className="w-16 h-16" />
             </div>
             <p className="text-neutral-400 text-sm font-medium mb-1">Notas Fiscais Emitidas</p>
-            <h3 className="text-3xl font-bold text-white mb-2">284</h3>
+            <h3 className="text-3xl font-medium text-white mb-2">284</h3>
             <div className="flex items-center gap-2 text-blue-400 text-sm font-medium">
               <span>98% de automação Asaas</span>
             </div>

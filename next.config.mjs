@@ -5,6 +5,14 @@ const nextConfig = {
     // Ignorar erros de tipo no build para não bloquear o deploy.
     ignoreBuildErrors: true,
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+      },
+    ],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

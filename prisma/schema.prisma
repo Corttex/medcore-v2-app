@@ -3,19 +3,42 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  fullName  String?
-  role      String   @default("viewer")
-  pin       String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String        @id @default(uuid())
+  email         String        @unique
+  password      String
+  fullName      String?
+  role          String        @default("viewer")
+  pin           String?
+  especialidade String?
+  crm           String?
+  crmUf         String?
+  primaryUnitId String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  meetings      Meeting[]
+  subscription  Subscription?
+  tokenLogs     TokenLog[]
+  units         UserUnit[]
+  osSolicitadas OrdemServico[] @relation("OSSolicitante")
+  osResponsaveis OrdemServico[] @relation("OSResponsavel")
+  patrimoniosResponsaveis Patrimonio[] @relation("PatrimonioResponsavel")
+  auditLogs     AuditLog[]
+  kanbanCards   KanbanCard[]
+  documentos    DocumentoMedico[] @relation("MedicoDocumento")
+  
+  examesSolicitados Exame[] @relation("MedicoSolicitante")
+  examesLaudados    Exame[] @relation("MedicoLaudador")
+  laudosAssinados   Laudo[] @relation("MedicoLaudoAssinado")
+  
+  repasses          RepasseMedico[] @relation("MedicoRepasse")
+  movimentacoesEstoque MovimentacaoEstoque[]
+  plantoes          Plantao[] @relation("UserPlantoes")
+  registrosPonto    RegistroPonto[] @relation("UserPontos")
 }
 
 model SystemModule {
@@ -28,28 +51,99 @@ model SystemModule {
 }
 
 model Paciente {
-  id        String   @id @default(uuid())
-  nome      String
-  cpf       String?
-  email     String?
-  telefone  String?
-  createdAt DateTime @default(now())
+  id                  String    @id @default(uuid())
+  nome                String
+  cpf                 String?
+  rg                  String?
+  sexo                String?
+  endereco            String?
+  email               String?
+  telefone            String?
+  dataNascimento      String?
+
+  leadSource          String?   // "whatsapp", "facebook", "telegram", "email", "manual"
+  providerId          String?   // ID do contato no provedor externo
+  
+  convenioId          String?
+  convenio            Convenio? @relation(fields: [convenioId], references: [id])
+  numeroCarteirinha   String?
+  validadeCarteirinha String?
+
+  unitId              String?
+  unit                Unit?     @relation(fields: [unitId], references: [id])
+
+  createdAt           DateTime  @default(now())
+  meetings            Meeting[]
+  documentos          DocumentoMedico[]
+  exames              Exame[]
+  
+  // Modulo Estetica & Relacionamento
+  pacotesAdquiridos   PacotePaciente[]
+  galeria             GaleriaMedia[]
+  termosAssinados     TermoConsentimento[]
+  
+  // Painel TV
+  filasChamadas       FilaChamada[]
+  logsMarketing       LogDisparoMarketing[]
 }
 
 model AsaasInvoice {
-  id         String   @id @default(uuid())
+  id         String    @id @default(uuid())
   status     String
   valor      Float
   vencimento DateTime?
   pacienteId String?
-  createdAt  DateTime @default(now())
+  createdAt  DateTime  @default(now())
 }
 
 model Unit {
-  id       String   @id @default(uuid())
-  name     String
-  type     String
-  active   Boolean  @default(true)
+  id            String   @id @default(uuid())
+  name          String
+  type          String
+  active        Boolean  @default(true)
+  
+  cnpj          String?
+  email         String?
+  phone         String?
+  address       String?
+  responsible   String?
+  color         String?  @default("from-blue-500 to-cyan-500")
+
+  users         UserUnit[]
+  convenios     Convenio[]
+  procedimentos Procedimento[]
+  meetings      Meeting[]
+  accounts      FinancialAccount[]
+  notasFiscais  NotaFiscal[]
+  configFiscal  UnitConfigFiscal?
+  ordensServico OrdemServico[]
+  patrimonios   Patrimonio[]
+  kanbanCards   KanbanCard[]
+  pacientes     Paciente[]
+  reminders     Reminder[]
+  consultorios  Consultorio[]
+  documentos    DocumentoMedico[]
+  exames        Exame[]
+  
+  // Modulos customizados
+  pacotesBase   Pacote[]
+  repasses      RepasseMedico[]
+  produtos      Produto[]
+  escalas       Escala[]
+  
+  // Configuracao Ponto Eletronico (Cerca Virtual)
+  pontoLatitude   Float?
+  pontoLongitude  Float?
+  pontoRaioMetros Int      @default(100)
+  registrosPonto  RegistroPonto[]
+  
+  // Fila de TV
+  filasChamadas   FilaChamada[]
+  
+  // Marketing & CRM
+  campanhas       Campanha[]
+  automacoes      AutomacaoMarketing[]
+  templates       TemplateMensagem[]
 }
 
 model Reminder {
@@ -66,20 +160,705 @@ model Reminder {
   email           String?
   is_fixed        Boolean  @default(false)
   user_id         String?
+  unitId          String?
+  unit            Unit?    @relation(fields: [unitId], references: [id])
   createdAt       DateTime @default(now())
 }
 
 model Meeting {
+  id                    String      @id @default(uuid())
+  title                 String
+  description           String?
+  date                  String
+  time                  String?
+  duration              Int?
+  link                  String?
+  type                  String
+  status                String
+  motivoCancelamento    String?
+  participants          String?
+  user_id               String?
+  user                  User?       @relation(fields: [user_id], references: [id])
+  pacienteId            String?
+  paciente              Paciente?   @relation(fields: [pacienteId], references: [id])
+  tokenPublico          String?     @unique
+  isPublic              Boolean     @default(false)
+  notificacao2hEnviada  Boolean     @default(false)
+  createdAt             DateTime    @default(now())
+
+  // Novas Relacoes TISS / Faturamento
+  unitId                String?
+  unit                  Unit?       @relation(fields: [unitId], references: [id])
+  convenioId            String?
+  convenio              Convenio?   @relation(fields: [convenioId], references: [id])
+  procedimentoId        String?
+  procedimento          Procedimento? @relation(fields: [procedimentoId], references: [id])
+  consultorioId         String?
+  consultorio           Consultorio?  @relation(fields: [consultorioId], references: [id])
+  patientToken          String?
+
+  prontuario            Prontuario?
+  guiaTISS              GuiaTISS?
+  repasseMedico         RepasseMedico?
+
+  @@index([date, status])
+  @@index([user_id, date])
+  @@index([unitId, date])
+}
+
+model Prontuario {
+  id              String   @id @default(uuid())
+  meetingId       String   @unique
+  meeting         Meeting  @relation(fields: [meetingId], references: [id])
+  
+  // Prontuário Médico
+  anamnese        String?
+  exameFisico     String?
+  diagnostico     String?
+  conduta         String?
+  prescricao      String?
+  
+  // AI Scribe
+  transcricaoCrua String?
+  resumoJSON      String?
+  audioUrl        String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Convenio {
+  id        String     @id @default(uuid())
+  nome          String
+  ansId         String?
+  requiresToken Boolean  @default(false)
+  active        Boolean  @default(true)
+  
+  unitId        String
+  unit          Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  createdAt     DateTime @default(now())
+  guias         GuiaTISS[]
+  meetings      Meeting[]
+  procedimentos ConvenioProcedimento[]
+  pacientes     Paciente[]
+}
+
+model Procedimento {
+  id          String   @id @default(uuid())
+  nome        String
+  codigoBase  String?  // Ex: TUSS generico ou CBHPM
+  
+  unitId      String
+  unit        Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+  
+  convenios   ConvenioProcedimento[]
+  meetings    Meeting[]
+}
+
+model ConvenioProcedimento {
+  convenioId       String
+  procedimentoId   String
+  codigoEspecifico String? // Código interno exigido pelo convênio
+  valor            Float   @default(0.0)
+  carenciaDias     Int     @default(0)
+
+  convenio         Convenio     @relation(fields: [convenioId], references: [id], onDelete: Cascade)
+  procedimento     Procedimento @relation(fields: [procedimentoId], references: [id], onDelete: Cascade)
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@id([convenioId, procedimentoId])
+}
+
+model LoteTISS {
+  id        String     @id @default(uuid())
+  numero    String     @unique
+  status    String     @default("gerado")
+  xmlUrl    String?
+  createdAt DateTime   @default(now())
+  guias     GuiaTISS[]
+}
+
+model GuiaTISS {
+  id         String    @id @default(uuid())
+  meetingId  String    @unique
+  meeting    Meeting   @relation(fields: [meetingId], references: [id])
+  convenioId String
+  convenio   Convenio  @relation(fields: [convenioId], references: [id])
+  loteId     String?
+  lote       LoteTISS? @relation(fields: [loteId], references: [id])
+  valor      Float     @default(0)
+  status     String    @default("pendente") // pendente, faturado, glosado, pago
+  valorGlosa Float?
+  motivoGlosa String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model Subscription {
+  id     String @id @default(uuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+  plan   String // "Standard", "Cloud", "Google", "Enterprise"
+
+  // Limites (Quotas)
+  dailyLimit   Int @default(10000)
+  weeklyLimit  Int @default(50000)
+  monthlyLimit Int @default(200000)
+
+  // Consumo Atual (Reseta periodicamente)
+  tokensUsedDaily   Int @default(0)
+  tokensUsedWeekly  Int @default(0)
+  tokensUsedMonthly Int @default(0)
+  storageUsedBytes  BigInt @default(0) // Armazenamento em disco por conta
+
+  // Controle de Reset
+  lastDailyReset   DateTime @default(now())
+  lastWeeklyReset  DateTime @default(now())
+  lastMonthlyReset DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TokenLog {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  service        String // ex: "Whisper", "Claude_RAG"
+  tokensConsumed Int
+  createdAt      DateTime @default(now())
+}
+
+model UserUnit {
+  userId String
+  unitId String
+  role   String @default("member") // "owner", "admin", "member"
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unit   Unit   @relation(fields: [unitId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([userId, unitId])
+}
+
+model FinancialAccount {
+  id         String   @id @default(uuid())
+  title      String
+  supplier   String
+  value      String
+  dueDate    String
+  category   String
+  status     String   @default("Em Aberto")
+  notes      String?
+  imageUrl   String?
+  aiCategory String?
+  
+  unitId     String
+  unit       Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  type       String   @default("PAYABLE") // PAYABLE ou RECEIVABLE
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model RepasseMedico {
+  id              String   @id @default(uuid())
+  medicoId        String
+  medico          User     @relation("MedicoRepasse", fields: [medicoId], references: [id])
+  
+  meetingId       String?  @unique
+  meeting         Meeting? @relation(fields: [meetingId], references: [id])
+  
+  valorTotal      Float
+  percentual      Float    // Ex: 60.0 para 60%
+  valorRepasse    Float
+  
+  status          String   @default("PENDENTE") // PENDENTE, PAGO
+  dataPagamento   DateTime?
+  
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model NotaFiscal {
+  id              String   @id @default(uuid())
+  numero          String?
+  rps             String?
+  status          String   @default("EM_PROCESSAMENTO")
+  ambiente        String   @default("HOMOLOGACAO")
+  
+  valor           Float
+  descricao       String
+  cnae            String?
+  codigoServico   String?
+  
+  tomadorNome     String
+  tomadorDocumento String
+  tomadorEmail    String?
+  tomadorEndereco String?
+  
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  pdfUrl          String?
+  xmlUrl          String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model UnitConfigFiscal {
+  id                   String   @id @default(uuid())
+  unitId               String   @unique
+  unit                 Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  certificadoSenha     String?
+  certificadoValidade  DateTime?
+  certificadoStatus    String   @default("PENDENTE")
+  ambienteEmissao      String   @default("HOMOLOGACAO")
+  impostosRetidos      Boolean  @default(false)
+  aliquotaIss          Float?
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model OrdemServico {
+  id              String   @id @default(uuid())
+  protocolo       String   @unique
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  // Relacionamentos
+  solicitanteId   String?  
+  solicitante     User?    @relation("OSSolicitante", fields: [solicitanteId], references: [id])
+  responsavelId   String?  
+  responsavel     User?    @relation("OSResponsavel", fields: [responsavelId], references: [id])
+  patrimonioId    String?
+  patrimonio      Patrimonio? @relation(fields: [patrimonioId], references: [id])
+  
+  // Dados da OS
+  categoria       String
+  descricao       String
+  prioridade      String   @default("Normal") // Baixa, Normal, Alta, Critica
+  status          String   @default("Aberta") // Aberta, Em triagem, Em atendimento, Aguardando, Resolvida, Encerrada
+  prazoSLA        DateTime?
+  comentarios     String?
+  solucao         String?
+  dataResolucao   DateTime?
+  valorCusto      Float?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Patrimonio {
+  id              String   @id @default(uuid())
+  codigoTag       String   @unique
+  nome            String
+  descricao       String?
+  categoria       String   // Equipamento medico, TI, Mobiliario, etc
+  
+  dataAquisicao   DateTime?
+  valorAquisicao  Float?
+  marca           String?
+  modelo          String?
+  numeroSerie     String?
+  fornecedor      String?
+  garantiaFim     DateTime?
+  observacoes     String?
+  localizacao     String?  // Sala/Setor
+  estado          String?  // Bom, Regular, Ruim, Necessita Reparo
+  status          String   @default("Ativo") // Ativo, Em Manutencao, Inativo, Baixado
+  
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  responsavelId   String?
+  responsavel     User?    @relation("PatrimonioResponsavel", fields: [responsavelId], references: [id])
+  
+  ordensServico   OrdemServico[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action    String   // Ex: "DOWNLOAD_RELATORIO", "ACESSO_PACIENTE"
+  details   String?  // Info adicional, JSON string ou texto
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model KanbanCard {
   id          String   @id @default(uuid())
   title       String
   description String?
-  date        String
-  time        String?
-  duration    Int?
-  link        String?
-  type        String
-  status      String
-  participants String?
-  user_id     String?
+  assignee    String?
+  dueDate     DateTime?
+  priority    String   @default("medium")
+  column      String   @default("todo")
+  tags        String?  // Armazenado como JSON string ou vírgulas separados
+  
+  unitId      String
+  unit        Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Consultorio {
+  id        String    @id @default(uuid())
+  nome      String
+  unitId    String
+  unit      Unit      @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  meetings  Meeting[]
+
+  createdAt DateTime  @default(now())
+}
+
+model DocumentoMedico {
+  id          String   @id @default(uuid())
+  tipo        String   // "RECEITA", "ATESTADO", "PRONTUARIO", "ENCAMINHAMENTO", "PEDIDO_EXAME"
+  conteudo    String   // Texto rico, Markdown ou JSON
+  
+  pacienteId  String
+  paciente    Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  medicoId    String
+  medico      User     @relation("MedicoDocumento", fields: [medicoId], references: [id])
+  
+  unitId      String
+  unit        Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
   createdAt   DateTime @default(now())
 }
+
+model Exame {
+  id                  String   @id @default(uuid())
+  titulo              String   // Ex: "Ressonância Magnética do Joelho Esquerdo"
+  modalidade          String   // "RM", "TC", "RX", "US", etc
+  
+  status              String   @default("AGUARDANDO_LAUDO") // "AGENDADO", "REALIZADO", "AGUARDANDO_LAUDO", "LAUDADO", "CANCELADO"
+  dataHoraAgendamento DateTime?
+  dataHoraRealizacao  DateTime?
+  
+  observacoes         String?  // Suspeita clínica
+  
+  pacienteId          String
+  paciente            Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  medicoSolicitanteId String?
+  medicoSolicitante   User?    @relation("MedicoSolicitante", fields: [medicoSolicitanteId], references: [id])
+  
+  medicoLaudadorId    String?
+  medicoLaudador      User?    @relation("MedicoLaudador", fields: [medicoLaudadorId], references: [id])
+  
+  unitId              String
+  unit                Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  laudo               Laudo?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model Laudo {
+  id               String   @id @default(uuid())
+  textoLaudo       String   // Conteudo em texto ou Markdown/JSON do laudo medico
+  conclusao        String?
+  
+  status           String   @default("RASCUNHO") // "RASCUNHO", "ASSINADO"
+  dataAssinatura   DateTime?
+  
+  exameId          String   @unique
+  exame            Exame    @relation(fields: [exameId], references: [id], onDelete: Cascade)
+  
+  assinadoPorId    String?
+  assinadoPor      User?    @relation("MedicoLaudoAssinado", fields: [assinadoPorId], references: [id])
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// ----------------------------------------------------
+// Modulo: Especialidade (Estetica, Dermato, Fisio)
+// ----------------------------------------------------
+
+model Pacote {
+  id          String   @id @default(uuid())
+  nome        String   // Ex: "Pacote Depilacao a Laser - 10 Sessoes"
+  descricao   String?
+  valor       Float    @default(0.0)
+  qtdSessoes  Int      @default(1)
+  
+  unitId      String
+  unit        Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  pacientes   PacotePaciente[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PacotePaciente {
+  id                String   @id @default(uuid())
+  pacienteId        String
+  paciente          Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  pacoteId          String
+  pacote            Pacote   @relation(fields: [pacoteId], references: [id], onDelete: Cascade)
+  
+  sessoesRealizadas Int      @default(0)
+  sessoesTotais     Int
+  
+  status            String   @default("ATIVO") // ATIVO, CONCLUIDO, CANCELADO
+  dataAquisicao     DateTime @default(now())
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model GaleriaMedia {
+  id          String   @id @default(uuid())
+  url         String   // URL do S3/Cloud Storage
+  tipo        String   @default("FOTO") // FOTO, VIDEO
+  categoria   String   @default("ANTES") // ANTES, DEPOIS, EVOLUCAO
+  descricao   String?  // Ex: "Sessão 1 - Lateral Direita"
+  
+  pacienteId  String
+  paciente    Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  dataCaptura DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model TermoConsentimento {
+  id             String   @id @default(uuid())
+  titulo         String   // Ex: "Termo de Consentimento - Aplicação de Toxina Botulínica"
+  texto          String   // Conteudo do termo
+  
+  assinado       Boolean  @default(false)
+  dataAssinatura DateTime?
+  assinaturaUrl  String?  // Link/Hash da assinatura digital
+  
+  pacienteId     String
+  paciente       Paciente @relation(fields: [pacienteId], references: [id], onDelete: Cascade)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// ----------------------------------------------------
+// Modulo: Estoque & Suprimentos
+// ----------------------------------------------------
+
+model Produto {
+  id              String   @id @default(uuid())
+  nome            String
+  sku             String?
+  categoria       String   // "Medicamentos", "Insumos", "Equipamentos", "EPIs"
+  quantidadeAtual Float    @default(0)
+  estoqueMinimo   Float    @default(0)
+  unidadeMedida   String   @default("UN") // UN, CX, ML, MG
+  valorUnitario   Float?   @default(0)
+  
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  movimentacoes   MovimentacaoEstoque[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model MovimentacaoEstoque {
+  id            String   @id @default(uuid())
+  tipo          String   // "ENTRADA", "SAIDA", "AJUSTE"
+  quantidade    Float
+  motivo        String?
+  
+  produtoId     String
+  produto       Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  
+  responsavelId String?
+  responsavel   User?    @relation(fields: [responsavelId], references: [id])
+  
+  createdAt     DateTime @default(now())
+}
+
+// ----------------------------------------------------
+// Modulo: RH e Departamento Pessoal
+// ----------------------------------------------------
+
+model Escala {
+  id              String   @id @default(uuid())
+  nome            String   // Ex: Escala Mensal Enfermeiros, Plantão Fim de Semana
+  mesReferencia   String?  // Ex: "2026-10"
+  
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  plantoes        Plantao[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Plantao {
+  id              String   @id @default(uuid())
+  data            DateTime // Data do plantão
+  turno           String   // MANHA, TARDE, NOITE, INTEGRAL
+  
+  escalaId        String
+  escala          Escala   @relation(fields: [escalaId], references: [id], onDelete: Cascade)
+  
+  profissionalId  String
+  profissional    User     @relation("UserPlantoes", fields: [profissionalId], references: [id])
+  
+  status          String   @default("AGENDADO") // AGENDADO, REALIZADO, FALTA, ATESTADO
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model RegistroPonto {
+  id              String   @id @default(uuid())
+  dataHora        DateTime @default(now())
+  tipo            String   // ENTRADA, SAIDA_ALMOCO, RETORNO_ALMOCO, SAIDA
+  
+  fotoUrl         String?  // Link da selfie Base64/S3
+  latitude        Float?
+  longitude       Float?
+  precisao        Float?   // Margem de erro em metros do GPS
+  statusLocal     String?  @default("VALIDO") // VALIDO, INVALIDO
+  
+  profissionalId  String
+  profissional    User     @relation("UserPontos", fields: [profissionalId], references: [id])
+  
+  unitId          String
+  unit            Unit     @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+}
+
+model FilaChamada {
+  id              String    @id @default(uuid())
+  senha           String    // Ex: "N-012", "P-003", "Maria Silva"
+  pacienteNome    String?   // Nome do paciente
+  guiche          String?   // Ex: "Balcão 1", "Triagem", "Consultório 2"
+  etapa           String    @default("RECEPCAO") // RECEPCAO, TRIAGEM, CONSULTORIO, FINALIZADO
+  tipo            String    @default("NORMAL")   // NORMAL, PREFERENCIAL, EXAMES, RETORNO
+  prioridade      Int       @default(0)          // 0 = Normal, 1 = Preferencial
+  status          String    @default("AGUARDANDO") // AGUARDANDO, CHAMANDO, ATENDENDO, FINALIZADO, AUSENTE
+  chamadasCount   Int       @default(1)
+  medicoNome      String?
+  chamadoEm       DateTime?
+  
+  pacienteId      String?
+  paciente        Paciente? @relation(fields: [pacienteId], references: [id])
+  
+  unitId          String
+  unit            Unit      @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+}
+
+// ----------------------------------------------------
+// Modulo: Marketing Automático & Engine CRM
+// ----------------------------------------------------
+
+model Campanha {
+  id               String   @id @default(uuid())
+  nome             String   // Ex: "Campanha Botox Day Outubro"
+  tipo             String   @default("WHATSAPP") // "WHATSAPP", "EMAIL"
+  status           String   @default("RASCUNHO") // "RASCUNHO", "ATIVA", "PAUSADA", "CONCLUIDA"
+  gatilho          String   @default("MANUAL")   // "MANUAL", "NPS_POS_CONSULTA", "ANIVERSARIO", "CHECKUP_RETORNO", "UPSELL_PACOTE", "RECUPERACAO_FALTA"
+  conteudoMensagem String
+  assunto          String?
+  segmentoFiltro   String?  // JSON string com filtros aplicados
+  
+  enviados         Int      @default(0)
+  abertos          Int      @default(0)
+  cliques          Int      @default(0)
+  conversoes       Int      @default(0)
+  
+  unitId           String?
+  unit             Unit?    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  logs             LogDisparoMarketing[]
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model AutomacaoMarketing {
+  id               String   @id @default(uuid())
+  nome             String   // Ex: "NPS Pós-Consulta 24h"
+  gatilho          String   // "NPS_POS_CONSULTA", "ANIVERSARIO", "CHECKUP_RETORNO", "UPSELL_PACOTE", "RECUPERACAO_FALTA"
+  ativo            Boolean  @default(true)
+  canal            String   @default("WHATSAPP") // "WHATSAPP", "EMAIL"
+  diasAtraso       Int      @default(0)
+  conteudoMensagem String
+  assunto          String?
+  
+  unitId           String?
+  unit             Unit?    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  logs             LogDisparoMarketing[]
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model TemplateMensagem {
+  id               String   @id @default(uuid())
+  titulo           String   // Ex: "Lembrete Retorno 6 Meses"
+  categoria        String   @default("GERAL") // "POS_CONSULTA", "ANIVERSARIO", "UPSELL", "PROMO", "RECUPERACAO", "GERAL"
+  canal            String   @default("WHATSAPP") // "WHATSAPP", "EMAIL"
+  assunto          String?
+  conteudo         String
+  
+  unitId           String?
+  unit             Unit?    @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model LogDisparoMarketing {
+  id               String   @id @default(uuid())
+  campanhaId       String?
+  campanha         Campanha? @relation(fields: [campanhaId], references: [id], onDelete: SetNull)
+  
+  automacaoId      String?
+  automacao        AutomacaoMarketing? @relation(fields: [automacaoId], references: [id], onDelete: SetNull)
+  
+  pacienteId       String?
+  paciente         Paciente? @relation(fields: [pacienteId], references: [id], onDelete: SetNull)
+  
+  canal            String    @default("WHATSAPP") // "WHATSAPP", "EMAIL"
+  destinatario     String    // Número ou E-mail
+  status           String    @default("ENVIADO")  // "ENVIADO", "ENTREGUE", "ABERTO", "CONVERTIDO", "FALHA"
+  mensagemEnviada  String
+  
+  createdAt        DateTime  @default(now())
+}
+
+
+

@@ -1,0 +1,45 @@
+# MEDCore
+
+## About the Project
+MEDCore is a modern end-to-end clinical management system. Its purpose is to eliminate administrative and clinical friction through Artificial Intelligence, allowing clinics to operate smoothly from scheduling to billing.
+
+## Tech Stack
+- **Framework**: Next.js 15 (App Router, Turbopack)
+- **Frontend**: React 19, Tailwind CSS v4, GSAP (Animations), Lucide React (Icons), Recharts, Dnd-Kit.
+- **Backend**: Node.js, Prisma ORM, PostgreSQL.
+- **AI & Processing**: LangChain, AI SDKs (Google, OpenAI, Anthropic), Groq (for fast inference).
+- **Background Jobs**: BullMQ & Redis.
+- **Integrations**: Twilio (WhatsApp), AWS S3.
+
+## Principles & Positioning
+1. **The AI as a Silent Operator**: The doctor speaks, the system structures. Less clicking, more context.
+2. **Immediate Financial Robustness**: Generation of TISS guides and dashboards are core business features.
+3. **Aviation Clarity**: Clean interfaces, balanced data density, and well-protected destructive actions, always maintaining a reliable corporate tone.
+4. **Brand Commitments**: "Medical Navy" palette (Corporate Navy Blue with Cyan and Coral highlights). Professional, clean, and reliable.
+
+## Core Capabilities
+- Online Scheduling with WhatsApp reminders (Twilio/NLP).
+- Ultra-fast Transcription (Whisper + Groq) and RAG Structuring (Claude 3.5 Sonnet) for Medical Records.
+- XML Export Engine for the rigid TISS 4.01 standard (ANS).
+
+## Target Users
+- **Doctors**: Primary users during consultations with low screen time (audio-dependent).
+- **Receptionists**: Fast-paced usage for schedule confirmation via WhatsApp.
+- **Billing / Admin**: Operates at peak times at month-end, requiring clear, high-volume tables.
+
+## Project Structure
+- `/src/app`: Next.js 15 App Router pages, layouts, and API routes.
+- `/src/components`: Reusable UI components.
+- `/src/features`: Feature-based modules (e.g., billing, scheduling, records).
+- `/src/lib`: Core utilities, clients, and configurations (e.g., Prisma, AI clients, Redis/BullMQ queue workers).
+- `/src/context` & `/src/store`: State management.
+- `/src/types`: TypeScript definitions.
+- `/prisma`: Prisma schema and migrations.
+- `/supabase`: Supabase-related configurations or local setup.
+
+## AI Assistant / LLM Guidelines
+1. **Component Usage**: Always prefer using established patterns within `/src/components` and `/src/features`.
+2. **Type Safety**: Strictly follow TypeScript typing. Avoid `any`.
+3. **Styling**: Use Tailwind CSS v4. Avoid arbitrary values unless strictly necessary. Adhere strictly to the "Medical Navy" color palette.
+4. **UI/UX Philosophy**: Keep the UI "Aviation Clear". Prioritize data density and readability. Destructive actions must be protected. Micro-animations (via GSAP) should only provide functional feedback.
+5. **AI/Data Integrity**: In AI-related code (LangChain, Groq, AI SDK), ensure robust error handling and fallback mechanisms. Clinical data accuracy is paramount.

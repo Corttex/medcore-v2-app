@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *, [data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   /* Dynamic Theme Variables */
   --color-background: var(--background);
@@ -8,7 +10,13 @@
   --color-on-surface-variant: var(--on-surface-variant);
   --color-outline-variant: var(--outline-variant);
   
-  /* Brand Colors (Constant) */
+  /* Brand Colors (Medical Conversion Palette) */
+  --color-rd-navy: #0F2C59; /* Deep Medical Navy - Confiança, Estabilidade, Saúde */
+  --color-rd-lime: #FF5A5F; /* Vibrant Coral - Urgência, Desejo de Compra, Conversão */
+  --color-rd-cyan: #00A9FF; /* Clinical Blue - Tecnologia, Limpeza, Saúde */
+  --color-rd-mint: #E8F5FD; /* Soft Medical Blue - Fundos, Destaques suaves */
+
+  /* Legacy Brand Colors */
   --color-primary: #00b8d9;
   --color-primary-container: #0099b8;
   --color-on-primary: #ffffff;
@@ -24,8 +32,8 @@
   --color-brand-container: var(--brand-container);
   --color-on-brand: #ffffff;
 
-  --font-heading: var(--font-plus-jakarta), sans-serif;
-  --font-body: var(--font-plus-jakarta), sans-serif;
+  --font-heading: var(--font-heading-next), sans-serif;
+  --font-body: var(--font-body-next), sans-serif;
 
   /* Premium Shadows */
   --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(0, 0, 0, 0.2);
@@ -38,16 +46,16 @@
   }
 
   :root {
-    /* Dark Theme (Default) */
-    --background: #0f121d;
-    --surface: #1e2538;
-    --on-surface: #e8edf5;
-    --on-surface-variant: #6b7a90; /* Improved Contrast */
-    --outline-variant: #2e3a52;
+    /* Light Theme (Default for RD Station Style) */
+    --background: #ffffff;
+    --surface: #f8fafc;
+    --on-surface: #003D5C;
+    --on-surface-variant: #64748b;
+    --outline-variant: #e2e8f0;
     
-    /* Default Palette (Violet/Lilac) */
-    --brand: #a78bfa;
-    --brand-container: #8b5cf6;
+    /* Default Palette */
+    --brand: #C3F628;
+    --brand-container: #00D4FF;
   }
 
   /* Paletas Corporativas */
@@ -71,43 +79,71 @@
     --brand-container: #f43f5e;
   }
 
-  [data-theme='light'] {
-    /* Light Theme Inversion */
-    --background: #f8fafc;
-    --surface: #ffffff;
-    --on-surface: #0f172a;
-    --on-surface-variant: #64748b;
-    --outline-variant: #e2e8f0;
+  [data-theme='dark'], .dark {
+    /* Dark Theme Inversion (Clinical Deep Navy) */
+    --background: #061224; /* Deepest Navy / Quase preto */
+    --surface: #0F2C59;    /* Medical Navy base para cards */
+    --on-surface: #F8FAFC; /* Branco gelo para textos */
+    --on-surface-variant: #94A3B8;
+    --outline-variant: #1E3A8A;
   }
 
   body {
-    @apply bg-background text-on-surface font-body antialiased selection:bg-primary/20 transition-colors duration-300;
+    @apply bg-background text-on-surface font-body antialiased selection:bg-rd-lime/30 transition-colors duration-300;
     scroll-behavior: smooth;
   }
 
   /* Custom Premium Scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: rgba(15, 23, 42, 0.6);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: rgba(167, 139, 250, 0.1);
+    background: #00A9FF;
     border-radius: 10px;
     transition: all 0.3s ease;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(167, 139, 250, 0.3);
+    background: #38bdf8;
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(167, 139, 250, 0.1) transparent;
+    scrollbar-color: #00A9FF rgba(15, 23, 42, 0.6);
+  }
+
+  /* Custom Blue/Cyan Scrollbar for Popups & Modals */
+  .custom-blue-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #00A9FF rgba(15, 23, 42, 0.9);
+  }
+
+  .custom-blue-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-blue-scrollbar::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.9);
+    border-radius: 9999px;
+    margin: 4px 0;
+  }
+
+  .custom-blue-scrollbar::-webkit-scrollbar-thumb {
+    background: #00A9FF;
+    border-radius: 9999px;
+    border: 2px solid rgba(15, 23, 42, 0.9);
+    box-shadow: 0 0 10px rgba(0, 169, 255, 0.6);
+  }
+
+  .custom-blue-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #38bdf8;
   }
 }
 
@@ -131,6 +167,22 @@
     animation: pulse-slow 4s infinite ease-in-out;
   }
 
+  /* Float Animation for Animated Mesh Gradient */
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1) translateX(0); }
+    33% { transform: translateY(-5%) scale(1.05) translateX(3%); }
+    66% { transform: translateY(5%) scale(0.95) translateX(-3%); }
+  }
+
+  .animate-float {
+    animation: float 15s ease-in-out infinite;
+  }
+  
+  .animate-float-delayed {
+    animation: float 18s ease-in-out infinite;
+    animation-delay: -5s;
+  }
+
   /* Sem backdrop-blur pesado — apenas borda + sombra leve */
   .glass-panel {
     @apply bg-surface border border-outline-variant/50 shadow-card;
@@ -145,7 +197,7 @@
   }
 
   .btn-gradient {
-    @apply bg-gradient-to-br from-[#00b8d9] to-[#0099b8] text-on-primary hover:opacity-90;
+    @apply bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:via-indigo-500 hover:to-blue-600 text-white font-semibold shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200;
   }
 
   .btn-gradient-brand {

@@ -10,7 +10,7 @@ export async function GET() {
     const patientsCount = await prisma.paciente.count();
     
     const today = new Date().toISOString().split('T')[0];
-    const meetingsCount = await prisma.meeting.count({
+    const meetingsToday = await prisma.meeting.count({
       where: { date: today }
     });
 
@@ -18,11 +18,42 @@ export async function GET() {
       where: { status: 'pending' }
     });
 
+    // Calcular Faturamento TISS
+    const guias = await prisma.guiaTISS.aggregate({
+      _sum: { valor: true }
+    });
+    
+    const faturamentoTotal = guias._sum.valor || 0;
+    
+    // Contar notas pendentes
+    const notasPendentes = await prisma.guiaTISS.count({
+      where: { status: 'pendente' }
+    });
+
     return NextResponse.json({
+      // Dados Reais
       patients: patientsCount,
-      meetings: meetingsCount,
+      meetingsToday: meetingsToday,
+      totalCapacityToday: 60, // Limite hardcoded temporário para o MVP
       reminders: remindersCount,
-      criticalAlerts: 0
+      criticalAlerts: 0,
+      faturamento: faturamentoTotal,
+      notasPendentes: notasPendentes,
+      
+      // Dados Zerados para o Piloto (Sem funcionalidade no MVP)
+      efficiency: 0,
+      efficiencyTrend: "0%",
+      utiOccupancy: 0,
+      surgeryOccupancy: 0,
+      staffNursing: 0,
+      staffMedicine: 0,
+      staffTechs: 0,
+      absenteeismRate: 0,
+      
+      // Dados IA Zerados/Placeholder
+      aiPrediction: "Aguardando volume de dados históricos para gerar predições.",
+      aiCompliance: "Sem registros suficientes para auditar.",
+      aiOpportunities: "0"
     }, {
       headers: {
         "Cache-Control": "private, max-age=5, stale-while-revalidate=30"
@@ -32,4 +63,3 @@ export async function GET() {
     return NextResponse.json({ error: "Erro ao buscar estatísticas" }, { status: 500 });
   }
 }
-

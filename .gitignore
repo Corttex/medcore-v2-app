@@ -11,6 +11,14 @@ build
 .DS_Store
 *.pem
 
+# Database local
+prisma/*.db
+prisma/*.db-journal
+
+# Temporary / Scratch
+.impeccable/
+fix-*.js
+
 # Stitch
 .stitch/
 

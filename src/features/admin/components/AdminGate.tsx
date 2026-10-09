@@ -63,7 +63,7 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
 
         <form onSubmit={handleUnlock} className="space-y-6 relative z-10">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+            <label className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
               <ShieldAlert size={12} className="text-error" /> PIN de Segurança
             </label>
             <input

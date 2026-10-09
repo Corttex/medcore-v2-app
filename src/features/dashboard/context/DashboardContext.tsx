@@ -30,9 +30,36 @@ const defaultUnit: Unit = {
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [selectedUnitId, setSelectedUnitId] = useState<string | null>("default-unit-1");
-  const [units, setUnits] = useState<Unit[]>([defaultUnit]);
-  const [loadingUnits, setLoadingUnits] = useState<boolean>(false);
+  const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
+  const [units, setUnits] = useState<Unit[]>([]);
+  const [loadingUnits, setLoadingUnits] = useState<boolean>(true);
+
+  useEffect(() => {
+    async function fetchUnits() {
+      try {
+        const res = await fetch("/api/units");
+        if (res.ok) {
+          const data = await res.json();
+          setUnits(data.units || []);
+          
+          if (data.units && data.units.length > 0) {
+            // Se já existir uma unidade primária definida no usuário
+            if (data.primaryUnitId) {
+              setSelectedUnitId(data.primaryUnitId);
+            } else if (data.units.length === 1) {
+              // Se tiver só 1 unidade, já seta ela
+              setSelectedUnitId(data.units[0].id);
+            }
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao buscar unidades:", err);
+      } finally {
+        setLoadingUnits(false);
+      }
+    }
+    fetchUnits();
+  }, []);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 

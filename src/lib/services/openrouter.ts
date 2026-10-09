@@ -1,3 +1,5 @@
+"use server";
+
 // OpenRouter AI Service — compatível com formato OpenAI
 import { sanitize } from "@/lib/sanitize";
 // Modelos GRATUITOS disponíveis:
@@ -29,10 +31,10 @@ export async function callAI(
   messages: OpenRouterMessage[],
   model: OpenRouterModel = "minimax/minimax-m2.5:free"
 ): Promise<string> {
-  const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY || process.env.NEXT_PUBLIC_OPENROUTER_API_KEY;
   
   if (!apiKey) {
-    throw new Error("NEXT_PUBLIC_OPENROUTER_API_KEY não configurada no .env.local");
+    throw new Error("OPENROUTER_API_KEY não configurada no .env");
   }
 
   const response = await fetch(OPENROUTER_API_URL, {
@@ -41,7 +43,7 @@ export async function callAI(
       "Authorization": `Bearer ${apiKey}`,
       "Content-Type": "application/json",
       "HTTP-Referer": "https://medcore.app",
-      "X-Title": "MedCore — Sistema de Gestão Hospitalar",
+      "X-Title": "MedCore - Sistema de Gestao Hospitalar",
     },
     body: JSON.stringify({
       model,
@@ -95,6 +97,23 @@ Responda APENAS com: {"categoria": "CATEGORIA", "descricao_curta": "Descrição 
     {
       role: "user",
       content: description,
+    },
+  ]);
+}
+
+// Prompt pré-fabricado para insights de Patrimônio
+export async function analyzePatrimonioCosts(patrimonioData: string): Promise<string> {
+  return callAI([
+    {
+      role: "system",
+      content: `Você é a IA "Jarvis" da MedCore, focada em eficiência financeira de equipamentos hospitalares.
+O usuário enviará dados de um equipamento e o histórico de custos com Ordens de Serviço (manutenção).
+Identifique o Custo Total de Manutenção vs Valor de Aquisição.
+Forneça um "Insight Executivo" curto (2-3 linhas) dizendo se o equipamento está dando lucro ou prejuízo, e se recomenda conserto ou substituição baseando-se nos custos. Use linguagem clara, direta e médica/gestora.`,
+    },
+    {
+      role: "user",
+      content: patrimonioData,
     },
   ]);
 }

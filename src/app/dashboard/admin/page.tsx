@@ -44,20 +44,20 @@ export default function AdminPage() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-             <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-[10px] font-black uppercase tracking-widest rounded-full">ADMINMASTER PANEL</span>
+             <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-sm font-semibold uppercase tracking-widest rounded-full">ADMINMASTER PANEL</span>
           </div>
-          <h1 className="font-heading text-6xl font-black tracking-tighter text-on-surface leading-[0.9] italic">
+          <h1 className="font-heading text-6xl font-semibold tracking-tighter text-on-surface leading-[0.9] ">
             Controle <span className="text-gradient">Absoluto</span>
           </h1>
-          <p className="text-on-surface-variant font-medium italic opacity-80 max-w-xl">
+          <p className="text-on-surface-variant font-medium opacity-80 max-w-xl">
             Gestão financeira de elite, cancelamentos e controle global de infraestrutura operacional.
           </p>
         </div>
         
         <div className="flex items-center gap-6 bg-surface-container-low p-4 rounded-3xl border border-outline-variant/30">
           <div className="text-right">
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest leading-none mb-1">Status Global</p>
-            <p className="text-sm font-black text-emerald-500 flex items-center gap-2 justify-end uppercase tracking-tighter">
+            <p className="text-sm font-semibold text-zinc-500 uppercase tracking-widest leading-none mb-1">Status Global</p>
+            <p className="text-sm font-semibold text-emerald-500 flex items-center gap-2 justify-end uppercase tracking-tighter">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Sistema Saudável
             </p>
           </div>
@@ -69,15 +69,15 @@ export default function AdminPage() {
         <div className="p-8 bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] space-y-4 hover:border-primary/40 transition-all group relative overflow-hidden">
           <div className="absolute top-4 right-4 flex items-center gap-1.5 px-2 py-0.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full">
             <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-            <span className="text-[8px] font-black text-emerald-500 uppercase tracking-widest">LIVE</span>
+            <span className="text-sm font-semibold text-emerald-500 uppercase tracking-widest">LIVE</span>
           </div>
           <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary border border-primary/20">
             <DollarSign size={24} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">MRR (Mensal)</p>
-            <h3 className="text-3xl font-black text-on-surface font-heading italic tracking-tighter">R$ 142.500</h3>
-            <p className="text-xs text-emerald-500 font-bold flex items-center gap-1 mt-2">
+            <p className="text-sm font-semibold text-zinc-500 uppercase tracking-widest mb-1">MRR (Mensal)</p>
+            <h3 className="text-3xl font-semibold text-on-surface font-heading tracking-tighter">R$ 142.500</h3>
+            <p className="text-xs text-emerald-500 font-medium flex items-center gap-1 mt-2">
               <TrendingUp size={12} /> +12.5% este mês
             </p>
           </div>
@@ -88,9 +88,9 @@ export default function AdminPage() {
             <TrendingUp size={24} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Novas Entradas</p>
-            <h3 className="text-3xl font-black text-on-surface font-heading italic tracking-tighter">42 Contratos</h3>
-            <p className="text-xs text-zinc-500 font-medium italic mt-2">Últimas 24 horas</p>
+            <p className="text-sm font-semibold text-zinc-500 uppercase tracking-widest mb-1">Novas Entradas</p>
+            <h3 className="text-3xl font-semibold text-on-surface font-heading tracking-tighter">42 Contratos</h3>
+            <p className="text-xs text-zinc-500 font-medium mt-2">Últimas 24 horas</p>
           </div>
         </div>
 
@@ -99,9 +99,9 @@ export default function AdminPage() {
             <UserMinus size={24} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Cancelamentos</p>
-            <h3 className="text-3xl font-black text-on-surface font-heading italic tracking-tighter">03 <span className="text-xs opacity-50">/mês</span></h3>
-            <p className="text-xs text-error/70 font-bold mt-2">Retention Rate: 98.2%</p>
+            <p className="text-sm font-semibold text-zinc-500 uppercase tracking-widest mb-1">Cancelamentos</p>
+            <h3 className="text-3xl font-semibold text-on-surface font-heading tracking-tighter">03 <span className="text-xs opacity-50">/mês</span></h3>
+            <p className="text-xs text-error/70 font-medium mt-2">Retention Rate: 98.2%</p>
           </div>
         </div>
 
@@ -110,9 +110,9 @@ export default function AdminPage() {
             <BarChart3 size={24} />
           </div>
           <div>
-            <p className="text-[10px] font-black text-zinc-500 uppercase tracking-widest mb-1">Aproveitamento</p>
-            <h3 className="text-3xl font-black text-on-surface font-heading italic tracking-tighter">94%</h3>
-            <p className="text-xs text-zinc-500 font-medium italic mt-2">Eficiência operacional</p>
+            <p className="text-sm font-semibold text-zinc-500 uppercase tracking-widest mb-1">Aproveitamento</p>
+            <h3 className="text-3xl font-semibold text-on-surface font-heading tracking-tighter">94%</h3>
+            <p className="text-xs text-zinc-500 font-medium mt-2">Eficiência operacional</p>
           </div>
         </div>
       </section>
@@ -125,12 +125,12 @@ export default function AdminPage() {
           <section className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-10 relative overflow-hidden group shadow-sm transition-all">
              <div className="flex items-center justify-between mb-12">
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-on-surface font-heading tracking-tight italic flex items-center gap-3">
+                  <h3 className="text-2xl font-semibold text-on-surface font-heading tracking-tight flex items-center gap-3">
                     <ToggleRight className="text-primary" /> Serviços Globais
                   </h3>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Painel de Ativação Geral</p>
+                  <p className="text-sm text-zinc-500 font-medium uppercase tracking-[0.2em]">Painel de Ativação Geral</p>
                 </div>
-                <div className="px-4 py-1 bg-amber-500/10 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded-full border border-amber-500/20 flex items-center gap-2">
+                <div className="px-4 py-1 bg-amber-500/10 text-amber-500 text-xs font-semibold uppercase tracking-widest rounded-full border border-amber-500/20 flex items-center gap-2">
                   <AlertCircle size={10} /> Requer Nivel 10
                 </div>
              </div>
@@ -145,10 +145,10 @@ export default function AdminPage() {
                       )}>
                         <servico.icon size={20} />
                       </div>
-                      <span className="text-xs font-bold text-on-surface opacity-80 italic">{servico.label}</span>
+                      <span className="text-xs font-medium text-on-surface opacity-80 ">{servico.label}</span>
                     </div>
                     <div className="flex flex-col items-end gap-1">
-                       <span className={cn("text-[9px] font-black uppercase tracking-widest", servico.color)}>{servico.status}</span>
+                       <span className={cn("text-xs font-semibold uppercase tracking-widest", servico.color)}>{servico.status}</span>
                        <div 
                          onClick={() => toggleService(servico.id)}
                          className={cn(
@@ -174,12 +174,12 @@ export default function AdminPage() {
           <section className="bg-surface-container-low border border-outline-variant/30 rounded-[2.5rem] p-10 relative overflow-hidden group shadow-sm transition-all animate-in slide-in-from-bottom-5 duration-700">
              <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black text-on-surface font-heading tracking-tight italic flex items-center gap-3">
+                  <h3 className="text-2xl font-semibold text-on-surface font-heading tracking-tight flex items-center gap-3">
                     <Lightbulb className="text-amber-500" /> Ideias & Inovações
                   </h3>
-                  <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">Painel de Backlog e Melhorias Contínuas</p>
+                  <p className="text-sm text-zinc-500 font-medium uppercase tracking-[0.2em]">Painel de Backlog e Melhorias Contínuas</p>
                 </div>
-                <button className="px-4 py-3 md:py-2 bg-primary text-on-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
+                <button className="px-4 py-3 md:py-2 bg-primary text-on-primary text-sm font-semibold uppercase tracking-widest rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
                   <Plus size={16} /> Cadastrar Nova Ideia
                 </button>
              </div>
@@ -187,31 +187,31 @@ export default function AdminPage() {
              <div className="space-y-4">
                 <div className="p-5 bg-surface-container-highest/20 border border-outline-variant/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 group/idea hover:bg-surface-container-highest/40 transition-all">
                   <div>
-                     <h4 className="text-sm font-bold text-on-surface italic mb-1">Chatbot de Agendamento WhatsApp</h4>
+                     <h4 className="text-sm font-medium text-on-surface mb-1">Chatbot de Agendamento WhatsApp</h4>
                      <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">Implementar um fluxo de IA para pacientes marcarem consultas via WhatsApp, integrando direto na tela de Agenda.</p>
                   </div>
-                  <span className="shrink-0 px-3 py-1 bg-emerald-500/10 text-emerald-500 text-[9px] font-black uppercase tracking-widest rounded-full border border-emerald-500/20 w-fit">Aprovado para V3</span>
+                  <span className="shrink-0 px-3 py-1 bg-emerald-500/10 text-emerald-500 text-xs font-semibold uppercase tracking-widest rounded-full border border-emerald-500/20 w-fit">Aprovado para V3</span>
                 </div>
                 
                 <div className="p-5 bg-surface-container-highest/20 border border-outline-variant/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 group/idea hover:bg-surface-container-highest/40 transition-all">
                   <div>
-                     <h4 className="text-sm font-bold text-on-surface italic mb-1">OCR Nativo para Receitas (Drive & Scanner)</h4>
+                     <h4 className="text-sm font-medium text-on-surface mb-1">OCR Nativo para Receitas (Drive & Scanner)</h4>
                      <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">Permitir que a câmera do tablet escaneie receitas de outros médicos e transcreva automaticamente para o Prontuário.</p>
                   </div>
-                  <span className="shrink-0 px-3 py-1 bg-amber-500/10 text-amber-500 text-[9px] font-black uppercase tracking-widest rounded-full border border-amber-500/20 w-fit">Em Análise Técnica</span>
+                  <span className="shrink-0 px-3 py-1 bg-amber-500/10 text-amber-500 text-xs font-semibold uppercase tracking-widest rounded-full border border-amber-500/20 w-fit">Em Análise Técnica</span>
                 </div>
                 
                 <div className="p-5 bg-surface-container-highest/20 border border-outline-variant/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4 group/idea hover:bg-surface-container-highest/40 transition-all">
                   <div>
-                     <h4 className="text-sm font-bold text-on-surface italic mb-1">Conciliação Bancária Automática (Asaas)</h4>
+                     <h4 className="text-sm font-medium text-on-surface mb-1">Conciliação Bancária Automática (Asaas)</h4>
                      <p className="text-[11px] text-zinc-500 font-medium leading-relaxed">Cruzamento de extratos com NFs emitidas sem intervenção humana, alertando apenas divergências no Kanban.</p>
                   </div>
-                  <span className="shrink-0 px-3 py-1 bg-lilac/10 text-lilac text-[9px] font-black uppercase tracking-widest rounded-full border border-lilac/20 w-fit">Backlog / Ideia</span>
+                  <span className="shrink-0 px-3 py-1 bg-rd-cyan/10 text-rd-cyan text-xs font-semibold uppercase tracking-widest rounded-full border border-rd-cyan/20 w-fit">Backlog / Ideia</span>
                 </div>
              </div>
 
              <div className="mt-8 pt-6 border-t border-outline-variant/10">
-                <p className="text-[11px] text-zinc-400 font-medium italic">
+                <p className="text-[11px] text-zinc-400 font-medium ">
                   * Este painel é de uso exclusivo do Operador Master. Anote aqui necessidades pontuais (ex: "precisamos de um botão para exportar PDF aqui") para criarmos soluções proativas, desenvolvendo as melhorias em background sem a necessidade de avaliação burocrática dos usuários comuns.
                 </p>
              </div>
@@ -223,7 +223,7 @@ export default function AdminPage() {
           <section className="bg-surface-container-low border border-primary/20 rounded-[2.5rem] p-10 relative overflow-hidden group">
             <div className="absolute -top-[10%] -right-[10%] w-[50%] h-[50%] bg-primary/10 rounded-full blur-[80px]"></div>
             
-            <h3 className="text-xl font-black text-primary mb-10 flex items-center gap-3 font-heading tracking-tight underline decoration-primary/20 decoration-2 underline-offset-8">
+            <h3 className="text-xl font-semibold text-primary mb-10 flex items-center gap-3 font-heading tracking-tight underline decoration-primary/20 decoration-2 underline-offset-8">
               <ShieldCheck size={28} strokeWidth={2.5} /> SEGURANÇA ELITE
             </h3>
 
@@ -233,8 +233,8 @@ export default function AdminPage() {
                   <Fingerprint size={22} />
                 </div>
                 <div>
-                  <h4 className="text-xs font-black text-on-surface uppercase tracking-widest mb-1.5 leading-none">Criptografia Ativa</h4>
-                  <p className="text-[10px] text-zinc-500 font-medium leading-relaxed italic opacity-80 group-hover/sec:opacity-100 transition-opacity">Acesso via AdminMaster blindado com AES-256 e RSA-4096 redundante.</p>
+                  <h4 className="text-xs font-semibold text-on-surface uppercase tracking-widest mb-1.5 leading-none">Criptografia Ativa</h4>
+                  <p className="text-sm text-zinc-500 font-medium leading-relaxed opacity-80 group-hover/sec:opacity-100 transition-opacity">Acesso via AdminMaster blindado com AES-256 e RSA-4096 redundante.</p>
                 </div>
               </div>
               
@@ -242,8 +242,8 @@ export default function AdminPage() {
                 <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:scale-110 transition-transform">
                   <Sparkles size={40} className="text-primary" />
                 </div>
-                <h4 className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mb-2">Relatório do CORE</h4>
-                <p className="text-xs font-bold text-on-surface italic leading-relaxed">
+                <h4 className="text-sm font-semibold text-primary uppercase tracking-[0.2em] mb-2">Relatório do CORE</h4>
+                <p className="text-xs font-medium text-on-surface leading-relaxed">
                   "O faturamento deste mês está 14% acima da projeção, impulsionado por 12 novos upgrades para o plano MAX."
                 </p>
               </div>
@@ -254,7 +254,7 @@ export default function AdminPage() {
             <button className="w-full flex items-center justify-between p-4 bg-error/5 hover:bg-error/10 border border-error/10 text-error rounded-2xl transition-all group">
               <div className="flex items-center gap-3">
                 <Shield size={16} />
-                <span className="text-[10px] font-black uppercase tracking-widest">Protocolo de Limpeza</span>
+                <span className="text-sm font-semibold uppercase tracking-widest">Protocolo de Limpeza</span>
               </div>
               <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
             </button>

@@ -17,7 +17,7 @@ export const moduleService = {
       const data = await res.json();
       return data;
     } catch (error) {
-      console.error("Erro ao buscar módulos:", error);
+      console.warn("Aviso: Falha temporária ao buscar módulos (servidor offline/reiniciando).", error);
       return [];
     }
   },

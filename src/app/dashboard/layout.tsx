@@ -4,6 +4,7 @@ import { DashboardProvider } from "@/features/dashboard/context/DashboardContext
 import { PlanProvider } from "@/context/PlanContext";
 import { ModuleProvider } from "@/context/ModuleContext";
 import { UnitGate } from "@/features/dashboard/components/UnitGate";
+import { FloatingMedicalCopilot } from "@/features/ai/components/FloatingMedicalCopilot";
 
 export default function DashboardLayout({
   children,
@@ -25,6 +26,8 @@ export default function DashboardLayout({
                   </UnitGate>
                 </div>
               </main>
+              {/* Botão Flutuante Copilot Clínico Dra. Conte */}
+              <FloatingMedicalCopilot />
             </div>
           </div>
         </DashboardProvider>
