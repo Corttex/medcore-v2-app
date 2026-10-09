@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "npx prisma generate && npx prisma db push --accept-data-loss && next build",
-    "start": "next start",
+    "build": "npx prisma generate && next build",
+    "start": "npx prisma db push --accept-data-loss && next start",
     "lint": "next lint",
     "postinstall": "prisma generate || exit 0",
     "worker:whatsapp": "npx tsx src/lib/queue/whatsappWorker.ts"
