@@ -26,6 +26,7 @@ import Link from "next/link";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { cn } from "@/lib/utils";
 import ReactMarkdown from "react-markdown";
+import { LiveConsultationModal } from "./LiveConsultationModal";
 
 interface ActionData {
   paciente?: any;
@@ -49,6 +50,7 @@ export function FloatingMedicalCopilot() {
   const { selectedUnitId } = useDashboardContext();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [isLiveConsultationOpen, setIsLiveConsultationOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "initial-msg",
@@ -245,46 +247,69 @@ export function FloatingMedicalCopilot() {
 
   return (
     <>
-      {/* Botão Flutuante (FAB) */}
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3">
-        {/* Tooltip elegante em pill */}
-        {!isOpen && (
-          <button
-            onClick={() => setIsOpen(true)}
-            className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface border border-outline-variant/60 shadow-lg text-xs font-semibold text-on-surface hover:border-rd-cyan/60 hover:text-rd-cyan transition-all group backdrop-blur-md"
-          >
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>Dra. Conte • Copilot</span>
-            <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container font-mono text-on-surface-variant group-hover:text-rd-cyan">
-              Alt+A
-            </span>
-          </button>
-        )}
-
-        {/* Botão Principal */}
+      {/* Botões Flutuantes (Stack Vertical) */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3 pointer-events-none">
+        
+        {/* Botão Superior: Iniciar Consulta / Atendimento com IA */}
         <button
-          onClick={() => setIsOpen((prev) => !prev)}
-          className={cn(
-            "relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl active:scale-95 group",
-            isOpen
-              ? "bg-zinc-800 text-white rotate-90 border border-zinc-700"
-              : "bg-gradient-to-tr from-rd-navy to-rd-cyan text-white shadow-[0_0_30px_rgba(0,169,255,0.45)] hover:shadow-[0_0_40px_rgba(0,169,255,0.7)] hover:scale-105 border-2 border-rd-cyan/40"
-          )}
-          title="Dra. Conte • Copilot Clínico MEDCore (Alt + A)"
+          onClick={() => setIsLiveConsultationOpen(true)}
+          className="pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white text-xs font-bold shadow-[0_4px_25px_rgba(16,185,129,0.45)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.7)] hover:scale-105 active:scale-95 transition-all border border-emerald-400/40 backdrop-blur-md group animate-in slide-in-from-bottom-2 duration-300"
+          title="Iniciar Atendimento / Consulta com IA em Tempo Real (Live Scribe)"
         >
-          {isOpen ? (
-            <X size={24} />
-          ) : (
-            <>
-              <div className="relative">
-                <Stethoscope size={24} className="text-white group-hover:rotate-12 transition-transform duration-300" />
-                <Sparkles size={12} className="absolute -top-1 -right-1 text-rd-cyan animate-pulse" />
-              </div>
-              {/* Anel pulsante */}
-              <span className="absolute inset-0 rounded-2xl border-2 border-rd-cyan/30 animate-ping pointer-events-none" />
-            </>
-          )}
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+          </span>
+          <div className="flex items-center gap-1.5">
+            <Mic className="w-4 h-4 text-emerald-200 group-hover:rotate-12 transition-transform" />
+            <span className="tracking-wide">Iniciar Consulta</span>
+          </div>
+          <span className="hidden sm:inline-block text-[10px] font-semibold bg-emerald-950/60 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">
+            IA Live
+          </span>
         </button>
+
+        {/* Linha Inferior: Botão Dra. Conte (Copilot Chat) */}
+        <div className="pointer-events-auto flex items-center gap-3">
+          {/* Tooltip elegante em pill */}
+          {!isOpen && (
+            <button
+              onClick={() => setIsOpen(true)}
+              className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface border border-outline-variant/60 shadow-lg text-xs font-semibold text-on-surface hover:border-rd-cyan/60 hover:text-rd-cyan transition-all group backdrop-blur-md"
+            >
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span>Dra. Conte • Copilot</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container font-mono text-on-surface-variant group-hover:text-rd-cyan">
+                Alt+A
+              </span>
+            </button>
+          )}
+
+          {/* Botão Principal Dra. Conte */}
+          <button
+            onClick={() => setIsOpen((prev) => !prev)}
+            className={cn(
+              "relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl active:scale-95 group",
+              isOpen
+                ? "bg-zinc-800 text-white rotate-90 border border-zinc-700"
+                : "bg-gradient-to-tr from-rd-navy to-rd-cyan text-white shadow-[0_0_30px_rgba(0,169,255,0.45)] hover:shadow-[0_0_40px_rgba(0,169,255,0.7)] hover:scale-105 border-2 border-rd-cyan/40"
+            )}
+            title="Dra. Conte • Copilot Clínico MEDCore (Alt + A)"
+          >
+            {isOpen ? (
+              <X size={24} />
+            ) : (
+              <>
+                <div className="relative">
+                  <Stethoscope size={24} className="text-white group-hover:rotate-12 transition-transform duration-300" />
+                  <Sparkles size={12} className="absolute -top-1 -right-1 text-rd-cyan animate-pulse" />
+                </div>
+                {/* Anel pulsante */}
+                <span className="absolute inset-0 rounded-2xl border-2 border-rd-cyan/30 animate-ping pointer-events-none" />
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Janela Flutuante do Copilot */}
@@ -513,6 +538,12 @@ export function FloatingMedicalCopilot() {
           </div>
         </div>
       )}
+
+      {/* Modal de Consulta e Atendimento ao Vivo com Dra. Conte */}
+      <LiveConsultationModal
+        isOpen={isLiveConsultationOpen}
+        onClose={() => setIsLiveConsultationOpen(false)}
+      />
     </>
   );
 }
