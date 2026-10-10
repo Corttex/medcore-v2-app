@@ -107,8 +107,24 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Se já tiver uma unidade selecionada, libera o acesso
-  if (selectedUnitId) return <>{children}</>;
+  const [bypassLocal, setBypassLocal] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("medcore_bypass_unit") === "true";
+    }
+    return false;
+  });
+
+  function handleSkipUnit() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("medcore_bypass_unit", "true");
+      localStorage.setItem("medcore_selected_unit", "dev-unit-default");
+    }
+    setBypassLocal(true);
+    setSelectedUnitId("dev-unit-default");
+  }
+
+  // Se já tiver uma unidade selecionada ou bypass ativo, libera o acesso imediatamente
+  if (selectedUnitId || bypassLocal) return <>{children}</>;
 
   // Se o usuário TEM unidades, mas nenhuma selecionada (ex: acabou de entrar e tem várias)
   if (units.length > 0 && !selectedUnitId) {
@@ -207,7 +223,28 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                     {isSetting ? "Salvando..." : "Salvar"}
                   </button>
                 </div>
+                <div className="pt-1">
+                  <button
+                    type="button"
+                    onClick={handleSkipUnit}
+                    className="w-full py-2 text-xs text-zinc-400 hover:text-white bg-zinc-950 border border-zinc-800 rounded-xl transition-all font-medium"
+                  >
+                    Registrar hospital depois (Modo Teste)
+                  </button>
+                </div>
               </form>
+            )}
+
+            {!isCreating && (
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={handleSkipUnit}
+                  className="text-xs text-zinc-500 hover:text-rd-cyan transition-colors underline underline-offset-4"
+                >
+                  Registrar hospital depois (Modo Teste)
+                </button>
+              </div>
             )}
           </div>
         </div>
@@ -234,12 +271,19 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
         </div>
 
         {!isCreating ? (
-          <div className="flex justify-center">
+          <div className="flex flex-col items-center gap-3">
             <button 
               onClick={() => setIsCreating(true)}
               className="px-6 py-3 bg-rd-cyan text-zinc-950 font-semibold rounded-xl hover:bg-rd-cyan/90 transition-colors shadow-glow"
             >
               Cadastrar Meu Primeiro Hospital
+            </button>
+            <button
+              type="button"
+              onClick={handleSkipUnit}
+              className="text-xs text-zinc-400 hover:text-rd-cyan transition-colors underline underline-offset-4 font-medium"
+            >
+              Registrar hospital depois
             </button>
           </div>
         ) : (
@@ -289,6 +333,18 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                 className="flex-1 px-4 py-3 bg-rd-cyan text-zinc-950 font-medium rounded-xl hover:bg-rd-cyan/90 transition-colors disabled:opacity-50"
               >
                 {isSetting ? "Criando..." : "Salvar"}
+              </button>
+            </div>
+
+            {/* Opção solicitada pelo usuário: Registrar hospital depois */}
+            <div className="pt-1">
+              <button
+                type="button"
+                onClick={handleSkipUnit}
+                className="w-full py-2.5 text-xs text-zinc-400 hover:text-white bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl transition-all font-medium flex items-center justify-center gap-2 group"
+              >
+                <span>Registrar hospital depois</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-500 group-hover:text-rd-cyan border border-zinc-700/50">Modo Teste</span>
               </button>
             </div>
           </form>

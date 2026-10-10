@@ -35,20 +35,30 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [loadingUnits, setLoadingUnits] = useState<boolean>(true);
 
   useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedUnit = localStorage.getItem("medcore_selected_unit");
+      if (savedUnit) setSelectedUnitId(savedUnit);
+    }
+
     async function fetchUnits() {
       try {
         const res = await fetch("/api/units");
         if (res.ok) {
           const data = await res.json();
-          setUnits(data.units || []);
+          let loadedUnits = data.units || [];
+
+          // Se estiver em modo bypass de desenvolvimento e a lista vier vazia
+          if (loadedUnits.length === 0 && typeof window !== "undefined" && localStorage.getItem("medcore_bypass_unit") === "true") {
+            loadedUnits = [defaultUnit];
+          }
+
+          setUnits(loadedUnits);
           
-          if (data.units && data.units.length > 0) {
-            // Se já existir uma unidade primária definida no usuário
+          if (loadedUnits.length > 0) {
             if (data.primaryUnitId) {
               setSelectedUnitId(data.primaryUnitId);
-            } else if (data.units.length === 1) {
-              // Se tiver só 1 unidade, já seta ela
-              setSelectedUnitId(data.units[0].id);
+            } else if (!selectedUnitId) {
+              setSelectedUnitId(loadedUnits[0].id);
             }
           }
         }
