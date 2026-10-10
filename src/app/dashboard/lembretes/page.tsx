@@ -153,22 +153,16 @@ export default function RemindersPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-sm font-semibold uppercase tracking-widest rounded-full">
-              Central de Alertas
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-low border border-outline-variant/30 px-4 py-3 rounded-2xl shadow-sm">
+        <div className="flex items-center gap-3 bg-surface border border-outline-variant/30 px-4 py-2 rounded-xl">
+          <p className="text-on-surface-variant text-sm font-medium">
+            <span className="text-primary font-bold">{reminders.filter(r => r.status === "pending").length}</span> pendentes
+          </p>
+          {urgent > 0 && (
+            <span className="px-2 py-1 bg-error/10 border border-error/20 text-error text-xs font-bold uppercase tracking-widest rounded-md flex items-center gap-1">
+              <AlertTriangle size={12} /> {urgent} urgente{urgent > 1 ? "s" : ""}
             </span>
-            {urgent > 0 && (
-              <span className="px-2 py-1 bg-error/10 border border-error/20 text-error text-sm font-semibold uppercase tracking-widest rounded-full flex items-center gap-1">
-                <AlertTriangle size={9} /> {urgent} urgente{urgent > 1 ? "s" : ""}
-              </span>
-            )}
-          </div>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface">
-            Lembretes & <span className="text-gradient">Notificações</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">{reminders.filter(r => r.status === "pending").length} pendentes</p>
+          )}
         </div>
         <button onClick={() => setShowForm(true)} className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold">
           <Plus size={18} /> Novo Lembrete

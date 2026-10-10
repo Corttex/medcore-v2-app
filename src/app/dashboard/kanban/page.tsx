@@ -143,15 +143,11 @@ export default function KanbanPage() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500 w-full">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-rd-cyan/10 border border-rd-cyan/20 text-rd-cyan text-xs font-semibold uppercase tracking-widest rounded-full">Fluxo Operacional</span>
-          </div>
-          <h1 className="font-heading text-3xl font-bold tracking-tighter text-on-surface">
-            Organizador de <span className="text-gradient-lilac">Notas & Tarefas</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm font-medium opacity-80">{cards.filter(c => c.column !== "archived").length} notas e tarefas em processamento ativo</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-low border border-outline-variant/30 px-4 py-3 rounded-2xl shadow-sm">
+        <div className="flex items-center bg-surface border border-outline-variant/30 px-4 py-2 rounded-xl">
+          <p className="text-on-surface-variant text-sm font-medium">
+            <span className="text-rd-cyan font-bold">{cards.filter(c => c.column !== "archived").length}</span> notas e tarefas em processamento ativo
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
           <div className="flex items-center bg-surface-container rounded-xl p-1 border border-outline-variant/30 shrink-0 self-start sm:self-auto">
@@ -227,11 +223,11 @@ export default function KanbanPage() {
                 return (
                   <div
                     key={col.id}
-                    className="w-full bg-surface-container-low rounded-3xl border border-outline-variant/40 flex flex-col min-w-0"
+                    className="w-full bg-zinc-50/50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 flex flex-col min-w-0"
                     onDragOver={handleDragOver}
                     onDrop={e => handleDrop(e, col.id)}
                   >
-                    <div className={`p-4 border-b border-outline-variant/30 border-t-4 ${col.color} rounded-t-3xl rounded-tr-3xl`}>
+                    <div className={`p-4 border-b border-zinc-200 dark:border-zinc-800 border-t-4 ${col.color} rounded-t-3xl rounded-tr-3xl`}>
                       <div className="flex items-center justify-between">
                         <h3 className="font-heading font-semibold text-[11px] text-on-surface uppercase tracking-widest ">{col.label}</h3>
                         <span className="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center text-xs font-semibold text-on-surface-variant">{colCards.length}</span>
@@ -245,7 +241,7 @@ export default function KanbanPage() {
                             key={card.id}
                             draggable
                             onDragStart={() => setDragCard(card)}
-                            className="group bg-surface rounded-2xl border border-outline-variant/40 p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
+                            className="group bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
                           >
                             <div className="flex items-start justify-between gap-2 mb-1.5">
                               <p className="text-sm font-semibold text-on-surface leading-tight flex-1">{card.title}</p>
@@ -299,11 +295,11 @@ export default function KanbanPage() {
             </div>
           ) : (
             <div className="w-full pb-4 animate-in fade-in zoom-in-95 duration-300">
-              <div className="bg-surface-container-low rounded-3xl border border-outline-variant/40 overflow-hidden shadow-sm">
+              <div className="bg-white dark:bg-zinc-900 rounded-3xl border border-zinc-200 dark:border-zinc-800 overflow-hidden shadow-sm">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                      <tr className="border-b border-outline-variant/30 bg-surface/30 text-sm uppercase tracking-widest text-on-surface-variant">
+                      <tr className="border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-900/50 text-sm uppercase tracking-widest text-on-surface-variant">
                         <th className="p-4 font-semibold w-1/3">Título</th>
                         <th className="p-4 font-semibold">Status</th>
                         <th className="p-4 font-semibold">Prioridade</th>
@@ -312,11 +308,11 @@ export default function KanbanPage() {
                         <th className="p-4 font-semibold text-right">Ações</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-outline-variant/20">
+                    <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
                       {cards.map(card => {
                         const prio = PRIORITY_CONFIG[card.priority];
                         return (
-                          <tr key={card.id} className="hover:bg-surface-container/50 transition-colors group">
+                          <tr key={card.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/50 transition-colors group">
                             <td className="p-4">
                               <p className="text-sm font-semibold text-on-surface">{card.title}</p>
                               {card.description && <p className="text-xs text-on-surface-variant truncate max-w-[250px] mt-0.5">{card.description}</p>}

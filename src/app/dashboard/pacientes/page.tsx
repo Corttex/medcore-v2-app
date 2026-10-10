@@ -87,17 +87,9 @@ export default function PacientesPage() {
     <div className="space-y-6 animate-in fade-in duration-300 pb-12">
       
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl shadow-sm">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="px-3 py-1 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/60 text-blue-700 dark:text-blue-400 text-xs font-bold uppercase tracking-wider rounded-full flex items-center gap-1.5">
-              <User size={13} /> Base Clínica
-            </span>
-          </div>
-          <h1 className="text-2xl lg:text-3xl font-bold text-zinc-900 dark:text-white tracking-tight">
-            Gestão de Pacientes
-          </h1>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 px-5 py-3 rounded-2xl shadow-sm">
+        <div className="flex flex-col">
+          <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
             Cadastre, edite e acompanhe os pacientes e prontuários da clínica.
           </p>
         </div>

@@ -220,14 +220,10 @@ Gere uma ata formal, objetiva e em português brasileiro, com cabeçalho, corpo 
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-sm font-semibold uppercase tracking-widest rounded-full">Demandas Internas</span>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2">
-            Reuniões & <span className="text-gradient">Escala</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            {todayMeetings.length} hoje · {upcoming.length} próximas · {past.length} concluídas
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-surface-container-low border border-outline-variant/30 px-4 py-3 rounded-2xl shadow-sm">
+        <div className="flex items-center bg-surface border border-outline-variant/30 px-4 py-2 rounded-xl">
+          <p className="text-on-surface-variant text-sm font-medium">
+            <span className="text-primary font-bold">{todayMeetings.length}</span> hoje · <span className="font-bold text-on-surface">{upcoming.length}</span> próximas · {past.length} concluídas
           </p>
         </div>
         <button onClick={() => { setSelected(null); setForm(emptyForm); setShowForm(true); }} className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold">
