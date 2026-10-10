@@ -4,6 +4,24 @@ import React, { useState } from "react";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { Building2, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 
+const maskCnpj = (value: string) => {
+  return value
+    .replace(/\D/g, "")
+    .replace(/^(\d{2})(\d)/, "$1.$2")
+    .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1/$2")
+    .replace(/(\d{4})(\d)/, "$1-$2")
+    .substring(0, 18);
+};
+
+const maskPhone = (value: string) => {
+  let v = value.replace(/\D/g, "");
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
+  if (v.length > 9) v = `${v.slice(0, 9)}-${v.slice(9)}`;
+  return v;
+};
+
 export function UnitGate({ children }: { children: React.ReactNode }) {
   const { selectedUnitId, setSelectedUnitId, units, loadingUnits } = useDashboardContext();
   const [isSetting, setIsSetting] = useState(false);
@@ -148,7 +166,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                   type="text" 
                   placeholder="CNPJ"
                   value={formData.cnpj}
-                  onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, cnpj: maskCnpj(e.target.value) })}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
                 />
                 <div className="grid grid-cols-2 gap-3">
@@ -156,14 +174,14 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                     type="email" 
                     placeholder="E-mail"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase().replace(/\s/g, '') })}
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
                   />
                   <input 
                     type="text" 
                     placeholder="Telefone"
                     value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, phone: maskPhone(e.target.value) })}
                     className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
                   />
                 </div>
