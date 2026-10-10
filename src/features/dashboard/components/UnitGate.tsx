@@ -38,9 +38,15 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
       });
       if (res.ok) {
         window.location.reload();
+      } else {
+        const errData = await res.json();
+        console.error("Erro da API:", errData);
+        alert(errData.error || "Ocorreu um erro ao conectar com o servidor. Verifique a conexão com o banco de dados.");
+        setIsSetting(false);
       }
     } catch (error) {
-      console.error("Erro ao criar unidade:", error);
+      console.error("Erro de rede:", error);
+      alert("Erro ao tentar conectar com o servidor.");
       setIsSetting(false);
     }
   }
