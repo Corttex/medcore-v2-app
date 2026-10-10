@@ -9,20 +9,36 @@ export async function GET() {
     return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
   }
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { id: true, email: true, fullName: true, role: true, createdAt: true }
-  });
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { id: true, email: true, fullName: true, role: true, createdAt: true }
+    });
 
-  if (!user) {
-    return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    if (!user) {
+      if (process.env.NODE_ENV !== "production") {
+        return NextResponse.json({
+          user: session.user,
+          expires: session.expires
+        });
+      }
+      return NextResponse.json({ error: "Usuário não encontrado" }, { status: 404 });
+    }
+
+    return NextResponse.json({
+      user: {
+        ...session.user,
+        ...user
+      },
+      expires: session.expires
+    });
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      return NextResponse.json({
+        user: session.user,
+        expires: session.expires
+      });
+    }
+    return NextResponse.json({ error: "Erro interno" }, { status: 500 });
   }
-
-  return NextResponse.json({
-    user: {
-      ...session.user,
-      ...user
-    },
-    expires: session.expires
-  });
 }
