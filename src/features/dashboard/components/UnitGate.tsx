@@ -63,7 +63,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
       if (res.ok) {
         window.location.reload();
       } else {
-        const errData = await res.json();
+        const errData = await res.json().catch(() => ({ error: "Erro na resposta do servidor" }));
         console.error("Erro da API:", errData);
         alert(errData.error || "Ocorreu um erro ao conectar com o servidor. Verifique a conexão com o banco de dados.");
         setIsSetting(false);
