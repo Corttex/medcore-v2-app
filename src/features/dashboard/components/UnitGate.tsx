@@ -32,6 +32,12 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
   const { selectedUnitId, setSelectedUnitId, units, loadingUnits } = useDashboardContext();
   const [isSetting, setIsSetting] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [bypassLocal, setBypassLocal] = useState(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("medcore_bypass_unit") === "true";
+    }
+    return false;
+  });
   const [formData, setFormData] = useState({
     name: "",
     cnpj: "",
@@ -91,6 +97,15 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
     }
   }
 
+  function handleSkipUnit() {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("medcore_bypass_unit", "true");
+      localStorage.setItem("medcore_selected_unit", "dev-unit-default");
+    }
+    setBypassLocal(true);
+    setSelectedUnitId("dev-unit-default");
+  }
+
   if (loadingUnits || isSetting) {
     return (
       <div className="fixed inset-0 z-[100] bg-zinc-950 flex items-center justify-center p-4">
@@ -105,22 +120,6 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     );
-  }
-
-  const [bypassLocal, setBypassLocal] = useState(() => {
-    if (typeof window !== "undefined") {
-      return localStorage.getItem("medcore_bypass_unit") === "true";
-    }
-    return false;
-  });
-
-  function handleSkipUnit() {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("medcore_bypass_unit", "true");
-      localStorage.setItem("medcore_selected_unit", "dev-unit-default");
-    }
-    setBypassLocal(true);
-    setSelectedUnitId("dev-unit-default");
   }
 
   // Se já tiver uma unidade selecionada ou bypass ativo, libera o acesso imediatamente
