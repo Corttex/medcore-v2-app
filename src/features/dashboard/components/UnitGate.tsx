@@ -17,8 +17,14 @@ const maskCnpj = (value: string) => {
 const maskPhone = (value: string) => {
   let v = value.replace(/\D/g, "");
   if (v.length > 11) v = v.slice(0, 11);
-  if (v.length > 2) v = `(${v.slice(0, 2)}) ${v.slice(2)}`;
-  if (v.length > 9) v = `${v.slice(0, 9)}-${v.slice(9)}`;
+  
+  if (v.length <= 10) {
+    v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+    v = v.replace(/(\d{4})(\d)/, "$1-$2");
+  } else {
+    v = v.replace(/^(\d{2})(\d)/, "($1) $2");
+    v = v.replace(/(\d{5})(\d)/, "$1-$2");
+  }
   return v;
 };
 
