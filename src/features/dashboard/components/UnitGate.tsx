@@ -251,14 +251,14 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                 type="text" 
                 placeholder="CNPJ"
                 value={formData.cnpj}
-                onChange={(e) => setFormData({ ...formData, cnpj: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, cnpj: maskCnpj(e.target.value) })}
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
               />
               <input 
                 type="text" 
                 placeholder="Telefone"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, phone: maskPhone(e.target.value) })}
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
               />
             </div>
@@ -266,7 +266,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
               type="email" 
               placeholder="E-mail Administrativo"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value.toLowerCase().replace(/\s/g, '') })}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
             />
             <div className="flex gap-2 pt-2">
