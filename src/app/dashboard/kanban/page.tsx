@@ -223,7 +223,7 @@ export default function KanbanPage() {
                 return (
                   <div
                     key={col.id}
-                    className="w-full bg-zinc-50/50 dark:bg-zinc-900/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 flex flex-col min-w-0"
+                    className="w-full bg-zinc-100 dark:bg-zinc-950/50 rounded-3xl border border-zinc-200 dark:border-zinc-800 flex flex-col min-w-0"
                     onDragOver={handleDragOver}
                     onDrop={e => handleDrop(e, col.id)}
                   >
@@ -241,7 +241,7 @@ export default function KanbanPage() {
                             key={card.id}
                             draggable
                             onDragStart={() => setDragCard(card)}
-                            className="group bg-white dark:bg-zinc-950 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-4 shadow-sm hover:shadow-md transition-all cursor-grab active:cursor-grabbing"
+                            className="group bg-white dark:bg-zinc-900 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700 p-4 shadow-md hover:shadow-lg hover:border-rd-cyan/50 transition-all cursor-grab active:cursor-grabbing relative overflow-hidden"
                           >
                             <div className="flex items-start justify-between gap-2 mb-1.5">
                               <p className="text-sm font-semibold text-on-surface leading-tight flex-1">{card.title}</p>
