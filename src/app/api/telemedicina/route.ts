@@ -3,137 +3,8 @@ import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 
-// Fallback de desenvolvimento em memória caso o banco de dados remoto esteja indisponível
-let mockTeleconsultas = [
-  {
-    id: "tele-001",
-    title: "Teleconsulta de Rotina - Cardiologia",
-    description: "Acompanhamento de pressão arterial e ajuste de medicação anti-hipertensiva.",
-    date: new Date().toISOString().split("T")[0],
-    time: "14:00",
-    duration: 30,
-    type: "telemedicina",
-    status: "sala_espera", // Paciente já aguardando na sala!
-    link: "https://medcore.gestaocomercial360.com.br/telemedicina/tok-sala-001",
-    tokenPublico: "tok-sala-001",
-    isPublic: true,
-    user_id: "usr-dr-carlos",
-    user: {
-      id: "usr-dr-carlos",
-      fullName: "Dr. Carlos Eduardo Silva",
-      especialidade: "Cardiologia",
-      crm: "12345-SP"
-    },
-    pacienteId: "pac-001",
-    paciente: {
-      id: "pac-001",
-      nome: "Mariana Alencar Guimarães",
-      cpf: "123.456.789-00",
-      telefone: "(11) 98765-4321",
-      email: "mariana.alencar@email.com",
-      convenio: { nome: "Unimed Seguros" }
-    },
-    prontuario: null,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "tele-002",
-    title: "Avaliação Pós-Exame de Sangue",
-    description: "Revisão dos marcadores glicêmicos e perfil lipídico.",
-    date: new Date().toISOString().split("T")[0],
-    time: "15:00",
-    duration: 30,
-    type: "telemedicina",
-    status: "agendado",
-    link: "https://medcore.gestaocomercial360.com.br/telemedicina/tok-sala-002",
-    tokenPublico: "tok-sala-002",
-    isPublic: true,
-    user_id: "usr-dr-carlos",
-    user: {
-      id: "usr-dr-carlos",
-      fullName: "Dr. Carlos Eduardo Silva",
-      especialidade: "Cardiologia",
-      crm: "12345-SP"
-    },
-    pacienteId: "pac-002",
-    paciente: {
-      id: "pac-002",
-      nome: "Roberto Meneses Albuquerque",
-      cpf: "987.654.321-99",
-      telefone: "(11) 97123-9988",
-      email: "roberto.meneses@email.com",
-      convenio: { nome: "Bradesco Saúde" }
-    },
-    prontuario: null,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "tele-003",
-    title: "Primeira Consulta - Telemedicina Geral",
-    description: "Paciente com queixa de cefaleia recorrente e cansaço diurno.",
-    date: new Date().toISOString().split("T")[0],
-    time: "16:30",
-    duration: 45,
-    type: "telemedicina",
-    status: "agendado",
-    link: "https://medcore.gestaocomercial360.com.br/telemedicina/tok-sala-003",
-    tokenPublico: "tok-sala-003",
-    isPublic: true,
-    user_id: "usr-dr-carlos",
-    user: {
-      id: "usr-dr-carlos",
-      fullName: "Dr. Carlos Eduardo Silva",
-      especialidade: "Cardiologia",
-      crm: "12345-SP"
-    },
-    pacienteId: "pac-003",
-    paciente: {
-      id: "pac-003",
-      nome: "Camila Fernandes Leite",
-      cpf: "456.789.012-34",
-      telefone: "(11) 99876-5544",
-      email: "camila.leite@email.com",
-      convenio: { nome: "Particular" }
-    },
-    prontuario: null,
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "tele-004",
-    title: "Retorno Dermatológico",
-    description: "Evolução do tratamento de dermatite atópica.",
-    date: new Date().toISOString().split("T")[0],
-    time: "11:00",
-    duration: 30,
-    type: "telemedicina",
-    status: "concluido",
-    link: "https://medcore.gestaocomercial360.com.br/telemedicina/tok-sala-004",
-    tokenPublico: "tok-sala-004",
-    isPublic: true,
-    user_id: "usr-dr-carlos",
-    user: {
-      id: "usr-dr-carlos",
-      fullName: "Dr. Carlos Eduardo Silva",
-      especialidade: "Cardiologia",
-      crm: "12345-SP"
-    },
-    pacienteId: "pac-004",
-    paciente: {
-      id: "pac-004",
-      nome: "Felipe Nogueira Dias",
-      cpf: "333.222.111-00",
-      telefone: "(11) 96543-2109",
-      email: "felipe.dias@email.com",
-      convenio: { nome: "Amil Saúde" }
-    },
-    prontuario: {
-      anamnese: "Paciente relata melhora de 80% das lesões.",
-      diagnostico: "Dermatite atópica em remissão clínica.",
-      conduta: "Manter hidratante diário e corticoide tópico apenas em recidivas."
-    },
-    createdAt: new Date().toISOString()
-  }
-];
+// Fallback de desenvolvimento limpo em memória (começa zerado para testes)
+let mockTeleconsultas: any[] = [];
 
 export async function GET(request: Request) {
   try {
@@ -174,13 +45,10 @@ export async function GET(request: Request) {
         }
       });
 
-      if (meetings && meetings.length > 0) {
-        return NextResponse.json(meetings);
-      }
-      // Se o banco estiver vazio ou sem registros de telemedicina, entrega os mocks para enriquecer a experiência
-      return NextResponse.json(mockTeleconsultas);
+      // Retorna exatamente os dados do banco de dados (pode ser vazio caso recém-iniciado)
+      return NextResponse.json(meetings || []);
     } catch (dbError) {
-      console.warn('[Telemedicina API] Banco inacessível, utilizando fallback em memória:', (dbError as Error)?.message || dbError);
+      console.warn('[Telemedicina API] Banco inacessível, utilizando lista local de desenvolvimento:', (dbError as Error)?.message || dbError);
       let filtered = [...mockTeleconsultas];
       if (status && status !== 'todas') {
         filtered = filtered.filter(item => item.status === status);
@@ -192,6 +60,7 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: 'Falha interna ao processar requisição' }, { status: 500 });
   }
 }
+
 
 export async function POST(request: Request) {
   try {
