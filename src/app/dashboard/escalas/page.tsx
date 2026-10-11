@@ -24,23 +24,29 @@ export default function RHPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 pt-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-2xl font-heading font-bold text-on-surface flex items-center gap-2">
-            <Users className="text-rd-cyan" size={28} />
-            Recursos Humanos & Escalas
-          </h1>
-          <p className="text-sm text-on-surface-variant mt-1">Gestão de equipe e plantões da unidade <strong>{activeUnit?.name || "Geral"}</strong>.</p>
+      {/* Action Bar Compacta */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Users className="text-rd-cyan" size={18} />
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Escalas & Plantões Médicos</span>
+          </div>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
+            Unidade: {activeUnit?.name || "Geral"}
+          </span>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+            {MOCK_PROFISSIONAIS.filter(p => p.status === "Em Plantão").length} Ativos Hoje
+          </span>
         </div>
         
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-outline-variant rounded-xl text-sm font-semibold hover:bg-surface-container transition-colors">
-            <Filter size={16} />
+        <div className="flex items-center gap-3">
+          <button className="flex items-center gap-2 px-3.5 py-2 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors">
+            <Filter size={14} />
             Filtros
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-rd-cyan text-zinc-950 rounded-xl text-sm font-bold shadow-md shadow-rd-cyan/20 hover:bg-rd-cyan/90 transition-colors">
-            <Plus size={18} />
+          <button className="flex items-center gap-2 px-4 py-2 bg-rd-cyan text-zinc-950 rounded-xl text-xs font-bold shadow-md shadow-rd-cyan/20 hover:bg-rd-cyan/90 transition-colors">
+            <Plus size={16} />
             Nova Escala
           </button>
         </div>
@@ -50,11 +56,8 @@ export default function RHPage() {
         
         {/* Lado Esquerdo - Status do Dia */}
         <div className="lg:col-span-1 space-y-6">
-          <div className={cn(
-            "p-5 rounded-2xl border shadow-sm transition-all relative overflow-hidden",
-            theme === 'dark' ? "bg-zinc-900/60 border-zinc-800" : "bg-white border-zinc-200"
-          )}>
-            <h2 className="text-sm uppercase font-bold text-on-surface-variant tracking-widest mb-4">Plantão de Hoje</h2>
+          <div className="p-5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/85 backdrop-blur-xl shadow-md transition-all relative overflow-hidden">
+            <h2 className="text-xs uppercase font-bold text-zinc-500 dark:text-zinc-400 tracking-wider mb-4">Plantão de Hoje</h2>
             
             <div className="space-y-4 relative z-10">
               {MOCK_PROFISSIONAIS.map(prof => (
@@ -86,24 +89,21 @@ export default function RHPage() {
             </button>
           </div>
 
-          <div className={cn(
-            "p-5 rounded-2xl border shadow-sm",
-            theme === 'dark' ? "bg-zinc-900/60 border-zinc-800" : "bg-white border-zinc-200"
-          )}>
-             <h2 className="text-sm uppercase font-bold text-on-surface-variant tracking-widest mb-4">Métricas do Mês</h2>
+          <div className="p-5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/85 backdrop-blur-xl shadow-md">
+             <h2 className="text-xs uppercase font-bold text-zinc-500 dark:text-zinc-400 tracking-wider mb-4">Métricas do Mês</h2>
              
              <div className="space-y-3">
-               <div className="flex justify-between items-center">
-                 <span className="text-sm text-on-surface">Horas Extras</span>
-                 <span className="text-sm font-bold text-orange-400">42h</span>
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-zinc-600 dark:text-zinc-300">Horas Extras</span>
+                 <span className="font-bold text-amber-500">42h</span>
                </div>
-               <div className="flex justify-between items-center">
-                 <span className="text-sm text-on-surface">Faltas / Atrasos</span>
-                 <span className="text-sm font-bold text-red-400">3 ocorrências</span>
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-zinc-600 dark:text-zinc-300">Faltas / Atrasos</span>
+                 <span className="font-bold text-rose-500">3 ocorrências</span>
                </div>
-               <div className="flex justify-between items-center">
-                 <span className="text-sm text-on-surface">Custo Folha Estimado</span>
-                 <span className="text-sm font-bold text-emerald-400">R$ 48.500</span>
+               <div className="flex justify-between items-center text-sm">
+                 <span className="text-zinc-600 dark:text-zinc-300">Custo Folha Estimado</span>
+                 <span className="font-bold text-emerald-500">R$ 48.500</span>
                </div>
              </div>
           </div>
@@ -111,16 +111,13 @@ export default function RHPage() {
 
         {/* Lado Direito - Matriz de Escala */}
         <div className="lg:col-span-3 space-y-6">
-          <div className={cn(
-            "p-1 rounded-2xl border shadow-sm transition-all overflow-hidden flex flex-col",
-            theme === 'dark' ? "bg-zinc-900/60 border-zinc-800" : "bg-white border-zinc-200"
-          )}>
+          <div className="rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/85 backdrop-blur-xl shadow-md transition-all overflow-hidden flex flex-col">
             
             {/* Calendar Controls */}
-            <div className="p-4 border-b border-outline-variant/30 flex justify-between items-center bg-surface-container/10">
+            <div className="p-4 border-b-2 border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-950/30">
               <div className="flex items-center gap-2">
                 <ShieldCheck size={20} className="text-rd-cyan" />
-                <h3 className="font-heading font-bold text-on-surface">Escala Semanal</h3>
+                <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">Escala Semanal da Equipe</h3>
               </div>
               
               <div className="flex items-center gap-3">

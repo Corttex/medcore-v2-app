@@ -46,24 +46,26 @@ export default function PatrimonioPage() {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-heading font-semibold text-zinc-900 dark:text-white flex items-center gap-2">
-            <Box className="w-6 h-6 text-[var(--color-rd-cyan)]" />
-            Gestão de Patrimônio
-          </h1>
-          <p className="text-zinc-500 text-sm mt-1">Controle de equipamentos e ativos da clínica.</p>
+    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500 pb-20 pt-2">
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-rd-cyan font-bold">{patrimonios.length}</strong> ativos patrimoniais registrados
+            </p>
+          </div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 border border-[var(--color-rd-cyan)] text-[var(--color-rd-cyan)] rounded-xl font-medium text-sm transition-opacity hover:bg-[var(--color-rd-cyan)]/10">
+
+        {/* Lado Direito: Ações */}
+        <div className="flex items-center gap-2">
+          <button className="flex items-center gap-2 px-4 py-2 border border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl font-semibold text-xs transition-colors hover:bg-zinc-100 dark:hover:bg-zinc-800">
             Exportar Inventário
           </button>
           <button 
             onClick={() => setIsFormOpen(true)}
-            className="bg-[var(--color-rd-cyan)] hover:opacity-90 text-white px-4 py-2.5 rounded-xl font-medium text-sm transition-opacity flex items-center gap-2"
+            className="btn-gradient text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             Novo Ativo

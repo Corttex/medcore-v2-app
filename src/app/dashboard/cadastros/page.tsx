@@ -107,56 +107,59 @@ export default function CadastrosBasePage() {
     <div className="space-y-8 animate-in fade-in duration-500 pb-10">
       
       {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className="px-3 py-1 bg-rd-cyan/10 border border-rd-cyan/20 text-rd-cyan text-sm font-semibold uppercase tracking-widest rounded-full">
-              Configurações
-            </span>
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-rd-cyan font-bold">{medicos.length}</strong> médicos
+            </p>
           </div>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface">
-            Cadastros <span className="text-gradient-brand">Base</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            Centralize as configurações de infraestrutura clínica.
-          </p>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <strong className="text-emerald-500 font-bold mr-1">{consultorios.length}</strong> consultórios
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <strong className="text-blue-500 font-bold mr-1">{convenios.length}</strong> convênios
+          </div>
         </div>
-        
-        <div className="flex items-center gap-4">
+
+        {/* Lado Direito: Busca e Botão de Ação */}
+        <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={15} />
             <input 
               type="text" 
               placeholder={`Buscar em ${activeTab}...`}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="bg-surface-container-low border border-outline-variant/30 rounded-xl pl-10 pr-4 py-3 text-sm focus:border-rd-cyan focus:outline-none w-64"
+              className="bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl pl-9 pr-3 py-1.5 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-rd-cyan w-48 sm:w-56 font-medium transition-all"
             />
           </div>
           <button
             onClick={() => { setFormSuccess(""); setFormError(""); setShowModal(true); }}
-            className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold shadow-glow"
+            className="btn-gradient flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold shadow-md shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
           >
-            <Plus size={18} /> Cadastrar {activeTab === 'medicos' ? 'Médico' : activeTab === 'consultorios' ? 'Sala' : 'Convênio'}
+            <Plus size={16} /> Cadastrar {activeTab === 'medicos' ? 'Médico' : activeTab === 'consultorios' ? 'Sala' : 'Convênio'}
           </button>
         </div>
       </div>
 
       {/* TABS */}
-      <div className="flex items-center gap-2 border-b border-outline-variant/20">
-         <button onClick={() => setActiveTab('medicos')} className={`px-6 py-3 font-semibold text-sm transition-all border-b-2 ${activeTab === 'medicos' ? 'border-rd-cyan text-rd-cyan' : 'border-transparent text-zinc-400 hover:text-zinc-200'}`}>
+      <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800">
+         <button onClick={() => setActiveTab('medicos')} className={`px-5 py-2.5 font-semibold text-xs transition-all border-b-2 ${activeTab === 'medicos' ? 'border-rd-cyan text-rd-cyan' : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}>
             Médicos / Corpo Clínico
          </button>
-         <button onClick={() => setActiveTab('consultorios')} className={`px-6 py-3 font-semibold text-sm transition-all border-b-2 ${activeTab === 'consultorios' ? 'border-rd-cyan text-rd-cyan' : 'border-transparent text-zinc-400 hover:text-zinc-200'}`}>
+         <button onClick={() => setActiveTab('consultorios')} className={`px-5 py-2.5 font-semibold text-xs transition-all border-b-2 ${activeTab === 'consultorios' ? 'border-rd-cyan text-rd-cyan' : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}>
             Consultórios / Salas
          </button>
-         <button onClick={() => setActiveTab('convenios')} className={`px-6 py-3 font-semibold text-sm transition-all border-b-2 ${activeTab === 'convenios' ? 'border-rd-cyan text-rd-cyan' : 'border-transparent text-zinc-400 hover:text-zinc-200'}`}>
+         <button onClick={() => setActiveTab('convenios')} className={`px-5 py-2.5 font-semibold text-xs transition-all border-b-2 ${activeTab === 'convenios' ? 'border-rd-cyan text-rd-cyan' : 'border-transparent text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200'}`}>
             Convênios & Planos
          </button>
       </div>
 
-      {/* Conteúdos */}
-      <div className="bg-surface border border-outline-variant/30 rounded-[2rem] overflow-hidden shadow-sm">
+      {/* Conteúdos Liquid Glass */}
+      <div className="bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
           
           {/* TAB MEDICOS */}

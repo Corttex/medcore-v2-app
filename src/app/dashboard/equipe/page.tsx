@@ -63,70 +63,73 @@ export default function EquipePage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 w-full">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
+      {/* Action Bar Compacta */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 bg-rd-cyan/10 border border-rd-cyan/20 text-rd-cyan text-xs font-semibold uppercase tracking-widest rounded-full">Administração</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Gestão de Equipe & Usuários</span>
           </div>
-          <h1 className="font-heading text-3xl font-bold tracking-tighter text-on-surface">
-            Gestão de <span className="text-gradient-lilac">Equipe</span>
-          </h1>
-          <p className="text-on-surface-variant text-[11px] font-medium opacity-80">
-            Você tem {team.length} de 5 usuários delegados cadastrados.
-          </p>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
+            {team.length} de 5 Usuários Delegados
+          </span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+            Controle de Acesso RBAC Ativo
+          </span>
         </div>
+
         <button 
           onClick={() => setShowModal(true)} 
           disabled={team.length >= 5}
-          className={`border-2 px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 group shrink-0 ${team.length >= 5 ? 'border-zinc-700 bg-zinc-800 text-zinc-500 cursor-not-allowed' : 'border-rd-cyan bg-rd-cyan/10 text-rd-cyan hover:bg-rd-cyan hover:text-zinc-950 shadow-[0_0_15px_rgba(0,169,255,0.3)]'}`}
+          className={`px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 shrink-0 ${team.length >= 5 ? 'border-2 border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-400 cursor-not-allowed' : 'bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 shadow-md shadow-rd-cyan/20'}`}
         >
-          <Plus size={18} className={team.length < 5 ? "group-hover:rotate-90 transition-transform" : ""} /> Adicionar Usuário
+          <Plus size={16} /> Adicionar Usuário
         </button>
       </div>
 
-      {/* Tabela de Equipe */}
-      <div className="w-full bg-surface-container-low rounded-3xl border border-outline-variant/40 overflow-hidden shadow-sm">
+      {/* Tabela de Equipe Liquid Glass */}
+      <div className="w-full bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 overflow-hidden shadow-md backdrop-blur-xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
-              <tr className="border-b border-outline-variant/30 bg-surface/30 text-sm uppercase tracking-widest text-on-surface-variant">
-                <th className="p-4 font-semibold">Nome</th>
-                <th className="p-4 font-semibold">Email</th>
-                <th className="p-4 font-semibold">Papel</th>
-                <th className="p-4 font-semibold">Data de Criação</th>
-                <th className="p-4 font-semibold text-right">Ações</th>
+              <tr className="border-b-2 border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-950/40 text-xs uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                <th className="p-4 font-bold">Nome</th>
+                <th className="p-4 font-bold">Email</th>
+                <th className="p-4 font-bold">Papel</th>
+                <th className="p-4 font-bold">Data de Criação</th>
+                <th className="p-4 font-bold text-right">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-outline-variant/20">
+            <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-sm">
               {loading ? (
-                <tr><td colSpan={5} className="p-8 text-center text-on-surface-variant">Carregando...</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-zinc-500">Carregando usuários da equipe...</td></tr>
               ) : team.length === 0 ? (
-                <tr><td colSpan={5} className="p-8 text-center text-on-surface-variant">Nenhum usuário delegado.</td></tr>
+                <tr><td colSpan={5} className="p-8 text-center text-zinc-500">Nenhum usuário delegado cadastrado.</td></tr>
               ) : (
                 team.map(member => (
-                  <tr key={member.id} className="hover:bg-surface-container/50 transition-colors group">
+                  <tr key={member.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors group">
                     <td className="p-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-rd-cyan/20 flex items-center justify-center text-rd-cyan font-bold">
+                        <div className="w-8 h-8 rounded-full bg-rd-cyan/15 flex items-center justify-center text-rd-cyan font-bold text-xs border border-rd-cyan/20">
                           {member.fullName ? member.fullName.charAt(0).toUpperCase() : 'U'}
                         </div>
-                        <p className="text-sm font-semibold text-on-surface">{member.fullName || 'Sem Nome'}</p>
+                        <p className="font-semibold text-zinc-900 dark:text-zinc-100">{member.fullName || 'Sem Nome'}</p>
                       </div>
                     </td>
                     <td className="p-4">
-                      <span className="text-xs text-on-surface-variant">{member.email}</span>
+                      <span className="text-xs text-zinc-600 dark:text-zinc-400">{member.email}</span>
                     </td>
                     <td className="p-4">
-                      <span className="inline-flex items-center gap-1 text-sm font-semibold px-2 py-1 rounded-full border border-primary/30 bg-primary/10 text-primary uppercase tracking-widest">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-primary/30 bg-primary/10 text-primary uppercase tracking-wider">
                         <Shield size={10} /> {member.role}
                       </span>
                     </td>
                     <td className="p-4">
-                      <span className="text-xs text-on-surface-variant">{new Date(member.createdAt).toLocaleDateString("pt-BR")}</span>
+                      <span className="text-xs text-zinc-500 dark:text-zinc-400">{new Date(member.createdAt).toLocaleDateString("pt-BR")}</span>
                     </td>
                     <td className="p-4 text-right">
-                      <button className="text-error/60 hover:text-error transition-colors p-2 hover:bg-error/10 rounded-lg opacity-0 group-hover:opacity-100">
+                      <button className="text-rose-500 hover:text-rose-600 transition-colors p-2 hover:bg-rose-500/10 rounded-lg opacity-0 group-hover:opacity-100">
                         <Trash2 size={14} />
                       </button>
                     </td>

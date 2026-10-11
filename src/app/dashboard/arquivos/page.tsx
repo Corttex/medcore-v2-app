@@ -96,55 +96,44 @@ export default function ScannerPage() {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-sm font-semibold uppercase tracking-widest rounded-full">Scanner</span>
-        <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2">
-          Scanner de <span className="text-gradient">Documentos</span>
-        </h1>
-        <p className="text-on-surface-variant text-sm mt-1">{docs.length} documento{docs.length !== 1 ? "s" : ""} anexado{docs.length !== 1 ? "s" : ""}</p>
-      </div>
-
-      {/* Info banner sobre Google Drive */}
-      <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex items-start gap-3">
-        <span className="text-blue-600 text-lg shrink-0">☁️</span>
-        <div>
-          <p className="text-sm font-semibold text-blue-800">Google Drive (em breve)</p>
-          <p className="text-xs text-blue-700 mt-0.5">Integração com Google Drive API para upload automático com link compartilhável. Por enquanto, documentos são armazenados localmente na sessão.</p>
+    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500 pb-20 pt-2">
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-rd-cyan font-bold">{docs.length}</strong> documento{docs.length !== 1 ? "s" : ""} anexado{docs.length !== 1 ? "s" : ""}
+            </p>
+          </div>
         </div>
-      </div>
 
-      {/* Capture area */}
-      {step === "idle" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Lado Direito: Ações */}
+        <div className="flex items-center gap-2">
           <button
             onClick={openCamera}
-            className="group flex flex-col items-center justify-center gap-4 p-10 bg-surface rounded-3xl border-2 border-dashed border-primary/30 hover:border-primary hover:bg-primary/5 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors"
           >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-secondary-container flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
-              <Camera size={28} className="text-white"/>
-            </div>
-            <div className="text-center">
-              <p className="font-heading font-semibold text-on-surface">Abrir Câmera</p>
-              <p className="text-xs text-on-surface-variant mt-1">Use a câmera do dispositivo para escanear</p>
-            </div>
+            <Camera size={14} className="text-rd-cyan" /> Escanear Câmera
           </button>
-
           <button
             onClick={() => fileRef.current?.click()}
-            className="group flex flex-col items-center justify-center gap-4 p-10 bg-surface rounded-3xl border-2 border-dashed border-outline-variant/60 hover:border-primary/40 hover:bg-surface-container-low transition-all"
+            className="btn-gradient flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold shadow-md transition-all"
           >
-            <div className="w-16 h-16 rounded-2xl bg-surface-container border border-outline-variant/50 flex items-center justify-center group-hover:border-primary/40 transition-colors">
-              <Upload size={28} className="text-on-surface-variant group-hover:text-primary transition-colors"/>
-            </div>
-            <div className="text-center">
-              <p className="font-heading font-semibold text-on-surface">Upload de Arquivo</p>
-              <p className="text-xs text-on-surface-variant mt-1">Imagem ou PDF do seu computador</p>
-            </div>
+            <Upload size={14} /> Upload de Arquivo
           </button>
           <input ref={fileRef} type="file" accept="image/*,.pdf" className="hidden" onChange={handleFileUpload}/>
         </div>
-      )}
+      </div>
+
+      {/* Info banner sobre Google Drive */}
+      <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-2xl flex items-start gap-3">
+        <span className="text-blue-500 text-lg shrink-0">☁️</span>
+        <div>
+          <p className="text-xs font-bold text-blue-600 dark:text-blue-400">Google Drive & Scanner Cloud</p>
+          <p className="text-xs text-zinc-600 dark:text-zinc-400 mt-0.5">Sincronização em nuvem e leitura OCR automática de guias e alvarás.</p>
+        </div>
+      </div>
 
       {/* Camera stream */}
       {cameraOpen && (

@@ -158,34 +158,29 @@ export default function UnitsPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-2">
-            <span className={cn(
-              "px-3 py-1 border text-sm font-semibold uppercase tracking-widest rounded-full",
-              theme === 'dark' ? "bg-primary/10 border-primary/20 text-primary" : "bg-primary/5 border-primary/10 text-primary"
-            )}>
-              Gestão de Rede
-            </span>
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-rd-cyan font-bold">{units.length}</strong> unidades cadastradas
+            </p>
           </div>
-          <h1 className={cn(
-            "font-heading text-4xl font-semibold tracking-tighter",
-            theme === 'dark' ? "text-white" : "text-zinc-900"
-          )}>
-            Unidades <span className="text-gradient">Hospitalares</span>
-          </h1>
-          <p className={cn(
-            "text-sm mt-1 font-medium",
-            theme === 'dark' ? "text-zinc-400" : "text-zinc-500"
-          )}>{units.length} unidades cadastradas · {units.filter(u => u.active).length} ativas</p>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <strong className="text-emerald-500 font-bold mr-1">{units.filter(u => u.active).length}</strong> ativas na rede
+          </div>
         </div>
-        <button
-          onClick={() => { setShowForm(true); setEditingUnit(null); }}
-          className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
-        >
-          <Plus size={18} /> Nova Unidade
-        </button>
+
+        {/* Lado Direito: Ação Nova Unidade */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => { setShowForm(true); setEditingUnit(null); }}
+            className="btn-gradient flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold shadow-md shadow-primary/20 transition-all hover:scale-[1.02] active:scale-95"
+          >
+            <Plus size={16} /> Nova Unidade
+          </button>
+        </div>
       </div>
 
       {/* Form Modal */}
@@ -379,8 +374,8 @@ export default function UnitsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {units.map(unit => (
           <div key={unit.id} className={cn(
-            "group relative rounded-3xl border shadow-sm hover:shadow-xl transition-all overflow-hidden duration-500",
-            theme === 'dark' ? "bg-zinc-900/40 border-zinc-800/40" : "bg-white border-zinc-200",
+            "group relative rounded-3xl border-2 shadow-sm hover:shadow-xl hover:border-rd-cyan/50 transition-all overflow-hidden duration-500",
+            theme === 'dark' ? "bg-zinc-900/85 border-zinc-700/80 backdrop-blur-xl" : "bg-white border-zinc-200",
             !unit.active && "opacity-60"
           )}>
             {/* Top gradient bar */}

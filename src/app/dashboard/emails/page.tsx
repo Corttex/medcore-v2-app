@@ -67,57 +67,65 @@ export default function EmailPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-sm font-semibold uppercase tracking-widest rounded-full">Central de Comunicações</span>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2">
-            Painel de <span className="text-gradient">E-mails</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            {unreadCount} não lidos · Gmail + Outlook + Teams
-          </p>
+      {/* Action Bar Compacta */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Central de Comunicações & Mensageria</span>
+          </div>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
+            {unreadCount} Não Lidos
+          </span>
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">
+            Gmail + Outlook + Teams
+          </span>
         </div>
-        <button onClick={() => setTab(tab === "inbox" ? "compose" : "inbox")} className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold">
-          {tab === "inbox" ? <><Plus size={18}/> Novo E-mail</> : <><Inbox size={18}/> Caixa de Entrada</>}
+
+        <button 
+          onClick={() => setTab(tab === "inbox" ? "compose" : "inbox")} 
+          className="flex items-center gap-2 px-4 py-2 bg-rd-cyan text-zinc-950 rounded-xl text-sm font-bold shadow-md shadow-rd-cyan/20 hover:bg-rd-cyan/90 transition-all shrink-0"
+        >
+          {tab === "inbox" ? <><Plus size={16}/> Novo E-mail</> : <><Inbox size={16}/> Caixa de Entrada</>}
         </button>
       </div>
 
       {/* OAuth notice */}
-      <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+      <div className="p-4 bg-amber-500/10 border-2 border-amber-500/30 rounded-2xl flex items-start gap-3 backdrop-blur-md">
         <span className="text-lg">🔐</span>
         <div>
-          <p className="text-sm font-semibold text-amber-800">Integração OAuth2 (em breve)</p>
-          <p className="text-xs text-amber-700">E-mails reais exigem autenticação com Google/Microsoft. A interface está completa — os dados abaixo são demonstrativos. A IA de resumo já funciona!</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300">Integração OAuth2 Segura (Em Breve)</p>
+          <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">E-mails reais exigem autenticação com Google Workspace e Microsoft 365. A interface está completa — os dados abaixo são demonstrativos com IA ativa para resumos!</p>
         </div>
       </div>
 
       {tab === "compose" ? (
-        <div className="bg-surface rounded-2xl border border-outline-variant/40 shadow-sm p-6 space-y-4 max-w-2xl">
-          <h2 className="font-heading font-semibold text-xl text-on-surface">Novo E-mail</h2>
+        <div className="bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md p-6 space-y-4 max-w-2xl backdrop-blur-xl">
+          <h2 className="font-bold text-lg text-zinc-900 dark:text-zinc-100">Novo E-mail</h2>
           <input 
-            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" 
+            className="w-full bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rd-cyan text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400" 
             placeholder="Para: email@destinatario.com" 
             value={compose.to} 
             onChange={e => setCompose({ ...compose, to: sanitize(e.target.value) })}
           />
           <input 
-            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary" 
+            className="w-full bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rd-cyan text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400" 
             placeholder="Assunto" 
             value={compose.subject} 
             onChange={e => setCompose({ ...compose, subject: sanitize(e.target.value) })}
           />
           <textarea 
-            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-primary resize-none h-48" 
+            className="w-full bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rd-cyan resize-none h-48 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400" 
             placeholder="Mensagem..." 
             value={compose.body} 
             onChange={e => setCompose({ ...compose, body: sanitize(e.target.value) })}
           />
           <div className="flex gap-3">
-            <button onClick={() => setTab("inbox")} className="px-5 py-3 rounded-2xl border border-outline-variant/50 text-sm font-medium text-on-surface-variant">Cancelar</button>
+            <button onClick={() => setTab("inbox")} className="px-5 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-sm font-medium text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">Cancelar</button>
             <button 
-              className="btn-gradient px-6 py-3 rounded-2xl text-sm font-semibold flex items-center gap-2"
+              className="px-6 py-2.5 rounded-xl bg-rd-cyan text-zinc-950 text-sm font-bold shadow-md shadow-rd-cyan/20 hover:bg-rd-cyan/90 transition-all flex items-center gap-2"
               onClick={() => {
-                // Aqui seria o envio real, já sanitizado
                 console.log("Enviando e-mail sanitizado:", compose);
                 alert("Simulação: E-mail enviado com segurança!");
               }}
@@ -132,11 +140,11 @@ export default function EmailPage() {
           <div className="xl:col-span-2 space-y-3">
             {/* Source filters */}
             <div className="flex gap-2 flex-wrap">
-              <button onClick={() => setFilter("all")} className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${filter === "all" ? "bg-primary/10 border-primary/30 text-primary" : "bg-surface border-outline-variant/40 text-on-surface-variant"}`}>
+              <button onClick={() => setFilter("all")} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filter === "all" ? "bg-rd-cyan/15 border-rd-cyan/40 text-rd-cyan" : "bg-white dark:bg-zinc-900/85 border-zinc-200 dark:border-zinc-700/80 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-600"}`}>
                 Todos ({emails.filter(e => e.status !== "archived").length})
               </button>
               {(["Gmail","Outlook","Teams"] as EmailSource[]).map(s => (
-                <button key={s} onClick={() => setFilter(s)} className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all ${filter === s ? SOURCE_COLORS[s] : "bg-surface border-outline-variant/40 text-on-surface-variant"}`}>
+                <button key={s} onClick={() => setFilter(s)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filter === s ? SOURCE_COLORS[s] : "bg-white dark:bg-zinc-900/85 border-zinc-200 dark:border-zinc-700/80 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400 dark:hover:border-zinc-600"}`}>
                   {SOURCE_ICONS[s]} {s} ({emails.filter(e => e.source === s && e.status !== "archived").length})
                 </button>
               ))}
@@ -144,10 +152,10 @@ export default function EmailPage() {
 
             {/* Search */}
             <div className="relative">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant"/>
+              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400"/>
               <input 
-                className="w-full pl-10 pr-4 py-3 bg-surface border border-outline-variant/40 rounded-xl text-sm focus:outline-none focus:border-primary" 
-                placeholder="Pesquisar..." 
+                className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-zinc-900/85 border-2 border-zinc-200 dark:border-zinc-700/80 rounded-xl text-sm focus:outline-none focus:border-rd-cyan text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 shadow-sm transition-colors" 
+                placeholder="Pesquisar e-mails por assunto, remetente ou conteúdo..." 
                 value={search} 
                 onChange={e => setSearch(sanitize(e.target.value))}
               />
@@ -157,24 +165,24 @@ export default function EmailPage() {
               <div
                 key={email.id}
                 onClick={() => { setSelected(email); markRead(email.id); }}
-                className={`group flex items-start gap-4 p-4 rounded-2xl border cursor-pointer transition-all hover:shadow-md ${email.status === "unread" ? "bg-primary/5 border-primary/20 shadow-sm" : "bg-surface border-outline-variant/40"}`}
+                className={`group flex items-start gap-4 p-4 rounded-2xl border-2 cursor-pointer transition-all hover:border-rd-cyan/50 hover:shadow-md ${email.status === "unread" ? "bg-rd-cyan/5 border-rd-cyan/30 shadow-sm" : "bg-white dark:bg-zinc-900/85 border-zinc-200 dark:border-zinc-700/80"}`}
               >
                 <div className={`w-8 h-8 rounded-xl text-sm flex items-center justify-center shrink-0 border ${SOURCE_COLORS[email.source]}`}>
                   {SOURCE_ICONS[email.source]}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-0.5">
-                    <p className={`text-sm ${email.status === "unread" ? "font-semibold text-on-surface" : "font-medium text-on-surface-variant"}`}>{email.from}</p>
-                    <span className="text-sm text-on-surface-variant shrink-0">{email.date}</span>
+                    <p className={`text-sm ${email.status === "unread" ? "font-bold text-zinc-900 dark:text-zinc-100" : "font-medium text-zinc-700 dark:text-zinc-300"}`}>{email.from}</p>
+                    <span className="text-xs text-zinc-400 shrink-0">{email.date}</span>
                   </div>
-                  <p className={`text-sm ${email.status === "unread" ? "font-medium text-on-surface" : "text-on-surface-variant"} truncate`}>{email.subject}</p>
-                  <p className="text-xs text-on-surface-variant truncate mt-0.5">{email.preview}</p>
+                  <p className={`text-sm ${email.status === "unread" ? "font-semibold text-zinc-900 dark:text-zinc-100" : "text-zinc-600 dark:text-zinc-400"} truncate`}>{email.subject}</p>
+                  <p className="text-xs text-zinc-400 truncate mt-0.5">{email.preview}</p>
                 </div>
                 <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={e => { e.stopPropagation(); toggleStar(email.id); }} className={email.status === "starred" ? "text-amber-500" : "text-on-surface-variant hover:text-amber-500"}>
+                  <button onClick={e => { e.stopPropagation(); toggleStar(email.id); }} className={email.status === "starred" ? "text-amber-500" : "text-zinc-400 hover:text-amber-500"}>
                     <Star size={14}/>
                   </button>
-                  <button onClick={e => { e.stopPropagation(); archiveEmail(email.id); }} className="text-on-surface-variant hover:text-primary">
+                  <button onClick={e => { e.stopPropagation(); archiveEmail(email.id); }} className="text-zinc-400 hover:text-rd-cyan">
                     <Archive size={14}/>
                   </button>
                 </div>
@@ -186,53 +194,53 @@ export default function EmailPage() {
           <div className="space-y-4">
             {selected ? (
               <>
-                <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm">
+                <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm backdrop-blur-xl">
                   <div className="flex items-start justify-between gap-3 mb-4">
                     <div>
-                      <span className={`text-sm font-semibold px-2 py-0.5 rounded-full border ${SOURCE_COLORS[selected.source]}`}>
+                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${SOURCE_COLORS[selected.source]}`}>
                         {SOURCE_ICONS[selected.source]} {selected.source}
                       </span>
-                      <h3 className="font-medium text-sm text-on-surface mt-2">{selected.subject}</h3>
-                      <p className="text-xs text-on-surface-variant mt-0.5">{selected.from} · {selected.date}</p>
+                      <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mt-2">{selected.subject}</h3>
+                      <p className="text-xs text-zinc-400 mt-0.5">{selected.from} · {selected.date}</p>
                     </div>
-                    <button onClick={() => setSelected(null)} className="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant"><X size={13}/></button>
+                    <button onClick={() => setSelected(null)} className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"><X size={13}/></button>
                   </div>
-                  <div className="text-sm text-on-surface whitespace-pre-wrap leading-relaxed bg-surface-container-low rounded-xl p-4 max-h-56 overflow-y-auto">
+                  <div className="text-sm text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 max-h-56 overflow-y-auto">
                     {selected.body}
                   </div>
                   <div className="flex gap-2 mt-4">
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-outline-variant/40 text-xs font-medium text-on-surface-variant hover:text-on-surface">
+                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
                       <Reply size={13}/> Responder
                     </button>
-                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-surface-container border border-outline-variant/40 text-xs font-medium text-on-surface-variant hover:text-on-surface">
+                    <button className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors">
                       <Forward size={13}/> Encaminhar
                     </button>
                   </div>
                 </div>
 
                 {/* AI Summary */}
-                <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm">
+                <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm backdrop-blur-xl">
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2">
-                      <Sparkles size={15} className="text-primary"/>
-                      <p className="text-sm font-semibold text-on-surface">Resumo por IA</p>
+                      <Sparkles size={15} className="text-rd-cyan"/>
+                      <p className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Resumo por IA</p>
                     </div>
-                    <button onClick={() => summarizeAI(selected)} disabled={aiLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-secondary-container text-white text-sm font-semibold disabled:opacity-60">
+                    <button onClick={() => summarizeAI(selected)} disabled={aiLoading} className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rd-cyan text-zinc-950 text-xs font-bold disabled:opacity-60 hover:bg-rd-cyan/90 transition-all">
                       {aiLoading ? <Loader2 size={10} className="animate-spin"/> : <Sparkles size={10}/>}
                       {aiLoading ? "..." : "Resumir"}
                     </button>
                   </div>
                   {selected.aiSummary ? (
-                    <p className="text-xs text-on-surface leading-relaxed whitespace-pre-wrap">{selected.aiSummary}</p>
+                    <p className="text-xs text-zinc-800 dark:text-zinc-200 leading-relaxed whitespace-pre-wrap">{selected.aiSummary}</p>
                   ) : (
-                    <p className="text-xs text-on-surface-variant text-center py-3">Clique em "Resumir" para obter um resumo executivo com ação e prazo.</p>
+                    <p className="text-xs text-zinc-400 text-center py-3">Clique em "Resumir" para obter um resumo executivo com ação e prazo.</p>
                   )}
                 </div>
               </>
             ) : (
-              <div className="p-6 bg-surface rounded-2xl border border-outline-variant/40 text-center text-on-surface-variant">
+              <div className="p-6 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 text-center text-zinc-500 dark:text-zinc-400">
                 <Mail size={36} className="mx-auto mb-3 opacity-20"/>
-                <p className="text-sm">Clique num e-mail para ler e resumir com IA.</p>
+                <p className="text-xs">Selecione um e-mail para ler e resumir com IA.</p>
               </div>
             )}
           </div>

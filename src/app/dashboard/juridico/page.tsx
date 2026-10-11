@@ -102,18 +102,27 @@ export default function LegalPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-sm font-semibold uppercase tracking-widest rounded-full">Esteira Jurídica</span>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2">
-            Processos & <span className="text-gradient">Jurídico</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            {processes.filter(p => p.status !== "Concluído").length} ativos · {processes.filter(p => daysUntil(p.deadline) <= 7 && p.status !== "Concluído").length} urgentes
-          </p>
+      {/* Action Bar Compacta */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Esteira Jurídica & Compliance</span>
+          </div>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
+            {processes.filter(p => p.status !== "Concluído").length} Ativos
+          </span>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-rose-500/10 border border-rose-500/20 text-rose-500">
+            {processes.filter(p => daysUntil(p.deadline) <= 7 && p.status !== "Concluído").length} Urgentes (&le; 7d)
+          </span>
         </div>
-        <button onClick={() => setShowForm(true)} className="btn-gradient flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold">
-          <Plus size={18} /> Novo Processo
+
+        <button 
+          onClick={() => setShowForm(true)} 
+          className="flex items-center gap-2 px-4 py-2 bg-rd-cyan text-zinc-950 rounded-xl text-sm font-bold shadow-md shadow-rd-cyan/20 hover:bg-rd-cyan/90 transition-all shrink-0"
+        >
+          <Plus size={16} /> Novo Processo
         </button>
       </div>
 
@@ -124,11 +133,11 @@ export default function LegalPage() {
             const count = processes.filter(p => p.status === step).length;
             return (
               <div key={step} className="flex items-center gap-2">
-                <div className="text-center px-4 py-2 rounded-xl bg-surface border border-outline-variant/40 min-w-[140px]">
-                  <p className="text-sm font-semibold text-on-surface-variant uppercase tracking-widest">{step}</p>
-                  <p className="font-heading font-semibold text-2xl text-on-surface">{count}</p>
+                <div className="text-center px-4 py-2.5 rounded-xl bg-white dark:bg-zinc-900/85 border-2 border-zinc-200 dark:border-zinc-700/80 min-w-[140px] shadow-sm hover:border-rd-cyan/50 transition-colors">
+                  <p className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">{step}</p>
+                  <p className="font-heading font-bold text-2xl text-zinc-900 dark:text-zinc-100">{count}</p>
                 </div>
-                {i < FLOW.length - 1 && <ChevronRight size={16} className="text-outline-variant shrink-0" />}
+                {i < FLOW.length - 1 && <ChevronRight size={16} className="text-zinc-400 dark:text-zinc-600 shrink-0" />}
               </div>
             );
           })}
@@ -146,20 +155,20 @@ export default function LegalPage() {
               <div
                 key={p.id}
                 onClick={() => setSelected(p)}
-                className={`group flex items-start gap-4 p-5 bg-surface rounded-2xl border shadow-sm hover:shadow-md cursor-pointer transition-all ${isOverdue ? "border-error/40 bg-red-50/30" : isUrgent ? "border-amber-300/60 bg-amber-50/30" : "border-outline-variant/40"}`}
+                className={`group flex items-start gap-4 p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 shadow-sm hover:shadow-md cursor-pointer transition-all hover:border-rd-cyan/50 ${isOverdue ? "border-rose-400 dark:border-rose-500/60 bg-rose-50/40 dark:bg-rose-950/20" : isUrgent ? "border-amber-400 dark:border-amber-500/60 bg-amber-50/40 dark:bg-amber-950/20" : "border-zinc-200 dark:border-zinc-700/80"}`}
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap mb-1">
-                    <span className="text-sm font-semibold text-on-surface-variant">{p.number}</span>
-                    <span className={`text-sm font-semibold px-2 py-0.5 rounded-full border ${PRIORITY_COLORS[p.priority]}`}>{p.priority}</span>
-                    <span className={`text-sm font-semibold px-2 py-0.5 rounded-full border ${STATUS_COLORS[p.status]}`}>{p.status}</span>
+                    <span className="text-xs font-bold text-zinc-500 dark:text-zinc-400">{p.number}</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${PRIORITY_COLORS[p.priority]}`}>{p.priority}</span>
+                    <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${STATUS_COLORS[p.status]}`}>{p.status}</span>
                   </div>
-                  <p className="font-medium text-sm text-on-surface group-hover:text-primary transition-colors">{p.title}</p>
-                  <p className="text-xs text-on-surface-variant truncate mt-0.5">{p.responsible}</p>
+                  <p className="font-semibold text-sm text-zinc-900 dark:text-zinc-100 group-hover:text-rd-cyan transition-colors">{p.title}</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">{p.responsible}</p>
                 </div>
-                <div className={`text-right shrink-0 text-xs font-semibold rounded-xl px-3 py-1.5 ${isOverdue ? "bg-error/10 text-error" : isUrgent ? "bg-amber-100 text-amber-700" : "bg-surface-container text-on-surface-variant"}`}>
+                <div className={`text-right shrink-0 text-xs font-semibold rounded-xl px-3 py-1.5 ${isOverdue ? "bg-rose-500/10 text-rose-500" : isUrgent ? "bg-amber-500/10 text-amber-500" : "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"}`}>
                   {isOverdue ? `${Math.abs(days)}d atrasado` : days === 0 ? "Hoje!" : `${days}d`}
-                  <div className="text-xs font-normal">{new Date(p.deadline + "T00:00:00").toLocaleDateString("pt-BR")}</div>
+                  <div className="text-[11px] font-normal">{new Date(p.deadline + "T00:00:00").toLocaleDateString("pt-BR")}</div>
                 </div>
               </div>
             );
@@ -170,25 +179,25 @@ export default function LegalPage() {
         <div className="space-y-4">
           {selected ? (
             <>
-              <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm">
+              <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm backdrop-blur-xl">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <p className="text-sm font-semibold text-on-surface-variant">{selected.number}</p>
-                    <h3 className="font-medium text-sm text-on-surface mt-0.5">{selected.title}</h3>
+                    <p className="text-xs font-bold text-zinc-500 dark:text-zinc-400">{selected.number}</p>
+                    <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100 mt-0.5">{selected.title}</h3>
                   </div>
-                  <button onClick={() => setSelected(null)} className="w-7 h-7 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant"><X size={13} /></button>
+                  <button onClick={() => setSelected(null)} className="w-7 h-7 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"><X size={13} /></button>
                 </div>
 
-                <p className="text-xs text-on-surface-variant mb-4 leading-relaxed">{selected.description}</p>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300 mb-4 leading-relaxed">{selected.description}</p>
 
                 <div className="flex flex-col gap-2 mb-4">
                   <div className="flex items-center gap-2 text-xs">
-                    <Clock size={12} className="text-on-surface-variant shrink-0" />
-                    <span className="text-on-surface-variant">Prazo:</span>
-                    <span className="font-medium text-on-surface">{new Date(selected.deadline + "T00:00:00").toLocaleDateString("pt-BR")}</span>
+                    <Clock size={12} className="text-zinc-400 shrink-0" />
+                    <span className="text-zinc-500 dark:text-zinc-400">Prazo:</span>
+                    <span className="font-semibold text-zinc-900 dark:text-zinc-100">{new Date(selected.deadline + "T00:00:00").toLocaleDateString("pt-BR")}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-on-surface-variant">
-                    <span>Responsável:</span><span className="font-medium text-on-surface">{selected.responsible}</span>
+                  <div className="flex items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+                    <span>Responsável:</span><span className="font-semibold text-zinc-900 dark:text-zinc-100">{selected.responsible}</span>
                   </div>
                 </div>
 
@@ -196,48 +205,48 @@ export default function LegalPage() {
                 {selected.status !== "Concluído" && (
                   <button
                     onClick={() => advance(selected.id)}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-semibold hover:bg-primary/20 transition-colors"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-rd-cyan/10 border border-rd-cyan/30 text-rd-cyan text-xs font-bold hover:bg-rd-cyan hover:text-zinc-950 transition-all"
                   >
                     <ChevronRight size={14} />
                     Avançar para: {FLOW[FLOW.indexOf(selected.status) + 1]}
                   </button>
                 )}
                 {selected.status === "Concluído" && (
-                  <div className="flex items-center gap-2 justify-center text-emerald-600 text-xs font-semibold py-2">
+                  <div className="flex items-center gap-2 justify-center text-emerald-600 dark:text-emerald-400 text-xs font-bold py-2">
                     <CheckCircle2 size={14} /> Processo Concluído
                   </div>
                 )}
               </div>
 
               {/* AI Analysis */}
-              <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm">
+              <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm backdrop-blur-xl">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <Brain size={16} className="text-primary" />
-                    <p className="text-sm font-semibold text-on-surface">Análise por IA</p>
+                    <Brain size={16} className="text-rd-cyan" />
+                    <p className="text-xs font-bold uppercase tracking-wider text-zinc-900 dark:text-zinc-100">Análise por IA</p>
                   </div>
                   <button
                     onClick={() => runAI(selected)}
                     disabled={aiLoading}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-primary to-secondary-container text-white text-sm font-semibold shadow-sm disabled:opacity-60"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rd-cyan text-zinc-950 text-xs font-bold shadow-sm disabled:opacity-60 hover:bg-rd-cyan/90 transition-all"
                   >
                     {aiLoading ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} />}
                     {aiLoading ? "Analisando..." : "Analisar"}
                   </button>
                 </div>
                 {selected.aiAnalysis ? (
-                  <div className="text-xs text-on-surface whitespace-pre-wrap leading-relaxed bg-surface-container-low rounded-xl p-3 max-h-64 overflow-y-auto">
+                  <div className="text-xs text-zinc-800 dark:text-zinc-200 whitespace-pre-wrap leading-relaxed bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 max-h-64 overflow-y-auto">
                     {selected.aiAnalysis}
                   </div>
                 ) : (
-                  <p className="text-xs text-on-surface-variant text-center py-4">Clique em "Analisar" para gerar um relatório com IA sobre este processo.</p>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center py-4">Clique em "Analisar" para gerar um parecer com IA sobre este processo.</p>
                 )}
               </div>
             </>
           ) : (
-            <div className="p-6 bg-surface rounded-2xl border border-outline-variant/40 text-center text-on-surface-variant">
+            <div className="p-6 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 text-center text-zinc-500 dark:text-zinc-400">
               <FileText size={36} className="mx-auto mb-3 opacity-20" />
-              <p className="text-sm">Clique num processo para ver os detalhes e análise da IA.</p>
+              <p className="text-xs">Selecione um processo ao lado para ver detalhes e parecer de IA.</p>
             </div>
           )}
         </div>

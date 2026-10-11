@@ -440,62 +440,56 @@ export default function FolhaBeneficiosPage() {
         </div>
       )}
 
-      {/* Header Principal */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-surface border border-outline-variant/30 p-6 rounded-3xl shadow-sm">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2 text-xs font-semibold text-rd-cyan tracking-wider uppercase">
-            <Briefcase size={14} /> Módulo RH & Departamento Pessoal
-            <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
-              eSocial S-1200 / S-1210
-            </span>
+      {/* Action Bar Compacta */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Briefcase className="text-rd-cyan" size={18} />
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Folha de Pagamento & Benefícios</span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-heading font-bold text-on-surface tracking-tight flex items-center gap-3">
-            Folha de Pagamento & Benefícios
-            {loading && <RefreshCw size={20} className="animate-spin text-rd-cyan" />}
-          </h1>
-          <p className="text-sm text-on-surface-variant">
-            Gestão unificada de holerites, encargos hospitalares, convênios de benefícios e guias tributárias para <strong>{activeUnit.name}</strong>.
-          </p>
-        </div>
-
-        {/* Competência e Ações Rápidas */}
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="flex items-center gap-2 bg-surface-container/60 border border-outline-variant/40 rounded-2xl px-3 py-2 text-sm">
-            <Calendar size={16} className="text-rd-cyan" />
-            <span className="text-xs text-on-surface-variant font-medium">Competência:</span>
+          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold">
+            eSocial S-1200 / S-1210
+          </span>
+          <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-2.5 py-1 text-xs">
+            <Calendar size={14} className="text-rd-cyan" />
+            <span className="text-zinc-500 dark:text-zinc-400 font-medium">Competência:</span>
             <select
               value={competencia}
               onChange={(e) => setCompetencia(e.target.value)}
-              className="bg-transparent text-on-surface font-bold text-sm focus:outline-none cursor-pointer"
+              className="bg-transparent text-zinc-900 dark:text-zinc-100 font-bold text-xs focus:outline-none cursor-pointer"
             >
-              <option value="09/2026" className="bg-zinc-900 text-white">Setembro / 2026</option>
-              <option value="08/2026" className="bg-zinc-900 text-white">Agosto / 2026</option>
-              <option value="07/2026" className="bg-zinc-900 text-white">Julho / 2026</option>
+              <option value="09/2026" className="bg-zinc-900 text-white">09/2026</option>
+              <option value="08/2026" className="bg-zinc-900 text-white">08/2026</option>
+              <option value="07/2026" className="bg-zinc-900 text-white">07/2026</option>
             </select>
           </div>
+        </div>
 
+        {/* Ações Rápidas */}
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => setShowNovoLancamentoModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold border border-outline-variant hover:bg-surface-container text-on-surface transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 text-zinc-800 dark:text-zinc-200 transition-all"
           >
-            <Plus size={16} className="text-rd-cyan" />
+            <Plus size={15} className="text-rd-cyan" />
             Lançamento Avulso
           </button>
 
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold border border-outline-variant hover:bg-surface-container text-on-surface transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border-2 border-zinc-200 dark:border-zinc-700 hover:border-zinc-400 dark:hover:border-zinc-500 text-zinc-800 dark:text-zinc-200 transition-all"
             title="Exportar relatório ou imprimir"
           >
-            <Download size={16} />
+            <Download size={15} />
             Exportar SEFIP
           </button>
 
           <button
             onClick={() => setShowFecharFolhaModal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-2xl text-sm font-bold bg-rd-cyan text-zinc-950 shadow-lg shadow-rd-cyan/25 hover:bg-rd-cyan/90 transition-all cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-rd-cyan text-zinc-950 shadow-md shadow-rd-cyan/25 hover:bg-rd-cyan/90 transition-all cursor-pointer"
           >
-            <CheckCircle2 size={16} />
+            <CheckCircle2 size={15} />
             Fechar Folha
           </button>
         </div>
@@ -504,72 +498,72 @@ export default function FolhaBeneficiosPage() {
       {/* Top KPIs / Cards de Resumo */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Folha Bruta Total */}
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-rd-cyan/50 transition-all">
+        <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-rd-cyan/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-rd-cyan/10 rounded-full blur-xl group-hover:bg-rd-cyan/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Folha Bruta Total</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Folha Bruta Total</span>
             <div className="w-8 h-8 rounded-xl bg-rd-cyan/10 flex items-center justify-center text-rd-cyan">
               <DollarSign size={16} />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-heading font-bold text-on-surface">
+          <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
             R$ {resumo?.totalBruto?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "115.354,80"}
           </p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-400">
+          <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-500">
             <TrendingUp size={13} />
             <span>+3.2% vs mês anterior</span>
-            <span className="text-on-surface-variant font-normal">({resumo?.totalColaboradores || 8} colaboradores)</span>
+            <span className="text-zinc-400 font-normal">({resumo?.totalColaboradores || 8} colaboradores)</span>
           </div>
         </div>
 
         {/* Líquido a Pagar */}
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-emerald-500/50 transition-all">
+        <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-emerald-500/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Líquido a Pagar</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Líquido a Pagar</span>
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
               <Wallet size={16} />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-heading font-bold text-on-surface">
+          <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
             R$ {resumo?.totalLiquido?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "90.871,05"}
           </p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-on-surface-variant">
-            <Clock size={13} className="text-amber-400" />
-            <span>Vencimento do lote: <strong>05/10/2026</strong></span>
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            <Clock size={13} className="text-amber-500" />
+            <span>Vencimento do lote: <strong className="text-zinc-800 dark:text-zinc-200">05/10/2026</strong></span>
           </div>
         </div>
 
         {/* Total Benefícios Concedidos */}
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-violet-500/50 transition-all">
+        <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-violet-500/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-violet-500/10 rounded-full blur-xl group-hover:bg-violet-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Benefícios Concedidos</span>
-            <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Benefícios Concedidos</span>
+            <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500">
               <HeartHandshake size={16} />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-heading font-bold text-on-surface">
+          <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
             R$ {resumo?.totalBeneficios?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "13.560,00"}
           </p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-on-surface-variant">
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
             <span>VR/VA, Saúde, Odonto, VT & Vida</span>
           </div>
         </div>
 
         {/* Encargos & Tributos Patronais */}
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-amber-500/50 transition-all">
+        <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-amber-500/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">Encargos Hospitalares</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-400">
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Encargos Hospitalares</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
               <ShieldCheck size={16} />
             </div>
           </div>
-          <p className="text-2xl lg:text-3xl font-heading font-bold text-on-surface">
+          <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
             R$ {resumo?.totalEncargos?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "20.370,45"}
           </p>
-          <div className="flex items-center gap-1.5 mt-2 text-xs text-on-surface-variant">
+          <div className="flex items-center gap-1.5 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
             <span>FGTS Digital + INSS Patronal + IRRF</span>
           </div>
         </div>

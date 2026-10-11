@@ -80,58 +80,69 @@ export default function EstoquePage() {
 
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500 pb-20 pt-4">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-heading font-bold text-on-surface">Estoque Clínico</h1>
-          <p className="text-sm text-on-surface-variant mt-1">Gerencie suprimentos, medicamentos e alertas de reposição.</p>
+    <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500 pb-20 pt-2">
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-rd-cyan font-bold">{totalItens.toLocaleString('pt-BR')}</strong> unidades em estoque
+            </p>
+          </div>
+          {itensEmAlerta > 0 ? (
+            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3.5 py-1.5 rounded-xl text-amber-500 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              {itensEmAlerta} itens em alerta
+            </div>
+          ) : (
+            <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-emerald-500">
+              Estoque regular
+            </div>
+          )}
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Valor: <strong className="text-emerald-500 font-bold ml-1">R$ {valorEstoque.toLocaleString('pt-BR', {minimumFractionDigits:2})}</strong>
+          </div>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => handleMovimentacao("SAIDA")} className="px-4 py-2 bg-surface-container border border-outline-variant hover:bg-surface-container-high transition-colors rounded-xl text-sm font-semibold text-on-surface flex items-center gap-2">
-            <ArrowDownRight size={16} className="text-error" />
+
+        {/* Lado Direito: Ações */}
+        <div className="flex items-center gap-2">
+          <button onClick={() => handleMovimentacao("SAIDA")} className="px-4 py-2 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors rounded-xl text-xs font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
+            <ArrowDownRight size={15} className="text-error" />
             Registrar Saída
           </button>
-          <button onClick={() => handleMovimentacao("ENTRADA")} className="px-4 py-2 bg-rd-cyan hover:bg-rd-cyan/90 transition-colors rounded-xl text-sm font-semibold text-zinc-950 flex items-center gap-2 shadow-[0_0_15px_rgba(45,212,191,0.3)]">
-            <ArrowUpRight size={16} />
+          <button onClick={() => handleMovimentacao("ENTRADA")} className="px-4 py-2 bg-rd-cyan hover:bg-rd-cyan/90 transition-colors rounded-xl text-xs font-bold text-zinc-950 flex items-center gap-1.5 shadow-[0_0_15px_rgba(45,212,191,0.3)]">
+            <ArrowUpRight size={15} />
             Nova Entrada
           </button>
         </div>
       </div>
 
-      {/* KPIs */}
+      {/* KPIs Liquid Glass */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={cn(
-          "p-5 rounded-2xl border-2 transition-all shadow-sm",
-          theme === 'dark' ? "bg-zinc-900/60 border-zinc-800" : "bg-white border-zinc-200"
-        )}>
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rd-cyan/50 transition-all duration-300 group">
           <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-xl bg-rd-cyan/15 flex items-center justify-center text-rd-cyan border border-rd-cyan/20">
               <PackageSearch size={20} />
             </div>
           </div>
-          <p className="text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-1">Total de Itens (Volume)</p>
-          <h3 className="text-3xl font-heading font-bold text-on-surface">{totalItens.toLocaleString('pt-BR')}</h3>
+          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Total de Itens (Volume)</p>
+          <h3 className="text-3xl font-heading font-bold text-zinc-900 dark:text-white">{totalItens.toLocaleString('pt-BR')}</h3>
         </div>
 
-        <div className={cn(
-          "p-5 rounded-2xl border-2 transition-all shadow-sm",
-          theme === 'dark' ? "bg-zinc-900/60 border-zinc-800" : "bg-white border-zinc-200"
-        )}>
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-amber-500/50 transition-all duration-300 group">
           <div className="flex justify-between items-start mb-4">
             <div className="w-10 h-10 rounded-xl bg-amber-500/15 flex items-center justify-center text-amber-500 border border-amber-500/20">
               <AlertTriangle size={20} />
             </div>
             {itensEmAlerta > 0 && <span className="text-xs font-semibold bg-error/10 text-error px-2 py-1 rounded-lg border border-error/20">Ação Requerida</span>}
           </div>
-          <p className="text-sm font-medium text-on-surface-variant uppercase tracking-wider mb-1">Itens em Alerta</p>
-          <h3 className="text-3xl font-heading font-bold text-on-surface">{itensEmAlerta}</h3>
+          <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider mb-1">Itens em Alerta</p>
+          <h3 className="text-3xl font-heading font-bold text-zinc-900 dark:text-white">{itensEmAlerta}</h3>
         </div>
 
-        <div className={cn(
-          "p-5 rounded-2xl border-2 transition-all shadow-sm relative overflow-hidden",
-          theme === 'dark' ? "bg-rd-cyan/5 border-rd-cyan/20" : "bg-rd-cyan/5 border-rd-cyan/20"
-        )}>
-          <div className="absolute -right-4 -bottom-4 opacity-10">
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 group">
+          <div className="absolute -right-4 -bottom-4 opacity-5 group-hover:scale-110 transition-transform">
             <PackageOpen size={100} />
           </div>
           <div className="flex justify-between items-start mb-4 relative z-10">
@@ -139,16 +150,13 @@ export default function EstoquePage() {
               <ArrowUpRight size={20} />
             </div>
           </div>
-          <p className="text-sm font-medium text-rd-cyan uppercase tracking-wider mb-1 relative z-10">Valor em Estoque</p>
-          <h3 className="text-3xl font-heading font-bold text-on-surface relative z-10">R$ {valorEstoque.toLocaleString('pt-BR', {minimumFractionDigits:2})}</h3>
+          <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider mb-1 relative z-10">Valor em Estoque</p>
+          <h3 className="text-3xl font-heading font-bold text-zinc-900 dark:text-white relative z-10">R$ {valorEstoque.toLocaleString('pt-BR', {minimumFractionDigits:2})}</h3>
         </div>
       </div>
 
-      {/* Lista de Produtos */}
-      <div className={cn(
-        "rounded-2xl border-2 overflow-hidden shadow-sm",
-        theme === 'dark' ? "bg-zinc-900/60 border-zinc-800" : "bg-white border-zinc-200"
-      )}>
+      {/* Lista de Produtos Liquid Glass */}
+      <div className="bg-white dark:bg-zinc-900/85 backdrop-blur-xl rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 overflow-hidden shadow-sm">
         <div className="p-4 border-b border-outline-variant flex flex-col sm:flex-row justify-between items-center gap-4 bg-surface-container/30">
           <div className="relative w-full sm:w-96">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/60" size={16} />
