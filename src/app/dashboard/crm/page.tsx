@@ -91,7 +91,7 @@ export default function CRMPage() {
   };
 
   return (
-    <div className="max-w-[1600px] mx-auto h-[calc(100vh-100px)] flex flex-col p-4 animate-in fade-in duration-500">
+    <div className="max-w-[1600px] mx-auto min-h-[calc(100vh-180px)] lg:h-[calc(100vh-100px)] flex flex-col p-4 animate-in fade-in duration-500">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">

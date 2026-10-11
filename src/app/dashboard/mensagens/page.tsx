@@ -184,7 +184,7 @@ export default function InboxPage() {
   });
 
   return (
-    <div className="h-[calc(100vh-7.5rem)] flex flex-col gap-4 animate-in fade-in duration-300">
+    <div className="h-[calc(100vh-12.5rem)] lg:h-[calc(100vh-7.5rem)] flex flex-col gap-4 animate-in fade-in duration-300">
       
       {/* Top Header Toolbar com Botão de Configuração de Conectores */}
       <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-3 sm:p-3.5 flex flex-col md:flex-row items-center justify-between gap-3 shrink-0 shadow-sm">

@@ -401,7 +401,7 @@ export default function PacotesDashboardPage() {
       {feedbackToast && (
         <div
           className={cn(
-            "fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl backdrop-blur-xl border transition-all animate-in slide-in-from-bottom-5",
+            "fixed bottom-24 lg:bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-2xl backdrop-blur-xl border transition-all animate-in slide-in-from-bottom-5",
             feedbackToast.type === "success"
               ? "bg-emerald-950/90 border-emerald-500/40 text-emerald-200"
               : "bg-rose-950/90 border-rose-500/40 text-rose-200"

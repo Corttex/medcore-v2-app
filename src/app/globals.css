@@ -208,4 +208,8 @@
   .no-line-card {
     @apply bg-surface rounded-2xl p-6 border border-outline-variant/40 shadow-card;
   }
+
+  .safe-area-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
+  }
 }
