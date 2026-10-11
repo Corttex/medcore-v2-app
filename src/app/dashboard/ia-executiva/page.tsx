@@ -43,52 +43,52 @@ type TokenUsage = {
 };
 
 const PLAN_CONFIGS: Record<UserPlan, { name: string; maxConversations: number; dailyTokens: number; badgeColor: string }> = {
-  inicial: { name: "Plano Inicial", maxConversations: 1, dailyTokens: 15000, badgeColor: "bg-zinc-800/90 text-zinc-200 border-zinc-700" },
+  inicial: { name: "Plano Inicial", maxConversations: 1, dailyTokens: 15000, badgeColor: "bg-zinc-100 dark:bg-zinc-800/90 text-zinc-700 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700" },
   pro: { name: "Plano Pro", maxConversations: 3, dailyTokens: 50000, badgeColor: "bg-rd-cyan/15 text-rd-cyan border-rd-cyan/40 font-semibold" },
-  promax: { name: "Plano Pro Max", maxConversations: 5, dailyTokens: 200000, badgeColor: "bg-amber-500/15 text-amber-300 border-amber-500/40 font-semibold" }
+  promax: { name: "Plano Pro Max", maxConversations: 5, dailyTokens: 200000, badgeColor: "bg-amber-500/15 text-amber-600 dark:text-amber-300 border-amber-500/40 font-semibold" }
 };
 
 const aiInsights = [
   { type: "PREDITIVO", content: "Probabilidade de sobrecarga na Unidade de Emergência nas próximas 6 horas: 82.4%. Recomenda-se realocação de 3 médicos.", color: "text-rd-cyan" },
-  { type: "OTIMIZAÇÃO", content: "Protocolo de Auditoria VitalFlow detectou redução de 14% na latência de faturamento após ajuste no módulo de laudos.", color: "text-emerald-400" },
-  { type: "ESTRATÉGICO", content: "Análise de mercado sugere integração imediata com o Hub Regional de Telemedicina para expansão de cobertura.", color: "text-amber-400" },
+  { type: "OTIMIZAÇÃO", content: "Protocolo de Auditoria VitalFlow detectou redução de 14% na latência de faturamento após ajuste no módulo de laudos.", color: "text-emerald-500 dark:text-emerald-400" },
+  { type: "ESTRATÉGICO", content: "Análise de mercado sugere integração imediata com o Hub Regional de Telemedicina para expansão de cobertura.", color: "text-amber-500 dark:text-amber-400" },
 ];
 
 const markdownComponents = {
   h1: ({ children }: any) => (
-    <h1 className="text-xl font-bold text-rd-cyan border-b border-zinc-700/60 pb-2 mt-5 mb-3 font-heading tracking-tight flex items-center gap-2">
-      <span className="w-2 h-2 bg-rd-cyan rounded-full shadow-[0_0_8px_#a78bfa]"></span>
+    <h1 className="text-xl font-bold text-rd-cyan border-b border-zinc-200 dark:border-zinc-700/60 pb-2 mt-5 mb-3 font-heading tracking-tight flex items-center gap-2">
+      <span className="w-2 h-2 bg-rd-cyan rounded-full shadow-[0_0_8px_#00A9FF]"></span>
       {children}
     </h1>
   ),
   h2: ({ children }: any) => (
-    <h2 className="text-lg font-bold text-zinc-100 mt-4 mb-2.5 font-heading tracking-tight flex items-center gap-2">
+    <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 mt-4 mb-2.5 font-heading tracking-tight flex items-center gap-2">
       <span className="w-1.5 h-4 bg-rd-cyan rounded-full inline-block"></span>
       {children}
     </h2>
   ),
   h3: ({ children }: any) => (
-    <h3 className="text-base font-semibold text-rd-cyan/90 mt-3.5 mb-2 font-heading">
+    <h3 className="text-base font-semibold text-rd-cyan dark:text-rd-cyan/90 mt-3.5 mb-2 font-heading">
       {children}
     </h3>
   ),
   p: ({ children }: any) => (
-    <p className="text-sm font-normal text-zinc-200 leading-relaxed my-3 tracking-normal">
+    <p className="text-sm font-normal text-zinc-800 dark:text-zinc-200 leading-relaxed my-3 tracking-normal">
       {children}
     </p>
   ),
   ul: ({ children }: any) => (
-    <ul className="my-3 ml-4 space-y-2 list-disc list-outside text-sm font-normal text-zinc-200 marker:text-rd-cyan">
+    <ul className="my-3 ml-4 space-y-2 list-disc list-outside text-sm font-normal text-zinc-800 dark:text-zinc-200 marker:text-rd-cyan">
       {children}
     </ul>
   ),
   ol: ({ children }: any) => (
-    <ol className="my-3 ml-4 space-y-2 list-decimal list-outside text-sm font-normal text-zinc-200 marker:text-rd-cyan marker:font-bold">
+    <ol className="my-3 ml-4 space-y-2 list-decimal list-outside text-sm font-normal text-zinc-800 dark:text-zinc-200 marker:text-rd-cyan marker:font-bold">
       {children}
     </ol>
   ),
   li: ({ children }: any) => (
-    <li className="pl-1 leading-relaxed text-sm font-normal text-zinc-200">
+    <li className="pl-1 leading-relaxed text-sm font-normal text-zinc-800 dark:text-zinc-200">
       {children}
     </li>
   ),
@@ -98,42 +98,42 @@ const markdownComponents = {
     </strong>
   ),
   em: ({ children }: any) => (
-    <em className="italic text-zinc-300">
+    <em className="italic text-zinc-700 dark:text-zinc-300">
       {children}
     </em>
   ),
   blockquote: ({ children }: any) => (
-    <blockquote className="my-4 border-l-4 border-rd-cyan bg-zinc-950/70 p-4 rounded-r-2xl border-y border-r border-zinc-800 text-zinc-200 font-normal italic text-sm shadow-inner">
+    <blockquote className="my-4 border-l-4 border-rd-cyan bg-zinc-50 dark:bg-zinc-950/70 p-4 rounded-r-2xl border-y border-r border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 font-normal italic text-sm shadow-inner">
       {children}
     </blockquote>
   ),
   code: ({ inline, className, children, ...props }: any) => {
     if (inline) {
       return (
-        <code className="bg-zinc-950 border border-zinc-700/80 text-rd-cyan font-mono text-xs px-2 py-0.5 rounded-md font-medium">
+        <code className="bg-zinc-100 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-700/80 text-rd-cyan font-mono text-xs px-2 py-0.5 rounded-md font-medium">
           {children}
         </code>
       );
     }
     return (
-      <pre className="bg-zinc-950 border-2 border-zinc-700/80 rounded-2xl p-4 my-4 overflow-x-auto font-mono text-xs text-zinc-200 shadow-inner leading-relaxed">
+      <pre className="bg-zinc-100 dark:bg-zinc-950 border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-4 my-4 overflow-x-auto font-mono text-xs text-zinc-800 dark:text-zinc-200 shadow-inner leading-relaxed">
         <code>{children}</code>
       </pre>
     );
   },
-  hr: () => <hr className="my-6 border-zinc-700/60" />,
+  hr: () => <hr className="my-6 border-zinc-200 dark:border-zinc-700/60" />,
   table: ({ children }: any) => (
-    <div className="overflow-x-auto my-4 border-2 border-zinc-700/60 rounded-2xl bg-zinc-950/80 shadow-md">
+    <div className="overflow-x-auto my-4 border-2 border-zinc-200 dark:border-zinc-700/60 rounded-2xl bg-white dark:bg-zinc-950/80 shadow-sm">
       <table className="w-full text-left border-collapse">{children}</table>
     </div>
   ),
   th: ({ children }: any) => (
-    <th className="bg-zinc-900 border-b-2 border-zinc-700 p-3.5 text-xs font-bold text-rd-cyan uppercase tracking-wider">
+    <th className="bg-zinc-50 dark:bg-zinc-900 border-b-2 border-zinc-200 dark:border-zinc-700 p-3.5 text-xs font-bold text-rd-cyan uppercase tracking-wider">
       {children}
     </th>
   ),
   td: ({ children }: any) => (
-    <td className="p-3.5 text-xs text-zinc-200 border-b border-zinc-800/80 font-normal">
+    <td className="p-3.5 text-xs text-zinc-800 dark:text-zinc-200 border-b border-zinc-200 dark:border-zinc-800/80 font-normal">
       {children}
     </td>
   )
@@ -390,56 +390,52 @@ export default function AIExecPage() {
     <>
       <div className="space-y-6 animate-in fade-in duration-700 h-full flex flex-col">
         
-        {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 shrink-0">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-               <span className="px-3.5 py-1.5 bg-rd-cyan/10 border border-rd-cyan/30 text-rd-cyan text-xs font-semibold uppercase tracking-widest rounded-full flex items-center gap-2">
-                 <Cpu size={14} /> INTELLIGENCE CORE MODULE
-               </span>
-               <div className="flex items-center gap-2 ml-3">
-                 <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]"></span>
-                 <span className="text-xs text-zinc-400 font-semibold uppercase tracking-widest leading-none">Stream Neural ATIVO</span>
-               </div>
+        {/* Compact Action Bar (Padrão MedCore Design System) */}
+        <div className="bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shrink-0 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="px-3 py-1 bg-rd-cyan/10 border border-rd-cyan/30 text-rd-cyan text-xs font-bold uppercase tracking-wider rounded-xl flex items-center gap-1.5">
+              <Cpu size={14} /> Intelligence Core
+            </span>
+            <div className="flex items-center gap-2 px-3 py-1 bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 rounded-xl">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]"></span>
+              <span className="text-xs text-zinc-700 dark:text-zinc-300 font-semibold tracking-wide">Stream Neural Ativo</span>
             </div>
-            <h1 className="font-heading text-4xl lg:text-5xl font-bold tracking-tight text-on-surface leading-[0.95]">
-              IA <span className="text-gradient-lilac">Executiva</span>
-            </h1>
-            <p className="text-base text-on-surface-variant font-medium opacity-90 max-w-xl">
-              Assistente de Inteligência Clínica & Gestão (Médica, Veterinária e Estética) com controle de sessão e contagem real de tokens.
-            </p>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:inline">
+              Assistente de Inteligência Clínica & Gestão com contagem real de tokens
+            </span>
           </div>
 
-          <div className="flex items-center gap-3">
-              <button 
-                onClick={handleRecalibrate}
-                className="flex items-center gap-2 px-5 py-3 bg-zinc-900/90 hover:bg-zinc-800 border-2 border-zinc-700/60 rounded-xl text-on-surface font-heading font-semibold text-sm transition-all shadow-md group"
-                title="Limpar memória desta conversa"
-              >
-                 <RefreshCw size={16} className="text-zinc-400 group-hover:text-rd-cyan transition-colors group-hover:rotate-180 duration-500" />
-                 Recalibrar Conversa
-              </button>
-              <button 
-                onClick={handleRawLogs}
-                className="relative px-6 py-3 bg-zinc-900 hover:bg-zinc-800 border-2 border-rd-cyan/50 hover:border-rd-cyan text-rd-cyan hover:text-white rounded-xl flex items-center gap-2.5 shadow-[0_0_15px_rgba(167,139,250,0.15)] active:scale-95 transition-all text-sm font-heading font-bold overflow-hidden group"
-              >
-                 <Terminal size={16} />
-                 Raw Logs
-                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-             </button>
+          <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
+            <button 
+              onClick={handleRecalibrate}
+              className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-zinc-800/90 hover:bg-zinc-50 dark:hover:bg-zinc-750 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-700 dark:text-zinc-200 hover:text-rd-cyan font-bold text-xs transition-all shadow-sm group"
+              title="Limpar memória desta conversa"
+            >
+              <RefreshCw size={14} className="text-zinc-400 group-hover:text-rd-cyan transition-transform group-hover:rotate-180 duration-500" />
+              <span>Recalibrar</span>
+            </button>
+            <button 
+              onClick={handleRawLogs}
+              className="px-4 py-2 bg-white dark:bg-zinc-800/90 hover:bg-zinc-50 dark:hover:bg-zinc-750 border-2 border-zinc-200 dark:border-zinc-700 hover:border-rd-cyan text-zinc-700 dark:text-zinc-200 hover:text-rd-cyan rounded-xl flex items-center gap-2 transition-all text-xs font-bold shadow-sm group"
+              title="Ver logs da sessão"
+            >
+              <Terminal size={14} className="text-rd-cyan" />
+              <span>Raw Logs</span>
+              <ArrowRight size={13} className="group-hover:translate-x-0.5 transition-transform text-zinc-400 group-hover:text-rd-cyan" />
+            </button>
           </div>
         </div>
 
         {/* Warning Banner se exceder limites */}
         {quotaWarning && (
-          <div className="p-4 bg-amber-500/15 border-2 border-amber-500/40 rounded-2xl flex items-center justify-between text-amber-200 text-sm font-medium animate-in slide-in-from-top-2 shadow-lg">
+          <div className="p-4 bg-amber-500/15 border-2 border-amber-500/40 rounded-2xl flex items-center justify-between text-amber-800 dark:text-amber-200 text-sm font-medium animate-in slide-in-from-top-2 shadow-sm">
             <div className="flex items-center gap-3">
-              <AlertCircle size={20} className="text-amber-400 shrink-0" />
+              <AlertCircle size={20} className="text-amber-500 dark:text-amber-400 shrink-0" />
               <span>{quotaWarning}</span>
             </div>
             <button 
               onClick={() => setActiveTab("cotas")}
-              className="px-4 py-2 bg-amber-500/25 hover:bg-amber-500/40 border border-amber-500/50 rounded-xl text-amber-200 font-bold text-xs transition-all shadow-sm"
+              className="px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 rounded-xl text-amber-700 dark:text-amber-200 font-bold text-xs transition-all shadow-sm"
             >
               Gerenciar Cotas
             </button>
@@ -449,22 +445,22 @@ export default function AIExecPage() {
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 flex-1 min-h-0">
           
           {/* Neural Interface Area (Chat principal) */}
-          <div className="xl:col-span-8 flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
+          <div className="xl:col-span-8 flex flex-col h-[calc(100vh-170px)] min-h-[500px]">
              
              {/* Dynamic Header da Sessão Ativa */}
-             <div className="bg-zinc-900/90 backdrop-blur-md border-x-2 border-t-2 border-zinc-700/60 rounded-t-[2rem] px-6 py-3.5 flex items-center justify-between shadow-md">
+             <div className="bg-white dark:bg-zinc-900/90 backdrop-blur-md border-x-2 border-t-2 border-zinc-200 dark:border-zinc-700/60 rounded-t-[2rem] px-5 sm:px-6 py-3.5 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3 overflow-hidden">
-                  <span className="w-2.5 h-2.5 bg-rd-cyan rounded-full shadow-[0_0_10px_#a78bfa]" />
-                  <span className="text-sm font-heading font-bold text-on-surface truncate">
+                  <span className="w-2.5 h-2.5 bg-rd-cyan rounded-full shadow-[0_0_8px_#00A9FF]" />
+                  <span className="text-sm font-heading font-bold text-zinc-900 dark:text-white truncate">
                     {currentSession.title}
                   </span>
-                  <span className="text-xs text-zinc-400 font-medium shrink-0">
-                    ({messages.length} mensagens)
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium shrink-0">
+                    ({messages.length} msgs)
                   </span>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2.5">
                   {lastUsage && (
-                    <span className="px-3 py-1 bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-xs font-mono font-bold rounded-full flex items-center gap-1.5 shadow-sm">
+                    <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/15 border border-emerald-200 dark:border-emerald-500/40 text-emerald-600 dark:text-emerald-400 text-xs font-mono font-bold rounded-full flex items-center gap-1.5 shadow-sm">
                       <BarChart3 size={12} /> +{lastUsage.totalTokens} tokens
                     </span>
                   )}
@@ -475,27 +471,27 @@ export default function AIExecPage() {
              </div>
 
              {/* Chat Display Area */}
-             <div className="flex-1 bg-zinc-950/60 backdrop-blur-md border-x-2 border-zinc-700/60 p-6 lg:p-8 space-y-6 overflow-y-auto custom-scrollbar">
+             <div className="flex-1 bg-zinc-50/70 dark:bg-zinc-950/60 backdrop-blur-md border-x-2 border-zinc-200 dark:border-zinc-700/60 p-4 sm:p-6 lg:p-8 space-y-6 overflow-y-auto custom-scrollbar">
                 
                 {messages.map((msg) => (
-                  <div key={msg.id} className={`flex gap-5 max-w-3xl ${msg.role === "user" ? "ml-auto flex-row-reverse" : ""}`}>
-                     <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 relative overflow-hidden shadow-md ${msg.role === "user" ? "bg-zinc-800 border-2 border-zinc-600 text-zinc-300" : "bg-rd-cyan/15 border-2 border-rd-cyan/40 text-rd-cyan"}`}>
+                  <div key={msg.id} className={`flex gap-3 sm:gap-4 max-w-3xl ${msg.role === "user" ? "ml-auto flex-row-reverse" : ""}`}>
+                     <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-2xl flex items-center justify-center shrink-0 relative overflow-hidden shadow-sm ${msg.role === "user" ? "bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-200" : "bg-rd-cyan/10 border-2 border-rd-cyan/40 text-rd-cyan"}`}>
                         {msg.role === "user" ? (
-                          <span className="text-sm font-bold">{initials}</span>
+                          <span className="text-xs font-bold">{initials}</span>
                         ) : (
                           <>
                             <div className="absolute inset-0 bg-rd-cyan/10 animate-pulse"></div>
-                            <BrainCircuit size={26} />
+                            <BrainCircuit size={22} />
                           </>
                         )}
                      </div>
-                     <div className={`space-y-2 ${msg.role === "user" ? "text-right" : ""}`}>
-                        <div className={`p-6 rounded-3xl ${
+                     <div className={`space-y-1.5 ${msg.role === "user" ? "text-right" : ""}`}>
+                        <div className={`p-4 sm:p-5 rounded-3xl ${
                           msg.isError 
-                            ? "bg-red-500/15 border-2 border-red-500/30 rounded-tl-none text-red-100 shadow-md" 
+                            ? "bg-red-500/15 border-2 border-red-500/30 rounded-tl-none text-red-900 dark:text-red-100 shadow-sm" 
                             : msg.role === "user" 
-                              ? "bg-rd-cyan/20 border-2 border-rd-cyan/30 rounded-tr-none text-on-surface shadow-md text-sm font-normal leading-relaxed" 
-                              : "bg-zinc-900/95 border-2 border-zinc-700/70 rounded-tl-none text-on-surface shadow-lg"
+                              ? "bg-rd-cyan/10 dark:bg-rd-cyan/20 border-2 border-rd-cyan/30 rounded-tr-none text-zinc-900 dark:text-white shadow-sm text-sm font-normal leading-relaxed" 
+                              : "bg-white dark:bg-zinc-900/95 border-2 border-zinc-200 dark:border-zinc-700/70 rounded-tl-none text-zinc-900 dark:text-zinc-100 shadow-sm"
                           } max-w-none`}>
                            {msg.role === "ai" ? (
                              <Markdown components={markdownComponents}>{msg.content}</Markdown>
@@ -503,7 +499,7 @@ export default function AIExecPage() {
                              msg.content
                            )}
                         </div>
-                        <p className={`text-xs font-heading ${msg.isError ? "text-red-400 font-bold" : "text-zinc-400"} font-semibold uppercase tracking-widest ${msg.role === "user" ? "pr-2" : "pl-2"}`}>
+                        <p className={`text-[11px] font-heading ${msg.isError ? "text-red-500 font-bold" : "text-zinc-400 dark:text-zinc-500"} font-semibold uppercase tracking-wider ${msg.role === "user" ? "pr-2" : "pl-2"}`}>
                           {msg.role === "user" ? `${user?.full_name || "OPERADOR"} • ` : "DRA. CONTE CORE • "} {msg.timestamp}
                         </p>
                      </div>
@@ -511,18 +507,18 @@ export default function AIExecPage() {
                 ))}
 
                 {loading && (
-                  <div className="flex gap-5 max-w-3xl">
-                     <div className="w-12 h-12 rounded-2xl bg-rd-cyan/15 border-2 border-rd-cyan/40 flex items-center justify-center text-rd-cyan shrink-0 relative overflow-hidden shadow-md">
+                  <div className="flex gap-3 sm:gap-4 max-w-3xl">
+                     <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-rd-cyan/10 border-2 border-rd-cyan/40 flex items-center justify-center text-rd-cyan shrink-0 relative overflow-hidden shadow-sm">
                         <div className="absolute inset-0 bg-rd-cyan/10 animate-pulse"></div>
-                        <BrainCircuit size={26} />
+                        <BrainCircuit size={22} />
                      </div>
-                     <div className="space-y-2">
-                        <div className="bg-zinc-900/90 border-2 border-zinc-700/60 p-6 rounded-3xl rounded-tl-none shadow-md">
-                           <div className="flex items-center gap-3 mb-3">
-                              <span className="w-2.5 h-2.5 bg-rd-cyan rounded-full animate-bounce shadow-[0_0_12px_#a78bfa]"></span>
-                              <span className="text-xs font-bold text-rd-cyan uppercase tracking-[0.25em]">ANALISANDO CLINICAMENTE...</span>
+                     <div className="space-y-1.5">
+                        <div className="bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/60 p-5 rounded-3xl rounded-tl-none shadow-sm">
+                           <div className="flex items-center gap-2.5 mb-2">
+                              <span className="w-2 h-2 bg-rd-cyan rounded-full animate-bounce shadow-[0_0_8px_#00A9FF]"></span>
+                              <span className="text-[11px] font-bold text-rd-cyan uppercase tracking-wider">ANALISANDO CLINICAMENTE...</span>
                            </div>
-                           <p className="text-on-surface font-medium leading-relaxed animate-pulse text-sm">
+                           <p className="text-zinc-600 dark:text-zinc-300 font-medium leading-relaxed animate-pulse text-xs sm:text-sm">
                               Sintetizando modelo neural médico. Latência estimada: 1.1s.
                            </p>
                         </div>
@@ -534,8 +530,8 @@ export default function AIExecPage() {
              </div>
 
              {/* Input Area */}
-             <div className="bg-zinc-900/90 backdrop-blur-md border-x-2 border-b-2 border-zinc-700/60 rounded-b-[2rem] p-5 shrink-0 shadow-lg">
-                <p className="text-xs font-bold text-rd-cyan uppercase tracking-widest mb-3 flex items-center gap-2">
+             <div className="bg-white dark:bg-zinc-900/90 backdrop-blur-md border-x-2 border-b-2 border-zinc-200 dark:border-zinc-700/60 rounded-b-[2rem] p-4 sm:p-5 shrink-0 shadow-sm">
+                <p className="text-xs font-bold text-rd-cyan uppercase tracking-widest mb-2.5 flex items-center gap-2">
                   <MessageSquare size={14} /> Digite sua dúvida médica ou consulta de gestão
                 </p>
                 <div className="relative group">
@@ -544,49 +540,49 @@ export default function AIExecPage() {
                      onChange={(e) => setInput(e.target.value)}
                      onKeyDown={(e) => e.key === "Enter" && handleSend()}
                      placeholder="Ex: Qual o protocolo sugerido para auditoria de guia TISS de procedimento cirúrgico?" 
-                     className="w-full bg-zinc-950/80 border-2 border-zinc-700 hover:border-rd-cyan/60 focus:border-rd-cyan focus:ring-4 focus:ring-rd-cyan/15 focus:outline-none h-16 px-6 pr-20 rounded-2xl text-base font-body text-on-surface transition-all duration-300 placeholder:text-zinc-500 font-medium shadow-inner"
+                     className="w-full bg-zinc-50 dark:bg-zinc-950/80 border-2 border-zinc-200 dark:border-zinc-700 hover:border-rd-cyan/60 focus:border-rd-cyan focus:ring-4 focus:ring-rd-cyan/15 focus:outline-none h-14 sm:h-16 px-5 sm:px-6 pr-16 sm:pr-20 rounded-2xl text-sm sm:text-base font-body text-zinc-900 dark:text-white transition-all duration-300 placeholder:text-zinc-400 font-medium shadow-inner"
                    />
                    <button 
                      onClick={handleSend}
                      disabled={!input.trim()}
-                     className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 bg-rd-cyan text-white rounded-xl flex items-center justify-center hover:shadow-[0_0_20px_var(--color-rd-cyan)] hover:scale-105 active:scale-95 transition-all group/btn disabled:opacity-40"
+                     className="absolute right-2.5 top-1/2 -translate-y-1/2 w-10 h-10 sm:w-11 sm:h-11 bg-rd-cyan text-white rounded-xl flex items-center justify-center hover:shadow-[0_0_15px_var(--color-rd-cyan)] hover:scale-105 active:scale-95 transition-all group/btn disabled:opacity-40"
                    >
-                      <Send size={20} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
+                      <Send size={18} className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform" />
                    </button>
                 </div>
-                <div className="flex justify-between items-center mt-3 px-1">
-                   <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mt-3 px-1">
+                   <div className="flex flex-wrap gap-3">
                       <button 
                         onClick={() => setInput("Gere um resumo clínico das diretrizes médicas e estéticas recentes...")}
-                        className="text-xs font-semibold text-zinc-400 hover:text-rd-cyan transition-colors flex items-center gap-1.5"
+                        className="text-xs font-semibold text-zinc-500 hover:text-rd-cyan transition-colors flex items-center gap-1.5"
                       >
-                        <Sparkles size={14}/> Gerar Insights Clínicos
+                        <Sparkles size={13}/> Gerar Insights Clínicos
                       </button>
                       <button 
                         onClick={() => setInput("Como proceder na verificação do limite de cotas do convênio?")}
-                        className="text-xs font-semibold text-zinc-400 hover:text-rd-cyan transition-colors flex items-center gap-1.5"
+                        className="text-xs font-semibold text-zinc-500 hover:text-rd-cyan transition-colors flex items-center gap-1.5"
                       >
-                        <MessageSquare size={14}/> Sugestão TISS
+                        <MessageSquare size={13}/> Sugestão TISS
                       </button>
                    </div>
-                   <p className="text-xs text-zinc-500 font-medium font-mono">MEDCore IA v4.28.1 • Nicho Saúde</p>
+                   <p className="text-[11px] text-zinc-400 dark:text-zinc-500 font-medium font-mono">MEDCore IA v4.28.1 • Nicho Saúde</p>
                 </div>
              </div>
 
           </div>
 
           {/* Submenu Lateral Direito: Histórico de Conversas, Cotas & Insights */}
-          <aside className="xl:col-span-4 flex flex-col gap-4 h-[calc(100vh-220px)] min-h-[500px]">
+          <aside className="xl:col-span-4 flex flex-col gap-4 h-[calc(100vh-170px)] min-h-[500px]">
              
              {/* Navegação por Abas do Submenu com Bordas Destacadas */}
-             <div className="bg-zinc-900/90 backdrop-blur-md border-2 border-zinc-700/60 rounded-2xl p-1.5 flex gap-1.5 shrink-0 shadow-md">
+             <div className="bg-white dark:bg-zinc-900/90 backdrop-blur-md border-2 border-zinc-200 dark:border-zinc-700/60 rounded-2xl p-1.5 flex gap-1.5 shrink-0 shadow-sm">
                 <button
                   onClick={() => setActiveTab("conversas")}
                   className={cn(
                     "flex-1 py-3 px-3 rounded-xl text-xs font-heading font-bold flex items-center justify-center gap-2 transition-all border-2",
                     activeTab === "conversas" 
                       ? "bg-rd-cyan text-white border-rd-cyan shadow-md shadow-rd-cyan/20" 
-                      : "text-zinc-400 border-transparent hover:text-on-surface hover:bg-zinc-800/60"
+                      : "text-zinc-500 dark:text-zinc-400 border-transparent hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
                   )}
                 >
                   <History size={16} /> Conversas
@@ -597,7 +593,7 @@ export default function AIExecPage() {
                     "flex-1 py-3 px-3 rounded-xl text-xs font-heading font-bold flex items-center justify-center gap-2 transition-all border-2",
                     activeTab === "cotas" 
                       ? "bg-rd-cyan text-white border-rd-cyan shadow-md shadow-rd-cyan/20" 
-                      : "text-zinc-400 border-transparent hover:text-on-surface hover:bg-zinc-800/60"
+                      : "text-zinc-500 dark:text-zinc-400 border-transparent hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
                   )}
                 >
                   <PieChart size={16} /> Cotas & Tokens
@@ -608,7 +604,7 @@ export default function AIExecPage() {
                     "flex-1 py-3 px-3 rounded-xl text-xs font-heading font-bold flex items-center justify-center gap-2 transition-all border-2",
                     activeTab === "insights" 
                       ? "bg-rd-cyan text-white border-rd-cyan shadow-md shadow-rd-cyan/20" 
-                      : "text-zinc-400 border-transparent hover:text-on-surface hover:bg-zinc-800/60"
+                      : "text-zinc-500 dark:text-zinc-400 border-transparent hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800/60"
                   )}
                 >
                   <Sparkles size={16} /> Insights
@@ -617,24 +613,24 @@ export default function AIExecPage() {
 
              {/* Conteúdo Aba 1: Histórico de Conversas (Submenu estilo Gemini) */}
              {activeTab === "conversas" && (
-               <div className="bg-zinc-900/80 backdrop-blur-md border-2 border-zinc-700/60 rounded-[2rem] p-6 flex flex-col flex-1 min-h-0 relative overflow-hidden shadow-xl animate-in fade-in duration-300">
+               <div className="bg-white dark:bg-zinc-900/80 backdrop-blur-md border-2 border-zinc-200 dark:border-zinc-700/60 rounded-[2rem] p-5 sm:p-6 flex flex-col flex-1 min-h-0 relative overflow-hidden shadow-sm animate-in fade-in duration-300">
                   
                   {/* Botão Nova Conversa */}
                   <div className="space-y-3 mb-4 shrink-0">
                     <button
                       onClick={handleCreateNewSession}
-                      className="w-full py-4 px-5 bg-zinc-950 hover:bg-zinc-850 border-2 border-rd-cyan/50 hover:border-rd-cyan text-white font-heading font-bold text-sm rounded-2xl flex items-center justify-between shadow-lg shadow-black/40 active:scale-98 transition-all group"
+                      className="w-full py-3.5 px-4 sm:py-4 sm:px-5 bg-zinc-50 dark:bg-zinc-950 hover:bg-rd-cyan/5 dark:hover:bg-zinc-850 border-2 border-rd-cyan/50 hover:border-rd-cyan text-zinc-900 dark:text-white font-heading font-bold text-sm rounded-2xl flex items-center justify-between shadow-sm active:scale-98 transition-all group"
                     >
                       <div className="flex items-center gap-3">
                         <Plus size={20} className="text-rd-cyan group-hover:rotate-90 transition-transform duration-300" />
                         <span>Nova Conversa</span>
                       </div>
-                      <span className="text-xs bg-rd-cyan/20 text-rd-cyan border border-rd-cyan/40 px-2.5 py-1 rounded-lg font-bold">
+                      <span className="text-xs bg-rd-cyan/15 text-rd-cyan border border-rd-cyan/30 px-2.5 py-1 rounded-lg font-bold">
                         {sessions.length}/{planInfo.maxConversations}
                       </span>
                     </button>
 
-                    <div className="flex items-center justify-between px-2 text-xs text-zinc-400 font-semibold uppercase tracking-wider">
+                    <div className="flex items-center justify-between px-2 text-xs text-zinc-500 dark:text-zinc-400 font-semibold uppercase tracking-wider">
                       <span>Cota do {planInfo.name}:</span>
                       <span className="text-rd-cyan font-bold">{sessions.length} de {planInfo.maxConversations} conversas</span>
                     </div>
@@ -649,16 +645,16 @@ export default function AIExecPage() {
                            key={session.id}
                            onClick={() => setActiveSessionId(session.id)}
                            className={cn(
-                             "p-4 rounded-2xl border-2 transition-all cursor-pointer group flex items-center justify-between gap-3 shadow-md",
+                             "p-3.5 sm:p-4 rounded-2xl border-2 transition-all cursor-pointer group flex items-center justify-between gap-3 shadow-sm",
                              isActive 
-                               ? "bg-rd-cyan/15 border-rd-cyan/50 text-on-surface shadow-rd-cyan/10" 
-                               : "bg-zinc-950/60 hover:bg-zinc-800/60 border-zinc-750/80 text-zinc-300 hover:text-on-surface hover:border-zinc-600"
+                               ? "bg-rd-cyan/10 dark:bg-rd-cyan/15 border-rd-cyan/60 text-zinc-900 dark:text-white shadow-rd-cyan/10" 
+                               : "bg-zinc-50 dark:bg-zinc-950/60 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 border-zinc-200 dark:border-zinc-750/80 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:border-zinc-300 dark:hover:border-zinc-600"
                            )}
                          >
                            <div className="flex items-center gap-3.5 overflow-hidden">
                              <div className={cn(
                                "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-xs font-bold border",
-                               isActive ? "bg-rd-cyan text-white border-rd-cyan" : "bg-zinc-800 border-zinc-700 text-zinc-400 group-hover:text-zinc-200"
+                               isActive ? "bg-rd-cyan text-white border-rd-cyan" : "bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-500 dark:text-zinc-400 group-hover:text-rd-cyan"
                              )}>
                                <MessageSquare size={16} />
                              </div>
@@ -675,7 +671,7 @@ export default function AIExecPage() {
                            <div className="flex items-center gap-1.5 shrink-0">
                              <button
                                onClick={(e) => handleDeleteSession(session.id, e)}
-                               className="p-2 text-zinc-500 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-colors"
+                               className="p-2 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
                                title="Excluir conversa da cota"
                              >
                                <Trash2 size={16} />
@@ -687,7 +683,7 @@ export default function AIExecPage() {
                      })}
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-zinc-800 text-xs text-zinc-500 text-center font-medium">
+                  <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 text-xs text-zinc-400 dark:text-zinc-500 text-center font-medium">
                     Histórico armazenado com segurança em nuvem MEDCore
                   </div>
                </div>
@@ -695,12 +691,12 @@ export default function AIExecPage() {
 
              {/* Conteúdo Aba 2: Cotas & Limites de Tokens Reais */}
              {activeTab === "cotas" && (
-               <div className="bg-zinc-900/80 backdrop-blur-md border-2 border-zinc-700/60 rounded-[2rem] p-6 flex flex-col flex-1 min-h-0 space-y-5 overflow-y-auto custom-scrollbar shadow-xl animate-in fade-in duration-300">
+               <div className="bg-white dark:bg-zinc-900/80 backdrop-blur-md border-2 border-zinc-200 dark:border-zinc-700/60 rounded-[2rem] p-5 sm:p-6 flex flex-col flex-1 min-h-0 space-y-5 overflow-y-auto custom-scrollbar shadow-sm animate-in fade-in duration-300">
                   
-                  <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+                  <div className="flex items-center justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
                      <div>
-                        <h3 className="font-heading text-lg font-bold text-on-surface">Contagem Real de Tokens</h3>
-                        <p className="text-xs text-zinc-400">Medição real por requisição e plano</p>
+                        <h3 className="font-heading text-lg font-bold text-zinc-900 dark:text-white">Contagem Real de Tokens</h3>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">Medição real por requisição e plano</p>
                      </div>
                      <span className={cn("px-3 py-1 border-2 text-xs font-bold rounded-xl uppercase tracking-wider shadow-sm", planInfo.badgeColor)}>
                         {userPlan.toUpperCase()}
@@ -708,8 +704,8 @@ export default function AIExecPage() {
                   </div>
 
                   {/* Seletor do Plano do Usuário para simulação de limites */}
-                  <div className="bg-zinc-950/70 border-2 border-zinc-750/80 rounded-2xl p-4 space-y-2.5">
-                     <p className="text-xs font-bold text-zinc-300 uppercase tracking-widest flex items-center gap-2">
+                  <div className="bg-zinc-50 dark:bg-zinc-950/70 border-2 border-zinc-200 dark:border-zinc-750/80 rounded-2xl p-4 space-y-2.5">
+                     <p className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-widest flex items-center gap-2">
                        <UserCheck size={14} className="text-rd-cyan"/> Modalidade do Plano
                      </p>
                      <div className="grid grid-cols-3 gap-2">
@@ -724,7 +720,7 @@ export default function AIExecPage() {
                              "py-2 text-xs font-heading font-bold rounded-xl border-2 transition-all text-center uppercase tracking-wider shadow-sm",
                              userPlan === p 
                                ? "bg-rd-cyan text-white border-rd-cyan shadow-rd-cyan/20" 
-                               : "bg-zinc-900 text-zinc-400 hover:text-on-surface border-zinc-700 hover:border-zinc-600"
+                               : "bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600"
                            )}
                          >
                            {p === "promax" ? "Pro Max" : p}
@@ -734,23 +730,23 @@ export default function AIExecPage() {
                   </div>
 
                   {/* Barra de Consumo Diário Real de Tokens */}
-                  <div className="space-y-2.5 p-4 bg-zinc-950/70 border-2 border-zinc-750/80 rounded-2xl shadow-inner">
+                  <div className="space-y-2.5 p-4 bg-zinc-50 dark:bg-zinc-950/70 border-2 border-zinc-200 dark:border-zinc-750/80 rounded-2xl shadow-inner">
                      <div className="flex justify-between items-center text-xs font-medium">
-                        <span className="text-zinc-300 font-bold flex items-center gap-1.5">
+                        <span className="text-zinc-700 dark:text-zinc-300 font-bold flex items-center gap-1.5">
                           <BarChart3 size={14} className="text-rd-cyan" /> Consumo Real Hoje
                         </span>
                         <span className="font-mono text-rd-cyan font-bold text-sm">
                           {dailyTokensUsed.toLocaleString()} / {planInfo.dailyTokens.toLocaleString()}
                         </span>
                      </div>
-                     <div className="h-3.5 bg-zinc-900 rounded-full overflow-hidden p-0.5 border-2 border-zinc-800">
+                     <div className="h-3.5 bg-zinc-200 dark:bg-zinc-900 rounded-full overflow-hidden p-0.5 border-2 border-zinc-300 dark:border-zinc-800">
                         <div 
                           className="h-full bg-gradient-to-r from-rd-cyan via-indigo-500 to-emerald-400 rounded-full transition-all duration-700 shadow-[0_0_10px_#10b981]"
                           style={{ width: `${usagePercentage}%` }}
                         />
                      </div>
                      <div className="flex items-center justify-between pt-1 text-xs">
-                       <span className="text-zinc-400 font-medium">Uso: <strong>{usagePercentage}%</strong> da franquia</span>
+                       <span className="text-zinc-500 dark:text-zinc-400 font-medium">Uso: <strong className="text-zinc-800 dark:text-zinc-200">{usagePercentage}%</strong> da franquia</span>
                        <button
                          onClick={handleResetTokenCounter}
                          className="text-zinc-500 hover:text-rd-cyan text-[11px] font-semibold flex items-center gap-1 transition-colors"
@@ -763,16 +759,16 @@ export default function AIExecPage() {
 
                   {/* Card da Última Resposta Processada */}
                   {lastUsage ? (
-                    <div className="p-4 bg-rd-cyan/10 border-2 border-rd-cyan/40 rounded-2xl space-y-2">
+                    <div className="p-4 bg-rd-cyan/10 border-2 border-rd-cyan/30 rounded-2xl space-y-2">
                       <p className="text-xs font-bold text-rd-cyan uppercase tracking-wider flex items-center gap-2">
                         <Zap size={14} /> Última Resposta da IA (Processada)
                       </p>
                       <div className="grid grid-cols-3 gap-2 text-center pt-1">
-                        <div className="p-2 bg-zinc-950/70 rounded-xl border border-zinc-800">
+                        <div className="p-2 bg-white dark:bg-zinc-950/70 rounded-xl border border-zinc-200 dark:border-zinc-800">
                           <p className="text-sm text-zinc-400 uppercase font-semibold">Prompt</p>
                           <p className="font-mono font-bold text-xs text-zinc-200">{lastUsage.promptTokens}</p>
                         </div>
-                        <div className="p-2 bg-zinc-950/70 rounded-xl border border-zinc-800">
+                        <div className="p-2 bg-white dark:bg-zinc-950/70 rounded-xl border border-zinc-200 dark:border-zinc-800">
                           <p className="text-sm text-zinc-400 uppercase font-semibold">Resposta</p>
                           <p className="font-mono font-bold text-xs text-zinc-200">{lastUsage.completionTokens}</p>
                         </div>
@@ -783,25 +779,25 @@ export default function AIExecPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-3 bg-zinc-950/40 border border-zinc-800 rounded-xl text-center text-xs text-zinc-500">
+                    <div className="p-3 bg-zinc-50 dark:bg-zinc-950/40 border border-zinc-200 dark:border-zinc-800 rounded-xl text-center text-xs text-zinc-500">
                       Envie uma mensagem no chat para ver a medição instantânea da API.
                     </div>
                   )}
 
                   {/* Reset das Cotas (Periódico) */}
                   <div className="grid grid-cols-2 gap-3">
-                     <div className="p-4 bg-zinc-950/70 border-2 border-zinc-750/80 rounded-2xl space-y-1">
+                     <div className="p-4 bg-zinc-50 dark:bg-zinc-950/70 border-2 border-zinc-200 dark:border-zinc-750/80 rounded-2xl space-y-1">
                         <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
                           <Clock size={14} className="text-rd-cyan" /> Reset por Hora
                         </p>
-                        <p className="font-heading text-base font-bold text-on-surface">Reseta em 3h 18m</p>
+                        <p className="font-heading text-base font-bold text-zinc-900 dark:text-white">Reseta em 3h 18m</p>
                         <p className="text-xs text-zinc-500">Janela de 4 horas</p>
                      </div>
-                     <div className="p-4 bg-zinc-950/70 border-2 border-zinc-750/80 rounded-2xl space-y-1">
+                     <div className="p-4 bg-zinc-50 dark:bg-zinc-950/70 border-2 border-zinc-200 dark:border-zinc-750/80 rounded-2xl space-y-1">
                         <p className="text-xs text-zinc-400 font-bold uppercase tracking-wider flex items-center gap-1.5">
                           <HardDrive size={14} className="text-amber-400" /> Armazenamento
                         </p>
-                        <p className="font-heading text-base font-bold text-on-surface">1.4 MB / 10 MB</p>
+                        <p className="font-heading text-base font-bold text-zinc-900 dark:text-white">1.4 MB / 10 MB</p>
                         <p className="text-xs text-zinc-500">Servidor Nuvem</p>
                      </div>
                   </div>
@@ -810,11 +806,11 @@ export default function AIExecPage() {
                   <div className="space-y-2">
                      <p className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Recursos do {planInfo.name}</p>
                      <ul className="space-y-2 text-xs text-zinc-300 font-medium">
-                        <li className="flex items-center gap-2.5 p-2.5 bg-zinc-950/60 border border-zinc-800 rounded-xl">
+                        <li className="flex items-center gap-2.5 p-2.5 bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl">
                           <span className="w-2 h-2 bg-rd-cyan rounded-full"></span>
                           <span>Até <strong>{planInfo.maxConversations} conversas simultâneas</strong> gravadas</span>
                         </li>
-                        <li className="flex items-center gap-2.5 p-2.5 bg-zinc-950/60 border border-zinc-800 rounded-xl">
+                        <li className="flex items-center gap-2.5 p-2.5 bg-zinc-50 dark:bg-zinc-950/60 border border-zinc-200 dark:border-zinc-800 rounded-xl">
                           <span className="w-2 h-2 bg-emerald-400 rounded-full"></span>
                           <span>Modelos LLM: <strong>GPT-4o-mini & Llama 3.3 70B</strong></span>
                         </li>
@@ -826,16 +822,16 @@ export default function AIExecPage() {
 
              {/* Conteúdo Aba 3: Alpha Insights */}
              {activeTab === "insights" && (
-               <div className="bg-zinc-900/80 backdrop-blur-md border-2 border-zinc-700/60 rounded-[2rem] p-6 overflow-hidden relative flex-1 flex flex-col justify-between shadow-xl animate-in fade-in duration-300">
+               <div className="bg-white dark:bg-zinc-900/80 backdrop-blur-md border-2 border-zinc-200 dark:border-zinc-700/60 rounded-[2rem] p-5 sm:p-6 overflow-hidden relative flex-1 flex flex-col justify-between shadow-sm animate-in fade-in duration-300">
                   <div>
                     <div className="flex items-center gap-2.5 mb-6">
                       <div className="w-1.5 h-6 bg-rd-cyan rounded-full"></div>
-                      <h3 className="font-heading text-xl font-bold text-on-surface">Alpha Insights</h3>
+                      <h3 className="font-heading text-lg font-bold text-zinc-900 dark:text-white">Alpha Insights</h3>
                     </div>
 
                     <div className="space-y-4">
                        {aiInsights.map((insight, i) => (
-                         <div key={i} className="p-5 bg-zinc-950/70 border-2 border-zinc-750/80 rounded-2xl space-y-3 relative group overflow-hidden hover:border-rd-cyan/50 transition-all cursor-pointer shadow-md">
+                         <div key={i} className="p-4 bg-zinc-50 dark:bg-zinc-950/70 border-2 border-zinc-200 dark:border-zinc-750/80 rounded-2xl space-y-2.5 relative group overflow-hidden hover:border-rd-cyan/50 transition-all cursor-pointer shadow-sm">
                             <div className="flex justify-between items-center relative z-10">
                                <span className={cn("text-xs font-bold uppercase tracking-[0.2em]", insight.color)}>{insight.type}</span>
                                <ShieldCheck size={16} className="text-zinc-500" />
@@ -849,7 +845,7 @@ export default function AIExecPage() {
                     </div>
                   </div>
 
-                  <button className="w-full mt-4 py-3.5 bg-zinc-950 hover:bg-zinc-850 border-2 border-zinc-700 hover:border-rd-cyan/50 text-white rounded-2xl flex items-center justify-between px-6 transition-all group shadow-md">
+                  <button className="w-full mt-4 py-3 bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-850 border-2 border-zinc-200 dark:border-zinc-700 hover:border-rd-cyan/50 text-zinc-900 dark:text-white rounded-2xl flex items-center justify-between px-5 transition-all group shadow-sm">
                      <div className="flex items-center gap-3">
                         <Activity size={18} className="text-rd-cyan"/>
                         <span className="text-xs font-bold text-on-surface uppercase tracking-widest">Ver Matriz Neural</span>
@@ -859,16 +855,21 @@ export default function AIExecPage() {
                </div>
              )}
 
-             {/* Card de Status da Conexão com Bordas Evidentes */}
-             <div className="p-4 bg-zinc-900/90 border-2 border-zinc-700/60 rounded-2xl shrink-0 flex items-center justify-between shadow-md">
+             {/* Card de Status da Conexão (Liquid Glass Padronizado) */}
+             <div className="p-3.5 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/60 rounded-2xl shrink-0 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-3">
-                   <Zap size={22} className="text-rd-cyan shadow-[0_0_15px_#a78bfa]"/>
+                   <div className="w-9 h-9 rounded-xl bg-rd-cyan/10 border border-rd-cyan/30 flex items-center justify-center text-rd-cyan shrink-0">
+                      <Zap size={18} className="text-rd-cyan" />
+                   </div>
                    <div>
-                      <p className="text-xs font-bold text-on-surface uppercase tracking-wider">Sincronização 100%</p>
-                      <p className="text-xs text-zinc-400">Cloud-Brain 01 Operacional</p>
+                      <p className="text-xs font-bold text-zinc-900 dark:text-white uppercase tracking-wider">Sincronização 100%</p>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium">Cloud-Brain 01 Operacional</p>
                    </div>
                 </div>
-                <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
+                <div className="flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg">
+                   <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
+                   <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Ativo</span>
+                </div>
              </div>
 
           </aside>
