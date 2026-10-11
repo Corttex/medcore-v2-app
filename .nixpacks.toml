@@ -1,0 +1,15 @@
+# Configuração de Aceleração e Cache de Deploy no Coolify (Nixpacks)
+
+[phases.setup]
+nixPkgs = ['nodejs_22']
+
+[phases.install]
+cmds = ['npm ci --prefer-offline --no-audit']
+cacheDirectories = ['/root/.npm']
+
+[phases.build]
+cmds = ['npm run build']
+cacheDirectories = ['.next/cache']
+
+[start]
+cmd = 'npm run start'

@@ -1,5 +1,12 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  outputFileTracingRoot: __dirname,
   typescript: {
     // Os tipos do Supabase não refletem todas as tabelas ainda.
     // Ignorar erros de tipo no build para não bloquear o deploy.
@@ -11,6 +18,19 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+    ],
+  },
+  output: 'standalone',
+  compress: true,
+  poweredByHeader: false,
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'recharts',
+      'date-fns',
+      '@dnd-kit/core',
+      '@dnd-kit/sortable',
+      'framer-motion',
     ],
   },
   eslint: {

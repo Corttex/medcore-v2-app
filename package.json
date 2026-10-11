@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "npx prisma generate && next build",
+    "build": "prisma generate && next build",
     "start": "npx prisma db push --accept-data-loss && next start",
     "lint": "next lint",
     "postinstall": "prisma generate || exit 0",
