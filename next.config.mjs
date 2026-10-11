@@ -6,7 +6,6 @@ const __dirname = path.dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  outputFileTracingRoot: __dirname,
   typescript: {
     // Os tipos do Supabase não refletem todas as tabelas ainda.
     // Ignorar erros de tipo no build para não bloquear o deploy.
@@ -20,7 +19,6 @@ const nextConfig = {
       },
     ],
   },
-  output: 'standalone',
   compress: true,
   poweredByHeader: false,
   experimental: {
