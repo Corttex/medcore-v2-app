@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Plus, Upload, Camera, FileText, CheckCircle2, Clock, AlertTriangle, X, Loader2, Sparkles, Share2, Download, Building2 } from "lucide-react";
+import { Plus, Upload, Camera, FileText, CheckCircle2, Clock, AlertTriangle, X, Loader2, Sparkles, Share2, Download, Building2, Search } from "lucide-react";
 import { sanitize } from "@/lib/sanitize";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 
@@ -61,6 +61,7 @@ export default function AccountsManager({ title, fixedType }: AccountsManagerPro
   const [isLoading, setIsLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState<AccountStatus | "Todos">("Todos");
   const [accountType, setAccountType] = useState<"PAYABLE" | "RECEIVABLE">(fixedType || "PAYABLE");
+  const [searchTerm, setSearchTerm] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const emptyForm = { title: "", supplier: "", value: "", dueDate: "", category: "OUTROS" as AccountCategory, status: "Em Aberto" as AccountStatus, unit: "", notes: "", imageUrl: null as string | null, type: fixedType || "PAYABLE" };
@@ -157,7 +158,15 @@ export default function AccountsManager({ title, fixedType }: AccountsManagerPro
   };
 
   const filteredByType = accounts.filter(a => (a.type || "PAYABLE") === accountType);
-  const filtered = filterStatus === "Todos" ? filteredByType : filteredByType.filter(a => a.status === filterStatus);
+  const filteredByStatus = filterStatus === "Todos" ? filteredByType : filteredByType.filter(a => a.status === filterStatus);
+  const filtered = filteredByStatus.filter(a => {
+    if (!searchTerm.trim()) return true;
+    const term = searchTerm.toLowerCase();
+    return a.title.toLowerCase().includes(term) ||
+           a.supplier.toLowerCase().includes(term) ||
+           (a.notes && a.notes.toLowerCase().includes(term)) ||
+           (CATEGORY_LABELS[a.category] && CATEGORY_LABELS[a.category].toLowerCase().includes(term));
+  });
   const urgentCount = filteredByType.filter(a => a.status !== "Pago" && daysUntil(a.dueDate) <= 7).length;
   const totalOpen = filteredByType.filter(a => a.status === "Em Aberto").length;
   
@@ -184,110 +193,188 @@ export default function AccountsManager({ title, fixedType }: AccountsManagerPro
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className={`px-3 py-1 text-sm font-semibold uppercase tracking-widest rounded-full ${themeColors.badgeBg}`}>Financeiro</span>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2">
-            {title}
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            {totalOpen} em aberto · {urgentCount > 0 ? <span className="text-error font-medium">{urgentCount} urgentes</span> : "nenhuma urgente"}
-          </p>
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos em Tempo Real */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className={isReceivable ? "text-emerald-500 font-bold" : "text-rose-500 font-bold"}>{totalOpen}</strong> em aberto
+            </p>
+          </div>
+          {urgentCount > 0 ? (
+            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl text-amber-500 text-xs font-semibold">
+              <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
+              {urgentCount} urgentes
+            </div>
+          ) : (
+            <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              0 urgentes
+            </div>
+          )}
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <strong className="text-emerald-500 font-bold mr-1">{totalPaid}</strong> pagas
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+
+        {/* Lado Direito: Toggle (quando aplicável), Busca e Nova Conta */}
+        <div className="flex flex-wrap items-center gap-3">
           {!fixedType && (
-            <div className="flex bg-surface-container border border-outline-variant/40 rounded-xl p-1">
+            <div className="flex bg-zinc-100 dark:bg-zinc-800/70 border border-zinc-200 dark:border-zinc-700/70 rounded-xl p-1">
               <button 
                 onClick={() => { setAccountType("PAYABLE"); setFilterStatus("Todos"); setSelected(null); }}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${accountType === "PAYABLE" ? "bg-red-500/10 text-error shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${accountType === "PAYABLE" ? "bg-rose-500 text-white shadow-sm" : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"}`}
               >
                 A Pagar
               </button>
               <button 
                 onClick={() => { setAccountType("RECEIVABLE"); setFilterStatus("Todos"); setSelected(null); }}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${accountType === "RECEIVABLE" ? "bg-emerald-500/10 text-emerald-600 shadow-sm" : "text-on-surface-variant hover:text-on-surface"}`}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${accountType === "RECEIVABLE" ? "bg-emerald-500 text-white shadow-sm" : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"}`}
               >
                 A Receber
               </button>
             </div>
           )}
-          <button onClick={() => setShowForm(true)} className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold transition-all ${themeColors.btnClass}`}>
-            <Plus size={18} /> Nova Conta
+
+          {/* Campo de Busca Rápida */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" size={14} />
+            <input 
+              type="text" 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Buscar conta ou parceiro..."
+              className="bg-zinc-50 dark:bg-zinc-800/60 border border-zinc-200 dark:border-zinc-700 rounded-xl pl-8 pr-3 py-1.5 text-xs text-zinc-900 dark:text-white placeholder:text-zinc-400 focus:outline-none focus:border-rd-cyan w-48 sm:w-56 font-medium transition-all"
+            />
+          </div>
+
+          <button 
+            onClick={() => setShowForm(true)} 
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md ${themeColors.btnClass}`}
+          >
+            <Plus size={16} /> Nova Conta
           </button>
         </div>
       </div>
 
-      {/* Summary cards differentiated by type */}
+      {/* Filtros rápidos de Status */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {(["Todos", "Em Aberto", "Pago", "Aguardando NF", "Aguardando Recibo", "Contestado"] as (AccountStatus | "Todos")[]).map((st) => (
+          <button
+            key={st}
+            onClick={() => setFilterStatus(st)}
+            className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all shrink-0 border ${
+              filterStatus === st
+                ? "bg-rd-cyan/15 border-rd-cyan/50 text-rd-cyan"
+                : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
+            }`}
+          >
+            {st}
+          </button>
+        ))}
+      </div>
+
+      {/* Summary cards com Liquid Glass de Alto Contraste */}
       {isPayable && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <Clock size={14} className="text-blue-500" />
-              <p className="text-sm font-semibold uppercase tracking-widest">A Pagar (Em Aberto)</p>
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rd-cyan/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <Clock size={14} className="text-blue-500" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">A Pagar (Em Aberto)</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-on-surface">{totalOpen}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">{totalOpenValue}</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-on-surface">{totalOpen}</p>
-            <p className="text-xs text-on-surface-variant mt-1 font-medium">{totalOpenValue}</p>
           </div>
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <CheckCircle2 size={14} className="text-emerald-500" />
-              <p className="text-sm font-semibold uppercase tracking-widest">Contas Pagas</p>
+
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rd-cyan/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <CheckCircle2 size={14} className="text-emerald-500" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">Contas Pagas</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-on-surface">{totalPaid}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">{totalPaidValue}</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-on-surface">{totalPaid}</p>
-            <p className="text-xs text-on-surface-variant mt-1 font-medium">{totalPaidValue}</p>
           </div>
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <AlertTriangle size={14} className="text-error" />
-              <p className="text-sm font-semibold uppercase tracking-widest">Atrasadas</p>
+
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-error/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <AlertTriangle size={14} className="text-error" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">Atrasadas</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-error">{overdueCount}</p>
+              <p className="text-xs text-error/70 mt-1 font-medium">{totalOverdueValue}</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-error">{overdueCount}</p>
-            <p className="text-xs text-error/70 mt-1 font-medium">{totalOverdueValue}</p>
           </div>
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <FileText size={14} className="text-amber-500" />
-              <p className="text-sm font-semibold uppercase tracking-widest">Vencem em 7 dias</p>
+
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-amber-500/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <FileText size={14} className="text-amber-500" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">Vencem em 7 dias</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-amber-500">{urgentCount}</p>
+              <p className="text-xs text-amber-600/70 mt-1 font-medium">Atenção ao fluxo</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-amber-500">{urgentCount}</p>
-            <p className="text-xs text-amber-600/70 mt-1 font-medium">Atenção ao fluxo</p>
           </div>
         </div>
       )}
 
       {isReceivable && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <Clock size={14} className="text-blue-500" />
-              <p className="text-sm font-semibold uppercase tracking-widest">A Receber (Previsão)</p>
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rd-cyan/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <Clock size={14} className="text-blue-500" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">A Receber (Previsão)</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-on-surface">{totalOpen}</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">{totalOpenValue}</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-on-surface">{totalOpen}</p>
-            <p className="text-xs text-on-surface-variant mt-1 font-medium">{totalOpenValue}</p>
           </div>
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <CheckCircle2 size={14} className="text-emerald-500" />
-              <p className="text-sm font-semibold uppercase tracking-widest">Receitas Liquidadas</p>
+
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <CheckCircle2 size={14} className="text-emerald-500" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">Receitas Liquidadas</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-emerald-500">{totalPaid}</p>
+              <p className="text-xs text-emerald-600/70 mt-1 font-medium">{totalPaidValue}</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-emerald-500">{totalPaid}</p>
-            <p className="text-xs text-emerald-600/70 mt-1 font-medium">{totalPaidValue}</p>
           </div>
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <AlertTriangle size={14} className="text-error" />
-              <p className="text-sm font-semibold uppercase tracking-widest">Inadimplência</p>
+
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-error/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <AlertTriangle size={14} className="text-error" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">Inadimplência</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-error">{overdueCount}</p>
+              <p className="text-xs text-error/70 mt-1 font-medium">{totalOverdueValue}</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-error">{overdueCount}</p>
-            <p className="text-xs text-error/70 mt-1 font-medium">{totalOverdueValue}</p>
           </div>
-          <div className="p-5 rounded-2xl border bg-surface border-outline-variant/40 hover:shadow-sm transition-all">
-            <div className="flex items-center gap-2 mb-2 text-on-surface-variant">
-              <Sparkles size={14} className="text-rd-cyan" />
-              <p className="text-sm font-semibold uppercase tracking-widest">Ticket Médio (Estimado)</p>
+
+          <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rd-cyan/50 transition-all duration-300 group">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
+                <Sparkles size={14} className="text-rd-cyan" />
+                <p className="text-[11px] font-semibold uppercase tracking-widest">Ticket Médio (Estimado)</p>
+              </div>
+              <p className="font-heading font-semibold text-2xl text-on-surface">R$ 1.250</p>
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 font-medium">Por cliente/paciente</p>
             </div>
-            <p className="font-heading font-semibold text-2xl text-on-surface">R$ 1.250</p>
-            <p className="text-xs text-on-surface-variant mt-1 font-medium">Por cliente/paciente</p>
           </div>
         </div>
       )}
@@ -303,35 +390,41 @@ export default function AccountsManager({ title, fixedType }: AccountsManagerPro
               <div
                 key={account.id}
                 onClick={() => setSelected(account)}
-                className={`group flex items-start gap-4 p-5 bg-surface rounded-2xl border shadow-sm hover:shadow-md cursor-pointer transition-all ${isOverdue ? "border-error/40 bg-red-50/30" : isUrgent ? "border-amber-300/60 bg-amber-50/30" : "border-outline-variant/40"}`}
+                className={`group flex items-start gap-4 p-5 rounded-2xl border-2 transition-all duration-300 cursor-pointer shadow-sm hover:shadow-lg ${
+                  isOverdue 
+                    ? "border-rose-500/60 bg-rose-50/40 dark:bg-rose-950/20" 
+                    : isUrgent 
+                    ? "border-amber-400/60 bg-amber-50/40 dark:bg-amber-950/20" 
+                    : "bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-zinc-200 dark:border-zinc-700/80 hover:border-rd-cyan/50"
+                }`}
               >
-                <div className="w-10 h-10 rounded-2xl bg-surface-container border border-outline-variant/40 flex items-center justify-center shrink-0 text-lg">
+                <div className="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center shrink-0 text-lg shadow-inner">
                   {CATEGORY_LABELS[account.category]?.split(" ")[0] || "📎"}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className={`font-medium text-sm text-on-surface transition-colors hover:${themeColors.textClass}`}>{account.title}</p>
+                  <p className={`font-semibold text-sm text-zinc-900 dark:text-zinc-100 transition-colors group-hover:${themeColors.textClass}`}>{account.title}</p>
                   
                   {isReceivable ? (
                     <div className="flex flex-col gap-0.5 mt-0.5">
-                      <p className="text-xs text-on-surface-variant font-semibold">👤 {account.supplier} <span className="font-normal opacity-70">({account.unit})</span></p>
-                      <p className="text-sm text-emerald-600/80 uppercase tracking-wider">Origem da Receita: {CATEGORY_LABELS[account.category] || account.category}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold">👤 {account.supplier} <span className="font-normal opacity-70">({account.unit})</span></p>
+                      <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium uppercase tracking-wider">Origem: {CATEGORY_LABELS[account.category] || account.category}</p>
                     </div>
                   ) : (
                     <div className="flex flex-col gap-0.5 mt-0.5">
-                      <p className="text-xs text-on-surface-variant font-semibold">🏢 {account.supplier} <span className="font-normal opacity-70">({account.unit})</span></p>
-                      <p className="text-sm text-on-surface-variant uppercase tracking-wider">Despesa: {CATEGORY_LABELS[account.category] || account.category}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold">🏢 {account.supplier} <span className="font-normal opacity-70">({account.unit})</span></p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 font-medium uppercase tracking-wider">Despesa: {CATEGORY_LABELS[account.category] || account.category}</p>
                     </div>
                   )}
                   
-                  <p className={`text-sm font-semibold mt-1 ${account.type === 'RECEIVABLE' ? 'text-emerald-600' : 'text-error'}`}>
+                  <p className={`text-sm font-bold mt-1.5 ${account.type === 'RECEIVABLE' ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
                     {account.type === 'RECEIVABLE' ? '+' : '-'} {account.value}
                   </p>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className={`flex items-center gap-1 text-sm font-semibold px-2 py-0.5 rounded-full border ${STATUS_CONFIG[account.status].color}`}>
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-0.5 rounded-full border ${STATUS_CONFIG[account.status].color}`}>
                     {STATUS_CONFIG[account.status].icon} {account.status}
                   </span>
-                  <p className={`text-sm mt-1 font-semibold ${isOverdue ? "text-error" : isUrgent ? "text-amber-600" : "text-on-surface-variant"}`}>
+                  <p className={`text-xs mt-1.5 font-semibold ${isOverdue ? "text-error" : isUrgent ? "text-amber-600 dark:text-amber-400" : "text-zinc-500 dark:text-zinc-400"}`}>
                     {isOverdue ? `${Math.abs(days)}d atrasado` : days === 0 ? "Hoje" : `Vence em ${days}d`}
                   </p>
                 </div>
@@ -356,7 +449,7 @@ export default function AccountsManager({ title, fixedType }: AccountsManagerPro
         <div className="space-y-4">
           {selected ? (
             <>
-              <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm">
+              <div className="p-5 bg-white dark:bg-zinc-900/85 backdrop-blur-xl rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md">
                 <div className="flex items-start justify-between mb-4">
                   <div>
                     <p className="text-sm font-semibold text-on-surface-variant uppercase tracking-widest">{CATEGORY_LABELS[selected.category]}</p>

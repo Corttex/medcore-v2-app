@@ -47,70 +47,89 @@ export default function InvoicesPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       
-      {/* Cabeçalho */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="px-3 py-1 bg-primary/10 border border-primary/20 text-primary text-sm font-semibold uppercase tracking-widest rounded-full">Fiscal & Tributário</span>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2">
-            Emissor de <span className="text-gradient">NFS-e</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            Gerenciamento e emissão de Notas Fiscais de Serviço Eletrônica.
-          </p>
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-emerald-500 font-bold">{autorizadas.length}</strong> autorizadas
+            </p>
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <strong className="text-blue-500 font-bold mr-1">{notas.filter(n => n.status === "EM_PROCESSAMENTO").length}</strong> em processamento
+          </div>
+          {notas.filter(n => n.status === "ERRO").length > 0 && (
+            <div className="flex items-center bg-rose-500/10 border border-rose-500/20 px-3.5 py-1.5 rounded-xl text-xs font-semibold text-rose-500">
+              <strong className="font-bold mr-1">{notas.filter(n => n.status === "ERRO").length}</strong> rejeitadas
+            </div>
+          )}
         </div>
-        <div className="flex gap-3">
-          <button onClick={() => setShowSettings(!showSettings)} className={`flex items-center gap-2 px-4 py-3 rounded-2xl text-sm font-semibold transition-all ${showSettings ? 'bg-surface-container border border-outline-variant/40 text-on-surface' : 'bg-surface border border-outline-variant/20 hover:bg-surface-container text-on-surface-variant'}`}>
-            <Settings size={18} /> Configurações
+
+        {/* Lado Direito: Ações */}
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setShowSettings(!showSettings)} 
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all border ${
+              showSettings 
+                ? 'bg-zinc-200 dark:bg-zinc-700 border-zinc-300 dark:border-zinc-600 text-zinc-900 dark:text-white' 
+                : 'bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white'
+            }`}
+          >
+            <Settings size={15} /> Configurações
           </button>
-          <button onClick={() => setShowForm(true)} className="bg-gradient-to-r from-primary to-secondary-container hover:shadow-[0_0_20px_rgba(45,212,191,0.4)] text-white flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold transition-all">
-            <FileText size={18} /> Emitir Nova NF
+          <button 
+            onClick={() => setShowForm(true)} 
+            className="bg-gradient-to-r from-primary to-secondary-container hover:shadow-[0_0_20px_rgba(45,212,191,0.4)] text-white flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md"
+          >
+            <FileText size={16} /> Emitir Nova NF
           </button>
         </div>
       </div>
 
       {showSettings && <NFSettings />}
 
-      {/* Resumo Financeiro Fiscal */}
+      {/* Resumo Financeiro Fiscal Liquid Glass */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="p-6 rounded-3xl border bg-surface border-outline-variant/40 shadow-sm relative overflow-hidden group">
-          <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:scale-110 transition-transform">
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 group">
+          <div className="absolute top-0 right-0 p-5 opacity-5 group-hover:scale-110 transition-transform">
             <Receipt size={64} className="text-primary" />
           </div>
-          <div className="flex items-center gap-2 mb-3 text-on-surface-variant">
+          <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
             <CheckCircle2 size={16} className="text-emerald-500" />
             <p className="text-[11px] font-semibold uppercase tracking-widest">Faturamento Autorizado (Mês)</p>
           </div>
           <p className="font-heading font-semibold text-3xl text-on-surface">
             {valorTotalAutorizado.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </p>
-          <p className="text-xs text-on-surface-variant mt-2 font-medium">{autorizadas.length} notas emitidas com sucesso</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 font-medium">{autorizadas.length} notas emitidas com sucesso</p>
         </div>
 
-        <div className="p-6 rounded-3xl border bg-surface border-outline-variant/40 shadow-sm relative overflow-hidden">
-          <div className="flex items-center gap-2 mb-3 text-on-surface-variant">
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 group">
+          <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
             <Clock size={16} className="text-blue-500" />
             <p className="text-[11px] font-semibold uppercase tracking-widest">Em Processamento</p>
           </div>
           <p className="font-heading font-semibold text-3xl text-on-surface">
             {notas.filter(n => n.status === "EM_PROCESSAMENTO").length}
           </p>
-          <p className="text-xs text-on-surface-variant mt-2 font-medium">Aguardando retorno da prefeitura</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 font-medium">Aguardando retorno da prefeitura</p>
         </div>
 
-        <div className="p-6 rounded-3xl border bg-surface border-outline-variant/40 shadow-sm relative overflow-hidden">
-          <div className="flex items-center gap-2 mb-3 text-on-surface-variant">
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rose-500/50 transition-all duration-300 group">
+          <div className="flex items-center gap-2 mb-2 text-zinc-500 dark:text-zinc-400">
             <XCircle size={16} className="text-error" />
             <p className="text-[11px] font-semibold uppercase tracking-widest">Erros / Rejeitadas</p>
           </div>
           <p className="font-heading font-semibold text-3xl text-error">
              {notas.filter(n => n.status === "ERRO").length}
           </p>
-          <p className="text-xs text-on-surface-variant mt-2 font-medium">Revisão necessária</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-2 font-medium">Revisão necessária</p>
         </div>
       </div>
 
-      {/* Listagem de Notas */}
-      <div className="bg-surface rounded-3xl border border-outline-variant/40 overflow-hidden shadow-sm">
+      {/* Listagem de Notas Liquid Glass */}
+      <div className="bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl overflow-hidden shadow-sm">
         <div className="p-6 border-b border-outline-variant/20 flex items-center justify-between">
           <h3 className="font-heading font-semibold text-lg text-on-surface">Histórico de Emissões</h3>
           <div className="relative">

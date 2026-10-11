@@ -18,79 +18,92 @@ export default function RepassesMedicosPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="px-3 py-1 text-sm font-semibold uppercase tracking-widest rounded-full bg-violet-500/10 border-violet-500/20 text-violet-500">
-            Split Financeiro
-          </span>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2 flex items-center gap-3">
-            Repasses <span className="text-violet-500">Profissionais</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            Gestão inteligente de comissionamentos e repasses médicos
-          </p>
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Resumo em Tempo Real */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-violet-500 font-bold">12</strong> profissionais elegíveis no ciclo
+            </p>
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            A Repassar: <strong className="text-violet-500 font-bold ml-1">R$ 18.800</strong>
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Retenção: <strong className="text-emerald-500 font-bold ml-1">R$ 11.200</strong>
+          </div>
         </div>
+
+        {/* Lado Direito: Ação Primária */}
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold transition-all bg-violet-600 hover:bg-violet-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)]">
-            <HandCoins size={18} /> Executar Repasses (Pix)
+          <button className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all bg-violet-600 hover:bg-violet-500 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.6)]">
+            <HandCoins size={16} /> Executar Repasses (Pix)
           </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards Liquid Glass */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-violet-500/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-violet-500/10 rounded-full blur-xl group-hover:bg-violet-500/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Total a Repassar</h3>
-            <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500">
-              <DollarSign size={14} />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-violet-500/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Total a Repassar</h3>
+              <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500">
+                <DollarSign size={14} />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">R$ 18.800</p>
+            <p className="text-xs text-violet-500 mt-2 font-medium">Provisionado para este ciclo</p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">R$ 18.800</p>
-          <p className="text-xs text-violet-500 mt-2 font-medium">Provisionado para este ciclo</p>
         </div>
 
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Retenção Clínica</h3>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-              <Building2Icon />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Retenção Clínica</h3>
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                <Building2Icon />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">R$ 11.200</p>
+            <p className="text-xs text-emerald-500 mt-2 font-medium">Margem retida pela clínica</p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">R$ 11.200</p>
-          <p className="text-xs text-emerald-500 mt-2 font-medium">Margem retida pela clínica</p>
         </div>
 
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-blue-500/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Profissionais</h3>
-            <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-              <Users size={14} />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Profissionais</h3>
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                <Users size={14} />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">12</p>
+            <p className="text-xs text-blue-500 mt-2 font-medium">Médicos elegíveis ao repasse</p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">12</p>
-          <p className="text-xs text-blue-500 mt-2 font-medium">Médicos elegíveis ao repasse</p>
         </div>
 
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-amber-500/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Glosas Descontadas</h3>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-              <AlertTriangle size={14} />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-amber-500/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Glosas Descontadas</h3>
+              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                <AlertTriangle size={14} />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">R$ 1.250</p>
+            <p className="text-xs text-amber-500 mt-2 font-medium">Repassadas aos responsáveis</p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">R$ 1.250</p>
-          <p className="text-xs text-amber-500 mt-2 font-medium">Repassadas aos responsáveis</p>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="bg-surface border border-outline-variant/40 rounded-3xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl p-6 shadow-sm">
         
         <div className="space-y-6">
           <div className="flex items-center justify-between">

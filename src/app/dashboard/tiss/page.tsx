@@ -68,97 +68,110 @@ export default function FaturamentoTISSPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <span className="px-3 py-1 text-sm font-semibold uppercase tracking-widest rounded-full bg-emerald-500/10 border-emerald-500/20 text-emerald-500">
-            Faturamento Estratégico
-          </span>
-          <h1 className="font-heading text-4xl font-semibold tracking-tighter text-on-surface mt-2 flex items-center gap-3">
-            Central TISS <span className="text-emerald-500">Inteligente</span>
-          </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
-            Geração de XML, controle de guias e prevenção de glosas
-          </p>
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-amber-500 font-bold">{guiasPendentes}</strong> guias aguardando lote
+            </p>
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            <strong className="text-rd-cyan font-bold mr-1">{lotes.length}</strong> lotes gerados
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Glosa: <strong className="text-emerald-500 font-bold ml-1">1.8%</strong> (meta &lt; 3%)
+          </div>
         </div>
+
+        {/* Lado Direito: Ação de Gerar Lote XML */}
         <div className="flex items-center gap-3">
           <button 
             onClick={handleGerarLote}
             disabled={isGenerating || guiasPendentes === 0}
-            className="flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold transition-all btn-gradient shadow-[0_0_20px_rgba(45,212,191,0.4)] hover:shadow-[0_0_30px_rgba(45,212,191,0.6)] disabled:opacity-50"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold transition-all btn-gradient shadow-[0_0_20px_rgba(45,212,191,0.4)] hover:shadow-[0_0_30px_rgba(45,212,191,0.6)] disabled:opacity-50"
           >
-            <FileSpreadsheet size={18} /> {isGenerating ? 'Gerando Lote...' : 'Gerar Lote XML (TISS)'}
+            <FileSpreadsheet size={16} /> {isGenerating ? 'Gerando Lote...' : 'Gerar Lote XML (TISS)'}
           </button>
         </div>
       </div>
 
-      {/* KPI Cards */}
+      {/* KPI Cards Liquid Glass */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-emerald-500/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Faturamento Mês</h3>
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-              <FileText size={14} />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-emerald-500/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Faturamento Mês</h3>
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                <FileText size={14} />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">R$ {faturamentoTotal.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
+            <p className="text-xs text-emerald-500 mt-2 font-medium flex items-center gap-1">
+              <ArrowUpRightIcon /> +12.5% em relação ao mês anterior
+            </p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">R$ {faturamentoTotal.toLocaleString('pt-BR', {minimumFractionDigits:2})}</p>
-          <p className="text-xs text-emerald-500 mt-2 font-medium flex items-center gap-1">
-            <ArrowUpRightIcon /> +12.5% em relação ao mês anterior
-          </p>
         </div>
 
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-amber-500/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Guias Pendentes</h3>
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
-              <ClockIcon />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-amber-500/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Guias Pendentes</h3>
+              <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
+                <ClockIcon />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">{guiasPendentes}</p>
+            <p className="text-xs text-amber-500 mt-2 font-medium">Aguardando geração de lote</p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">{guiasPendentes}</p>
-          <p className="text-xs text-amber-500 mt-2 font-medium">Aguardando geração de lote</p>
         </div>
 
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-error/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-error/10 rounded-full blur-xl group-hover:bg-error/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Índice de Glosas</h3>
-            <div className="w-8 h-8 rounded-xl bg-error/10 flex items-center justify-center text-error">
-              <AlertTriangle size={14} />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-error/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Índice de Glosas</h3>
+              <div className="w-8 h-8 rounded-xl bg-error/10 flex items-center justify-center text-error">
+                <AlertTriangle size={14} />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">1.8%</p>
+            <p className="text-xs text-emerald-500 mt-2 font-medium">{"Dentro da meta aceitável (< 3%)"}</p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">1.8%</p>
-          <p className="text-xs text-error mt-2 font-medium">{"Dentro da meta aceitável (< 3%)"}</p>
         </div>
 
-        <div className="p-5 bg-surface rounded-2xl border border-outline-variant/40 shadow-sm relative overflow-hidden group hover:border-blue-500/50 transition-all">
-          <div className="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/10 rounded-full blur-xl group-hover:bg-blue-500/20 transition-all"></div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-widest text-on-surface-variant">Ticket Médio</h3>
-            <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-              <Stethoscope size={14} />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 group">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">Ticket Médio</h3>
+              <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                <Stethoscope size={14} />
+              </div>
             </div>
+            <p className="text-3xl font-heading font-semibold text-on-surface">R$ 215</p>
+            <p className="text-xs text-blue-500 mt-2 font-medium">Média por guia gerada</p>
           </div>
-          <p className="text-3xl font-heading font-semibold text-on-surface">R$ 215</p>
-          <p className="text-xs text-blue-500 mt-2 font-medium">Média por guia gerada</p>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="bg-surface-container rounded-2xl p-1.5 flex gap-2 w-fit">
+      <div className="bg-zinc-100 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-1.5 flex gap-2 w-fit">
         <button 
           onClick={() => setActiveTab("LOTES")}
-          className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-            activeTab === "LOTES" ? "bg-surface shadow-sm text-on-surface" : "text-on-surface-variant hover:text-on-surface"
+          className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all ${
+            activeTab === "LOTES" ? "bg-white dark:bg-zinc-800 shadow-sm text-zinc-900 dark:text-white" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
           }`}
         >
           Lotes de Faturamento
         </button>
         <button 
           onClick={() => setActiveTab("GUIAS")}
-          className={`px-6 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-            activeTab === "GUIAS" ? "bg-surface shadow-sm text-on-surface" : "text-on-surface-variant hover:text-on-surface"
+          className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all ${
+            activeTab === "GUIAS" ? "bg-white dark:bg-zinc-800 shadow-sm text-zinc-900 dark:text-white" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
           }`}
         >
           Auditoria de Guias
@@ -166,7 +179,7 @@ export default function FaturamentoTISSPage() {
       </div>
 
       {/* Main Content Area */}
-      <div className="bg-surface border border-outline-variant/40 rounded-3xl p-6 shadow-sm">
+      <div className="bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl p-6 shadow-sm">
         
         {activeTab === "LOTES" && (
           <div className="space-y-6">

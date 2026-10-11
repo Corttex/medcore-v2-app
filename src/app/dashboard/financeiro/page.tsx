@@ -60,66 +60,95 @@ export default function FinanceiroDashboard() {
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
   return (
-    <div className="min-h-screen bg-surface p-8 font-body animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="space-y-8 animate-in fade-in duration-500">
+      {/* Action Bar Superior Compacta - Sem Duplicação de H1 */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        {/* Lado Esquerdo: Contadores Dinâmicos */}
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+              <strong className="text-rd-cyan font-bold">{kpis.guiasEmitidas}</strong> guias auditadas
+            </p>
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Faturado: <strong className="text-emerald-500 font-bold ml-1">{formatCurrency(kpis.totalBruto)}</strong>
+          </div>
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
+            Taxa de Glosa: <strong className="text-amber-500 font-bold ml-1">{kpis.glosaRate.toFixed(1)}%</strong>
+          </div>
+        </div>
+
+        {/* Lado Direito: Info Resumida */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs text-zinc-500 dark:text-zinc-400">
+            Ticket Médio / Guia: <span className="font-bold text-zinc-900 dark:text-white ml-1">{formatCurrency(kpis.ticketMedio)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* KPIs Cards Liquid Glass */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-blue-500/50 transition-all duration-300 group cursor-default">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform shrink-0">
+              <DollarSign className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest mb-0.5">Faturado Geral</p>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{formatCurrency(kpis.totalBruto)}</h2>
+            </div>
+          </div>
+        </div>
         
-        {/* Header */}
-        <div className="border-b border-[--color-outline-variant]/30 pb-6">
-          <h1 className="text-4xl font-bold tracking-tight text-[--color-rd-navy]">Analytics: Faturamento TISS</h1>
-          <p className="text-[--color-on-surface-variant] mt-2 font-medium">Visão gerencial da clínica e performance de convênios.</p>
-        </div>
-
-        {/* KPIs Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="glass-panel p-6 rounded-[2rem] flex items-center gap-5 hover:-translate-y-1 hover:shadow-xl hover:border-[--color-rd-navy]/20 transition-all duration-300 group cursor-default">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-100 to-blue-50 text-blue-600 flex items-center justify-center border border-blue-200 group-hover:scale-110 transition-transform">
-              <DollarSign className="w-6 h-6" />
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-orange-500/50 transition-all duration-300 group cursor-default">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center border border-orange-500/20 group-hover:scale-110 transition-transform shrink-0">
+              <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-sm text-[--color-on-surface-variant] font-bold uppercase tracking-widest mb-1">Faturado Geral</p>
-              <h2 className="text-2xl font-bold tracking-tighter text-[--color-rd-navy]">{formatCurrency(kpis.totalBruto)}</h2>
-            </div>
-          </div>
-          
-          <div className="glass-panel p-6 rounded-[2rem] flex items-center gap-5 hover:-translate-y-1 hover:shadow-xl hover:border-[--color-rd-navy]/20 transition-all duration-300 group cursor-default">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-orange-100 to-orange-50 text-[--color-rd-coral] flex items-center justify-center border border-orange-200 group-hover:scale-110 transition-transform">
-              <TrendingUp className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-[--color-on-surface-variant] font-bold uppercase tracking-widest mb-1">Ticket Médio (Guia)</p>
-              <h2 className="text-2xl font-bold tracking-tighter text-[--color-rd-navy]">{formatCurrency(kpis.ticketMedio)}</h2>
-            </div>
-          </div>
-
-          <div className="glass-panel p-6 rounded-[2rem] flex items-center gap-5 hover:-translate-y-1 hover:shadow-xl hover:border-[--color-rd-navy]/20 transition-all duration-300 group cursor-default">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-100 to-red-50 text-red-600 flex items-center justify-center border border-red-200 group-hover:scale-110 transition-transform">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-[--color-on-surface-variant] font-bold uppercase tracking-widest mb-1">Taxa de Glosa</p>
-              <h2 className="text-2xl font-bold tracking-tighter text-[--color-rd-navy]">{kpis.glosaRate.toFixed(1)}%</h2>
-            </div>
-          </div>
-
-          <div className="glass-panel p-6 rounded-[2rem] flex items-center gap-5 hover:-translate-y-1 hover:shadow-xl hover:border-[--color-rd-navy]/20 transition-all duration-300 group cursor-default">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-cyan-100 to-cyan-50 text-[--color-rd-cyan] flex items-center justify-center border border-cyan-200 group-hover:scale-110 transition-transform">
-              <FileText className="w-6 h-6" />
-            </div>
-            <div>
-              <p className="text-sm text-[--color-on-surface-variant] font-bold uppercase tracking-widest mb-1">Guias Emitidas</p>
-              <h2 className="text-2xl font-bold tracking-tighter text-[--color-rd-navy]">{kpis.guiasEmitidas}</h2>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest mb-0.5">Ticket Médio (Guia)</p>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{formatCurrency(kpis.ticketMedio)}</h2>
             </div>
           </div>
         </div>
+
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rose-500/50 transition-all duration-300 group cursor-default">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center border border-rose-500/20 group-hover:scale-110 transition-transform shrink-0">
+              <AlertTriangle className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest mb-0.5">Taxa de Glosa</p>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{kpis.glosaRate.toFixed(1)}%</h2>
+            </div>
+          </div>
+        </div>
+
+        <div className="relative overflow-hidden bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-2xl p-5 shadow-sm hover:shadow-xl hover:border-rd-cyan/50 transition-all duration-300 group cursor-default">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.05] via-transparent to-black/[0.1] pointer-events-none" />
+          <div className="relative z-10 flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-cyan-500/10 text-rd-cyan flex items-center justify-center border border-cyan-500/20 group-hover:scale-110 transition-transform shrink-0">
+              <FileText className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[11px] text-zinc-500 dark:text-zinc-400 font-bold uppercase tracking-widest mb-0.5">Guias Emitidas</p>
+              <h2 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">{kpis.guiasEmitidas}</h2>
+            </div>
+          </div>
+        </div>
+      </div>
 
         {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Evolução da Receita (Linha) */}
-          <div className="lg:col-span-2 glass-panel rounded-[2rem] p-8 hover:shadow-lg transition-shadow">
+          <div className="lg:col-span-2 bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl p-6 shadow-sm hover:border-rd-cyan/40 transition-all">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-2 h-6 bg-[--color-rd-cyan] rounded-full"></div>
-              <h3 className="text-lg font-bold tracking-tight text-[--color-rd-navy]">Evolução do Faturamento</h3>
+              <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">Evolução do Faturamento</h3>
             </div>
             <div className="h-[350px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -150,10 +179,10 @@ export default function FinanceiroDashboard() {
           </div>
 
           {/* Divisão por Convênio (Pizza) */}
-          <div className="glass-panel rounded-[2rem] p-8 hover:shadow-lg transition-shadow">
+          <div className="bg-white dark:bg-zinc-900/85 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl p-6 shadow-sm hover:border-rd-cyan/40 transition-all">
             <div className="flex items-center gap-3 mb-8">
               <div className="w-2 h-6 bg-[--color-rd-coral] rounded-full"></div>
-              <h3 className="text-lg font-bold tracking-tight text-[--color-rd-navy]">Receita por Convênio</h3>
+              <h3 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">Receita por Convênio</h3>
             </div>
             <div className="h-[350px] w-full flex justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -186,7 +215,6 @@ export default function FinanceiroDashboard() {
           </div>
 
         </div>
-      </div>
     </div>
   );
 }
