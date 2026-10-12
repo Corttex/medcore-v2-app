@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { 
   Users, 
   Calendar as CalendarIcon, 
@@ -119,15 +119,25 @@ const INITIAL_SHIFTS: ShiftSlot[] = [
 
 export default function EscalasPage() {
   const { theme } = useTheme();
-  const { selectedUnitId, units } = useDashboardContext();
+  const { selectedUnitId, units, isDemoMode } = useDashboardContext();
   const activeUnit = units.find(u => u.id === selectedUnitId) || units[0];
 
   const [currentWeek, setCurrentWeek] = useState("12 a 18 de Outubro / 2026");
-  const [profissionais, setProfissionais] = useState<ProfissionalEscala[]>(INITIAL_PROFISSIONAIS);
-  const [shifts, setShifts] = useState<ShiftSlot[]>(INITIAL_SHIFTS);
+  const [profissionais, setProfissionais] = useState<ProfissionalEscala[]>([]);
+  const [shifts, setShifts] = useState<ShiftSlot[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("TODOS");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isDemoMode) {
+      setProfissionais(INITIAL_PROFISSIONAIS);
+      setShifts(INITIAL_SHIFTS);
+    } else {
+      setProfissionais([]);
+      setShifts([]);
+    }
+  }, [isDemoMode]);
 
   // Modal: Nova Escala
   const [showNewEscalaModal, setShowNewEscalaModal] = useState(false);
@@ -445,7 +455,20 @@ export default function EscalasPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/80">
-                  {filteredProfissionais.map(prof => (
+                  {filteredProfissionais.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="p-12 text-center text-zinc-500">
+                        <div className="flex flex-col items-center justify-center space-y-2">
+                          <Users size={32} className="opacity-40 text-zinc-400" />
+                          <p className="font-semibold text-sm text-zinc-700 dark:text-zinc-300">Nenhum plantonista alocado na escala</p>
+                          <p className="text-xs text-zinc-500 max-w-sm">
+                            Ative o botão <strong>&quot;Dados Demo: Sim&quot;</strong> na barra superior para visualizar a grade semanal completa com médicos e plantões demonstrativos.
+                          </p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredProfissionais.map(prof => (
                     <tr key={prof.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors group">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
@@ -515,7 +538,7 @@ export default function EscalasPage() {
                         );
                       })}
                     </tr>
-                  ))}
+                  )))}
                 </tbody>
               </table>
             </div>

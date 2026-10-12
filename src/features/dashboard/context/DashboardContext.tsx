@@ -27,6 +27,9 @@ interface DashboardContextType {
   activeUnit?: Unit;
   loadingUnits: boolean;
   refreshUnits: () => Promise<void>;
+  isDemoMode: boolean;
+  setDemoMode: (enabled: boolean) => void;
+  toggleDemoMode: () => void;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -45,6 +48,7 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [selectedUnitId, setSelectedUnitId] = useState<string | null>(null);
   const [units, setUnits] = useState<Unit[]>([]);
   const [loadingUnits, setLoadingUnits] = useState<boolean>(true);
+  const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
 
   const fetchUnits = async () => {
     try {
@@ -79,10 +83,25 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     if (typeof window !== "undefined") {
       const savedUnit = localStorage.getItem("medcore_selected_unit");
       if (savedUnit) setSelectedUnitId(savedUnit);
+
+      const savedDemo = localStorage.getItem("medcore_demo_mode");
+      if (savedDemo !== null) {
+        setIsDemoMode(savedDemo === "true");
+      }
     }
 
     fetchUnits();
   }, []);
+
+  const setDemoMode = (enabled: boolean) => {
+    setIsDemoMode(enabled);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("medcore_demo_mode", enabled ? "true" : "false");
+      window.dispatchEvent(new CustomEvent("medcore_demo_mode_changed", { detail: { enabled } }));
+    }
+  };
+
+  const toggleDemoMode = () => setDemoMode(!isDemoMode);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
 
@@ -99,7 +118,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         units,
         activeUnit,
         loadingUnits,
-        refreshUnits: fetchUnits
+        refreshUnits: fetchUnits,
+        isDemoMode,
+        setDemoMode,
+        toggleDemoMode
       }}
     >
       {children}

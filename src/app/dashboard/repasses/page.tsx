@@ -7,6 +7,8 @@ import {
   DollarSign, ArrowUpRight
 } from "lucide-react";
 
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
+
 const MOCK_REPASSES = [
   { id: "REP-101", medico: "Dr. Carlos Silva", especialidade: "Dermatologia", procedimentos: 45, valorBruto: 18500.00, comissao: 60, valorRepasse: 11100.00, status: "PENDENTE" },
   { id: "REP-102", medico: "Dra. Ana Paula", especialidade: "Cardiologia", procedimentos: 32, valorBruto: 12800.00, comissao: 70, valorRepasse: 8960.00, status: "PAGO" },
@@ -14,7 +16,10 @@ const MOCK_REPASSES = [
 ];
 
 export default function RepassesMedicosPage() {
+  const { isDemoMode } = useDashboardContext();
   const [activeTab, setActiveTab] = useState<"ANALITICO" | "SINTETICO">("ANALITICO");
+
+  const repasses = isDemoMode ? MOCK_REPASSES : [];
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -24,14 +29,14 @@ export default function RepassesMedicosPage() {
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl">
             <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-              <strong className="text-violet-500 font-bold">12</strong> profissionais elegíveis no ciclo
+              <strong className="text-violet-500 font-bold">{isDemoMode ? "12" : "0"}</strong> profissionais elegíveis no ciclo
             </p>
           </div>
           <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            A Repassar: <strong className="text-violet-500 font-bold ml-1">R$ 18.800</strong>
+            A Repassar: <strong className="text-violet-500 font-bold ml-1">{isDemoMode ? "R$ 18.800" : "R$ 0,00"}</strong>
           </div>
           <div className="flex items-center bg-zinc-50 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/70 px-3.5 py-1.5 rounded-xl text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            Retenção: <strong className="text-emerald-500 font-bold ml-1">R$ 11.200</strong>
+            Retenção: <strong className="text-emerald-500 font-bold ml-1">{isDemoMode ? "R$ 11.200" : "R$ 0,00"}</strong>
           </div>
         </div>
 
@@ -137,39 +142,53 @@ export default function RepassesMedicosPage() {
                 </tr>
               </thead>
               <tbody className="text-sm">
-                {MOCK_REPASSES.map((rep) => (
-                  <tr key={rep.id} className="border-b border-outline-variant/20 hover:bg-surface-container/50 transition-colors">
-                    <td className="py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant border border-outline-variant/40">
-                          <Stethoscope size={14}/>
-                        </div>
-                        <div>
-                          <p className="font-semibold text-on-surface">{rep.medico}</p>
-                          <p className="text-sm text-on-surface-variant uppercase tracking-wider">{rep.especialidade}</p>
-                        </div>
+                {repasses.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="py-12 text-center text-on-surface-variant">
+                      <div className="flex flex-col items-center justify-center space-y-2">
+                        <Stethoscope size={32} className="opacity-40" />
+                        <p className="font-semibold text-sm">Nenhum repasse médico pendente</p>
+                        <p className="text-xs text-zinc-500 max-w-sm">
+                          Para inspecionar o layout completo e tabelas preenchidas com dados de teste, ative o botão &quot;Dados Demo: Sim&quot; na barra superior.
+                        </p>
                       </div>
                     </td>
-                    <td className="py-4 text-on-surface-variant">{rep.procedimentos}</td>
-                    <td className="py-4 font-medium text-on-surface">R$ {rep.valorBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td className="py-4 font-medium text-on-surface">{rep.comissao}%</td>
-                    <td className="py-4 font-semibold text-violet-500">R$ {rep.valorRepasse.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
-                    <td className="py-4">
-                      <span className={`px-2 py-1 text-sm uppercase font-bold tracking-wider rounded-md border ${
-                        rep.status === 'PENDENTE' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
-                        rep.status === 'EM_PROCESSAMENTO' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' :
-                        'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
-                      }`}>
-                        {rep.status}
-                      </span>
-                    </td>
-                    <td className="py-4 text-right">
-                      <button className="p-2 rounded-xl text-violet-500 hover:bg-violet-500/10 transition-colors inline-flex items-center justify-center">
-                        <Download size={16} />
-                      </button>
-                    </td>
                   </tr>
-                ))}
+                ) : (
+                  repasses.map((rep) => (
+                    <tr key={rep.id} className="border-b border-outline-variant/20 hover:bg-surface-container/50 transition-colors">
+                      <td className="py-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant border border-outline-variant/40">
+                            <Stethoscope size={14}/>
+                          </div>
+                          <div>
+                            <p className="font-semibold text-on-surface">{rep.medico}</p>
+                            <p className="text-sm text-on-surface-variant uppercase tracking-wider">{rep.especialidade}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 text-on-surface-variant">{rep.procedimentos}</td>
+                      <td className="py-4 font-medium text-on-surface">R$ {rep.valorBruto.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                      <td className="py-4 font-medium text-on-surface">{rep.comissao}%</td>
+                      <td className="py-4 font-semibold text-violet-500">R$ {rep.valorRepasse.toLocaleString('pt-BR', {minimumFractionDigits: 2})}</td>
+                      <td className="py-4">
+                        <span className={`px-2 py-1 text-sm uppercase font-bold tracking-wider rounded-md border ${
+                          rep.status === 'PENDENTE' ? 'bg-amber-500/10 border-amber-500/20 text-amber-500' :
+                          rep.status === 'EM_PROCESSAMENTO' ? 'bg-blue-500/10 border-blue-500/20 text-blue-500' :
+                          'bg-emerald-500/10 border-emerald-500/20 text-emerald-500'
+                        }`}>
+                          {rep.status}
+                        </span>
+                      </td>
+                      <td className="py-4 text-right">
+                        <button className="p-2 rounded-xl text-violet-500 hover:bg-violet-500/10 transition-colors inline-flex items-center justify-center">
+                          <Download size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

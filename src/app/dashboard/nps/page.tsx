@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { 
   Smile, 
@@ -50,12 +50,84 @@ interface AvaliacaoNPS {
   origem: "whatsapp" | "totem" | "link_direto";
 }
 
-const MOCK_AVALIACOES_INICIAIS: AvaliacaoNPS[] = [];
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
+
+const DEMO_AVALIACOES: AvaliacaoNPS[] = [
+  {
+    id: "nps-1",
+    pacienteNome: "Maria Eduarda Silveira",
+    pacienteTelefone: "(11) 98765-4321",
+    medicoNome: "Dr. Roberto Guimarães",
+    especialidade: "Dermatologia",
+    unidade: "Hospital Central MedCore",
+    nota: 10,
+    comentario: "Atendimento impecável! O Dr. Roberto explicou cada detalhe do procedimento com muita clareza.",
+    sentimentoIa: "positivo",
+    tagsIa: ["Atendimento Médico", "Pontualidade", "Clareza"],
+    data: "Hoje, 11:30",
+    statusTratamento: "nao_se_aplica",
+    origem: "whatsapp"
+  },
+  {
+    id: "nps-2",
+    pacienteNome: "Carlos Alberto Siqueira",
+    pacienteTelefone: "(11) 97654-3210",
+    medicoNome: "Dra. Helena Prado",
+    especialidade: "Cardiologia",
+    unidade: "Hospital Central MedCore",
+    nota: 8,
+    comentario: "A consulta foi muito boa, apenas a espera na recepção que demorou cerca de 25 minutos.",
+    sentimentoIa: "neutro",
+    tagsIa: ["Tempo de Espera", "Recepção"],
+    data: "Hoje, 09:45",
+    statusTratamento: "pendente",
+    origem: "totem"
+  },
+  {
+    id: "nps-3",
+    pacienteNome: "Fernando Mendes",
+    pacienteTelefone: "(11) 96543-2109",
+    medicoNome: "Dr. Lucas Valença",
+    especialidade: "Ortopedia",
+    unidade: "Hospital Central MedCore",
+    nota: 4,
+    comentario: "Falta de comunicação quanto ao atraso da sala de gesso. Fiquei muito tempo aguardando.",
+    sentimentoIa: "negativo",
+    tagsIa: ["Atraso", "Comunicação"],
+    data: "Ontem, 16:15",
+    statusTratamento: "em_contato",
+    origem: "link_direto"
+  },
+  {
+    id: "nps-4",
+    pacienteNome: "Beatriz Rocha Lima",
+    pacienteTelefone: "(11) 95432-1098",
+    medicoNome: "Dra. Camilla Fontes",
+    especialidade: "Pediatria",
+    unidade: "Hospital Central MedCore",
+    nota: 10,
+    comentario: "Ambiente infantil muito acolhedor e a doutora é extremamente atenciosa e carinhosa com as crianças.",
+    sentimentoIa: "positivo",
+    tagsIa: ["Ambiente", "Humanização", "Infraestrutura"],
+    data: "Ontem, 14:20",
+    statusTratamento: "nao_se_aplica",
+    origem: "whatsapp"
+  }
+];
 
 export default function NpsPage() {
   const { theme } = useTheme();
+  const { isDemoMode } = useDashboardContext();
 
-  const [avaliacoes, setAvaliacoes] = useState<AvaliacaoNPS[]>(MOCK_AVALIACOES_INICIAIS);
+  const [avaliacoes, setAvaliacoes] = useState<AvaliacaoNPS[]>([]);
+
+  useEffect(() => {
+    if (isDemoMode) {
+      setAvaliacoes(DEMO_AVALIACOES);
+    } else {
+      setAvaliacoes([]);
+    }
+  }, [isDemoMode]);
   const [filtroTipo, setFiltroTipo] = useState<"todos" | "promotores" | "neutros" | "detratores" | "pendentes">("todos");
   const [filtroEspecialidade, setFiltroEspecialidade] = useState<string>("todas");
   const [busca, setBusca] = useState<string>("");

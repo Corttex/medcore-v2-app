@@ -78,7 +78,7 @@ const COLABORADORES_HOMOLOGADOS: ColaboradorTotem[] = [
 ];
 
 export default function PontoEletronicoPage() {
-  const { selectedUnitId } = useDashboardContext();
+  const { selectedUnitId, isDemoMode } = useDashboardContext();
   const [viewMode, setViewMode] = useState<"individual" | "totem">("totem");
   const [time, setTime] = useState(new Date());
   const [loading, setLoading] = useState(false);
@@ -91,10 +91,21 @@ export default function PontoEletronicoPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [detectedColab, setDetectedColab] = useState<ColaboradorTotem | null>(COLABORADORES_HOMOLOGADOS[0]);
+  const [detectedColab, setDetectedColab] = useState<ColaboradorTotem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [scanStatus, setScanStatus] = useState<"scanning" | "matched" | "success">("matched");
+  const [scanStatus, setScanStatus] = useState<"scanning" | "matched" | "success">("scanning");
   const [lastPunchProof, setLastPunchProof] = useState<any | null>(null);
+
+  // Sincroniza com o Modo Demonstrativo do Administrador
+  useEffect(() => {
+    if (isDemoMode) {
+      setDetectedColab(COLABORADORES_HOMOLOGADOS[0]);
+      setScanStatus("matched");
+    } else {
+      setDetectedColab(null);
+      setScanStatus("scanning");
+    }
+  }, [isDemoMode]);
 
   // Relógio em tempo real
   useEffect(() => {
@@ -400,32 +411,34 @@ export default function PontoEletronicoPage() {
                 )}
               </div>
 
-              {/* Seletor Rápido de Colaboradores para Demonstração */}
-              <div className="w-full mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
-                <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 flex items-center justify-between">
-                  <span>Simular Reconhecimento de Colaborador:</span>
-                  <span className="text-[10px] lowercase text-rd-cyan font-normal">clique para alternar</span>
-                </p>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {COLABORADORES_HOMOLOGADOS.map((colab) => (
-                    <button
-                      key={colab.id}
-                      onClick={() => {
-                        setDetectedColab(colab);
-                        setScanStatus("matched");
-                      }}
-                      className={`p-2 rounded-xl text-left border transition-all text-xs ${
-                        detectedColab?.id === colab.id
-                          ? "border-rd-cyan bg-rd-cyan/10 font-bold text-rd-cyan"
-                          : "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300"
-                      }`}
-                    >
-                      <p className="truncate font-semibold">{colab.nome.split(" ")[0]} {colab.nome.split(" ")[1]}</p>
-                      <p className="text-[10px] opacity-75 truncate">{colab.cargo.split("&")[0]}</p>
-                    </button>
-                  ))}
+              {/* Seletor Rápido de Colaboradores para Demonstração (Apenas em Modo Demo) */}
+              {isDemoMode && (
+                <div className="w-full mt-4 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                  <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mb-2 flex items-center justify-between">
+                    <span>Simular Reconhecimento de Colaborador (Demo):</span>
+                    <span className="text-[10px] lowercase text-rd-cyan font-normal">clique para alternar</span>
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {COLABORADORES_HOMOLOGADOS.map((colab) => (
+                      <button
+                        key={colab.id}
+                        onClick={() => {
+                          setDetectedColab(colab);
+                          setScanStatus("matched");
+                        }}
+                        className={`p-2 rounded-xl text-left border transition-all text-xs ${
+                          detectedColab?.id === colab.id
+                            ? "border-rd-cyan bg-rd-cyan/10 font-bold text-rd-cyan"
+                            : "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300"
+                        }`}
+                      >
+                        <p className="truncate font-semibold">{colab.nome.split(" ")[0]} {colab.nome.split(" ")[1]}</p>
+                        <p className="text-[10px] opacity-75 truncate">{colab.cargo.split("&")[0]}</p>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             {/* Ficha de Confirmação com Máscara LGPD & Botões de Ação */}

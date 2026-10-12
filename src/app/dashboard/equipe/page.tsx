@@ -33,6 +33,7 @@ import {
   ExternalLink
 } from "lucide-react";
 import { usePlan, PlanLevel } from "@/context/PlanContext";
+import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 
 export interface TeamMember {
   id: string;
@@ -224,8 +225,68 @@ export const HEALTHCARE_ROLES: RoleDefinition[] = [
   }
 ];
 
+const DEMO_TEAM_MEMBERS: TeamMember[] = [
+  {
+    id: "demo-1",
+    fullName: "Dr. Felipe Azevedo",
+    email: "felipe.azevedo@medcore.com.br",
+    role: "DIRETOR_CLINICO",
+    cargo: "Diretor Clínico & Cirurgião Geral",
+    departamento: "Corpo Clínico",
+    registroProfissional: "CRM-SP 124.890",
+    telefone: "(11) 98765-4321",
+    cpf: "284.912.438-02",
+    unidade: "Hospital Central MedCore",
+    status: "ATIVO",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "demo-2",
+    fullName: "Dra. Beatriz Albuquerque",
+    email: "beatriz.albuquerque@medcore.com.br",
+    role: "MEDICO_ESPECIALISTA",
+    cargo: "Cardiologista & Ecocardiografia",
+    departamento: "Corpo Clínico",
+    registroProfissional: "CRM-SP 98.452",
+    telefone: "(11) 97654-3210",
+    cpf: "192.441.768-15",
+    unidade: "Hospital Central MedCore",
+    status: "ATIVO",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "demo-3",
+    fullName: "Mariana Santos Costa",
+    email: "mariana.santos@medcore.com.br",
+    role: "ENFERMEIRA_CHEFE",
+    cargo: "Enfermeira Chefe da UTI Geral",
+    departamento: "Enfermagem",
+    registroProfissional: "COREN-SP 45.109",
+    telefone: "(11) 96543-2109",
+    cpf: "349.882.115-44",
+    unidade: "Hospital Central MedCore",
+    status: "ATIVO",
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: "demo-4",
+    fullName: "Carlos Eduardo Mendes",
+    email: "carlos.mendes@medcore.com.br",
+    role: "SECRETARIA_RECEPCAO",
+    cargo: "Concierge & Líder de Recepção",
+    departamento: "Atendimento & Recepção",
+    registroProfissional: "MAT-2023-04",
+    telefone: "(11) 95432-1098",
+    cpf: "411.238.990-87",
+    unidade: "Hospital Central MedCore",
+    status: "ATIVO",
+    createdAt: new Date().toISOString()
+  }
+];
+
 export default function EquipePage() {
   const { activePlan, setActivePlan } = usePlan();
+  const { isDemoMode } = useDashboardContext();
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -247,6 +308,16 @@ export default function EquipePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
+  // Exibição de equipe: se isDemoMode estiver ativo e o banco tiver poucos membros, enriquece para visualização de layout
+  const displayTeam = useMemo(() => {
+    if (isDemoMode && team.length <= 1) {
+      const existingEmails = new Set(team.map(t => t.email.toLowerCase()));
+      const additionalDemo = DEMO_TEAM_MEMBERS.filter(d => !existingEmails.has(d.email.toLowerCase()));
+      return [...team, ...additionalDemo];
+    }
+    return team;
+  }, [isDemoMode, team]);
+
   // Limite de Usuários por Plano
   const planLimits: Record<PlanLevel, { max: number; label: string; nextPlan?: PlanLevel }> = {
     BASIC: { max: 5, label: "Plano Básico (Até 5 Usuários)", nextPlan: "PRO" },
@@ -255,8 +326,8 @@ export default function EquipePage() {
   };
 
   const currentLimit = planLimits[activePlan] || planLimits.BASIC;
-  const isQuotaReached = team.length >= currentLimit.max;
-  const quotaPercent = Math.min(100, Math.round((team.length / currentLimit.max) * 100));
+  const isQuotaReached = displayTeam.length >= currentLimit.max;
+  const quotaPercent = Math.min(100, Math.round((displayTeam.length / currentLimit.max) * 100));
 
   // Formulário de Cadastro
   const [createForm, setCreateForm] = useState({
@@ -441,7 +512,7 @@ export default function EquipePage() {
 
   // Filtragem
   const filteredTeam = useMemo(() => {
-    return team.filter(member => {
+    return displayTeam.filter(member => {
       const matchesSearch = 
         (member.fullName || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         (member.email || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -458,7 +529,7 @@ export default function EquipePage() {
 
       return true;
     });
-  }, [team, searchTerm, selectedCategory]);
+  }, [displayTeam, searchTerm, selectedCategory]);
 
   const selectedCreateRoleInfo = useMemo(() => {
     return HEALTHCARE_ROLES.find(r => r.code === createForm.role) || HEALTHCARE_ROLES[0];
@@ -471,12 +542,12 @@ export default function EquipePage() {
   // Contadores
   const stats = useMemo(() => {
     return {
-      total: team.length,
-      clinicos: team.filter(m => ["MEDICO_ESPECIALISTA", "MEDICO_PLANTONISTA", "MEDICO_AUDITOR", "DIRETOR_CLINICO", "ODONTOLOGO", "VETERINARIO"].includes(m.role)).length,
-      enfermagem: team.filter(m => ["ENFERMEIRA_CHEFE", "ENFERMEIRO_ASSISTENCIAL", "TECNICO_ENFERMAGEM", "FARMACEUTICO_BIOMEDICO", "FISIOTERAPEUTA_MULTI"].includes(m.role)).length,
-      gestaoBackoffice: team.filter(m => ["DIRETOR_GERAL", "GESTOR_UNIDADE", "GERENTE_FINANCEIRO", "ANALISTA_TISS", "ANALISTA_FINANCEIRO", "GESTOR_PATRIMONIO_ESTOQUE", "SECRETARIA_RECEPCAO", "ANALISTA_RH_PONTO"].includes(m.role)).length,
+      total: displayTeam.length,
+      clinicos: displayTeam.filter(m => ["MEDICO_ESPECIALISTA", "MEDICO_PLANTONISTA", "MEDICO_AUDITOR", "DIRETOR_CLINICO", "ODONTOLOGO", "VETERINARIO"].includes(m.role)).length,
+      enfermagem: displayTeam.filter(m => ["ENFERMEIRA_CHEFE", "ENFERMEIRO_ASSISTENCIAL", "TECNICO_ENFERMAGEM", "FARMACEUTICO_BIOMEDICO", "FISIOTERAPEUTA_MULTI"].includes(m.role)).length,
+      gestaoBackoffice: displayTeam.filter(m => ["DIRETOR_GERAL", "GESTOR_UNIDADE", "GERENTE_FINANCEIRO", "ANALISTA_TISS", "ANALISTA_FINANCEIRO", "GESTOR_PATRIMONIO_ESTOQUE", "SECRETARIA_RECEPCAO", "ANALISTA_RH_PONTO"].includes(m.role)).length,
     };
-  }, [team]);
+  }, [displayTeam]);
 
   return (
     <div className="space-y-5 sm:space-y-6 animate-in fade-in duration-500 w-full pb-20">
@@ -491,6 +562,18 @@ export default function EquipePage() {
           <button onClick={() => setActionSuccess(null)} className="text-emerald-500 hover:text-emerald-700 p-1">
             <X size={16} />
           </button>
+        </div>
+      )}
+
+      {/* Alerta de Modo Demonstrativo */}
+      {isDemoMode && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-rd-cyan/10 border border-rd-cyan/30 text-on-surface text-xs shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <Sparkles size={15} className="text-rd-cyan shrink-0 animate-pulse" />
+            <span>
+              <strong className="text-rd-cyan">Modo Demonstrativo Ativo:</strong> Exibindo colaboradores fictícios para validação de perfis hospitalares, cores de badges e teste de cota. Alterne para <strong>&quot;Não&quot;</strong> na TopBar para visualizar apenas os registros reais do banco.
+            </span>
+          </div>
         </div>
       )}
 
@@ -511,7 +594,7 @@ export default function EquipePage() {
             <div className="flex flex-col">
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">
-                  {currentLimit.max < 9000 ? `${team.length} de ${currentLimit.max} Colaboradores` : `${team.length} Colaboradores (Ilimitado)`}
+                  {currentLimit.max < 9000 ? `${displayTeam.length} de ${currentLimit.max} Colaboradores` : `${displayTeam.length} Colaboradores (Ilimitado)`}
                 </span>
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold border border-primary/20">
                   Plano {activePlan === "BASIC" ? "Básico" : activePlan === "PRO" ? "Pro" : "Enterprise"}

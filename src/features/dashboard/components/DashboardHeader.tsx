@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Search, Bell, ShieldCheck, Menu, User, TrendingUp, AlertTriangle, Settings, LifeBuoy, Sun, Moon, HelpCircle, X, BookOpen, Building2, Sparkles } from "lucide-react";
+import { Search, Bell, ShieldCheck, Menu, User, TrendingUp, AlertTriangle, Settings, LifeBuoy, Sun, Moon, HelpCircle, X, BookOpen, Building2, Sparkles, FlaskConical, CheckCircle2, Database } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { Logo } from "@/components/ui/Logo";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
@@ -97,7 +97,7 @@ const HELP_DESCRIPTIONS: Record<string, { title: string; desc: string; tips: str
 };
 
 export function DashboardHeader() {
-  const { toggleMobileMenu, selectedUnitId, setSelectedUnitId, units } = useDashboardContext();
+  const { toggleMobileMenu, selectedUnitId, setSelectedUnitId, units, isDemoMode, setDemoMode, toggleDemoMode } = useDashboardContext();
   const pathname = usePathname();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
@@ -109,8 +109,33 @@ export function DashboardHeader() {
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [demoToast, setDemoToast] = useState<{ show: boolean; message: string; type: "demo" | "real" } | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+
+  const roleUpper = (user?.role || "").toUpperCase();
+  const isAdmin = 
+    roleUpper.includes("ADMIN") || 
+    roleUpper.includes("DIRETOR") || 
+    roleUpper.includes("GESTOR") || 
+    roleUpper.includes("OWNER") || 
+    !user?.role || 
+    process.env.NODE_ENV !== "production";
+
+  const handleToggleDemoMode = (targetValue?: boolean) => {
+    const nextVal = typeof targetValue === "boolean" ? targetValue : !isDemoMode;
+    setDemoMode(nextVal);
+    setDemoToast({
+      show: true,
+      message: nextVal 
+        ? "Modo Demonstrativo ATIVADO: Dados fictícios carregados no painel para conferência visual de layout, cores e textos."
+        : "Modo Registro Real ATIVADO: Dados fictícios zerados. Painel pronto para operação com dados reais.",
+      type: nextVal ? "demo" : "real"
+    });
+    setTimeout(() => {
+      setDemoToast(null);
+    }, 4500);
+  };
 
   const fetchNotifications = async () => {
     try {
@@ -161,6 +186,79 @@ export function DashboardHeader() {
 
       {/* Bloco Direito: Ferramentas e Ações com linhas divisórias verticais de ponta a ponta */}
       <div className="flex items-stretch shrink-0 h-full">
+        {/* Alternador de Dados Demonstrativos (Apenas Administrador) */}
+        {isAdmin && (
+          <div className="flex items-center h-full px-2 sm:px-3 lg:px-4 border-l border-zinc-200 dark:border-zinc-800">
+            <div 
+              className={cn(
+                "flex items-center gap-2 p-1 pl-2.5 rounded-xl border transition-all shadow-sm",
+                isDemoMode 
+                  ? "bg-rd-cyan/10 border-rd-cyan/40 text-on-surface" 
+                  : "bg-surface-container-low border-zinc-200 dark:border-zinc-800 text-on-surface-variant"
+              )}
+              title="Modo Administrador: Alterna entre Registros Reais (limpo) e Dados Fictícios Demonstrativos para conferência de layout, texto e cores."
+            >
+              <div className="flex items-center gap-1.5 shrink-0">
+                <FlaskConical 
+                  size={14} 
+                  className={cn(
+                    "transition-all",
+                    isDemoMode ? "text-rd-cyan animate-pulse drop-shadow-[0_0_8px_var(--color-rd-cyan)]" : "text-on-surface-variant/60"
+                  )} 
+                />
+                <span className="text-[11px] font-heading font-semibold hidden xl:inline text-on-surface">
+                  Dados Demo:
+                </span>
+              </div>
+
+              {/* Toggle Switch / Scrollzinho (Não / Sim) */}
+              <div 
+                onClick={() => handleToggleDemoMode(!isDemoMode)}
+                role="switch"
+                aria-checked={isDemoMode}
+                className={cn(
+                  "relative flex items-center p-0.5 rounded-lg cursor-pointer transition-all duration-300 select-none border",
+                  isDemoMode 
+                    ? "bg-zinc-950/40 border-rd-cyan/40 shadow-[0_0_12px_rgba(0,212,255,0.2)]" 
+                    : "bg-surface-container border-zinc-200 dark:border-zinc-700"
+                )}
+              >
+                {/* Indicador Deslizante (Pill) */}
+                <div 
+                  className={cn(
+                    "absolute top-0.5 bottom-0.5 w-[36px] rounded-md transition-all duration-300 shadow-sm",
+                    isDemoMode 
+                      ? "left-[39px] bg-gradient-to-r from-rd-cyan to-teal-400 text-white shadow-rd-cyan/30" 
+                      : "left-0.5 bg-white dark:bg-zinc-700 text-on-surface shadow-black/10"
+                  )}
+                />
+
+                <button 
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); if (isDemoMode) handleToggleDemoMode(false); }}
+                  className={cn(
+                    "relative z-10 w-[36px] py-1 text-center text-[10px] font-heading font-bold uppercase tracking-wider transition-colors",
+                    !isDemoMode ? "text-on-surface font-extrabold" : "text-on-surface-variant/50 hover:text-on-surface"
+                  )}
+                >
+                  Não
+                </button>
+
+                <button 
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); if (!isDemoMode) handleToggleDemoMode(true); }}
+                  className={cn(
+                    "relative z-10 w-[36px] py-1 text-center text-[10px] font-heading font-bold uppercase tracking-wider transition-colors",
+                    isDemoMode ? "text-zinc-950 font-extrabold" : "text-on-surface-variant/50 hover:text-rd-cyan"
+                  )}
+                >
+                  Sim
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Campo de Pesquisa */}
         <div className="hidden md:flex items-center h-full px-3 lg:px-4 border-l border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center bg-surface-container-low px-3.5 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-700 focus-within:border-rd-cyan/50 transition-all group overflow-hidden max-w-xs">
@@ -380,6 +478,35 @@ export function DashboardHeader() {
         </div>
       </div>
     </div>
+
+    {/* Toast Flutuante de Feedback do Modo Demonstrativo */}
+    {demoToast?.show && (
+      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-zinc-950/95 dark:bg-zinc-900/95 text-white border border-rd-cyan/40 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 max-w-md">
+        <div className={cn(
+          "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
+          demoToast.type === "demo" 
+            ? "bg-rd-cyan/20 border-rd-cyan/40 text-rd-cyan shadow-[0_0_12px_rgba(0,212,255,0.3)]" 
+            : "bg-emerald-500/20 border-emerald-500/40 text-emerald-400"
+        )}>
+          {demoToast.type === "demo" ? <FlaskConical size={18} /> : <CheckCircle2 size={18} />}
+        </div>
+        <div className="text-xs flex-1">
+          <p className="font-heading font-bold text-white tracking-wide flex items-center gap-1.5">
+            {demoToast.type === "demo" ? "Modo Demonstrativo (Mock) Ativado" : "Modo Registro Real Ativado"}
+            <span className="text-[10px] font-sans px-1.5 py-0.2 rounded font-semibold bg-white/10 uppercase tracking-widest text-zinc-300">
+              Admin
+            </span>
+          </p>
+          <p className="text-[11px] text-zinc-300 mt-0.5 leading-relaxed">{demoToast.message}</p>
+        </div>
+        <button 
+          onClick={() => setDemoToast(null)}
+          className="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors ml-1 shrink-0"
+        >
+          <X size={15} />
+        </button>
+      </div>
+    )}
   </header>
   );
 }

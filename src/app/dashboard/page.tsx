@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { 
   Activity, Users, Clock, AlertCircle, TrendingUp, Zap, ShieldCheck, 
   ChevronRight, ArrowUpRight, ArrowDownRight, BrainCircuit, Download,
-  Calendar, Layout, MessageSquare, ClipboardList, Building2, Settings2, Save
+  Calendar, Layout, MessageSquare, ClipboardList, Building2, Settings2, Save, Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
@@ -160,7 +160,7 @@ const defaultLayout: WidgetLayout[] = [
 ];
 
 export default function DashboardPage() {
-  const { selectedUnitId } = useDashboardContext();
+  const { selectedUnitId, isDemoMode } = useDashboardContext();
   const { theme } = useTheme();
   
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
@@ -184,6 +184,28 @@ export default function DashboardPage() {
     aiCompliance: "Carregando...",
     aiOpportunities: "0"
   });
+
+  // Modo Demonstrativo (Mock) para validação de cores, textos e layout pelo Administrador
+  const displayStats = isDemoMode ? {
+    patients: 142,
+    meetingsToday: 18,
+    totalCapacityToday: 60,
+    reminders: 7,
+    criticalAlerts: 2,
+    faturamento: 284500,
+    notasPendentes: 14,
+    efficiency: 94,
+    efficiencyTrend: "+12%",
+    utiOccupancy: 82,
+    surgeryOccupancy: 74,
+    staffNursing: 88,
+    staffMedicine: 92,
+    staffTechs: 78,
+    absenteeismRate: 1.4,
+    aiPrediction: "Pico de atendimentos projetado entre 14h e 17h (+24% na emergência). Escala de médicos sugerida para reforço preventivo.",
+    aiCompliance: "Prontuários eletrônicos com 99.1% de conformidade com os protocolos CFM e auditoria LGPD.",
+    aiOpportunities: "R$ 34.200 em glosas e repasses recuperáveis identificados pela Dra. Conte na auditoria."
+  } : stats;
   
   // Customization State
   const [isEditMode, setIsEditMode] = useState(false);
@@ -297,22 +319,53 @@ export default function DashboardPage() {
   // Widget Renderers Map
   const widgetRenderers: Record<string, React.ReactNode> = {
     "stat-efficiency": (
-      <StatCard title="Eficiência Operacional" value={`${stats.efficiency}%`} trend={stats.efficiencyTrend} description="Performance Geral" icon={Activity} color="brand" chartData={[]} />
+      <StatCard 
+        title="Eficiência Operacional" 
+        value={`${displayStats.efficiency}%`} 
+        trend={displayStats.efficiencyTrend} 
+        description="Performance Geral" 
+        icon={Activity} 
+        color="brand" 
+        chartData={isDemoMode ? [68, 74, 82, 80, 89, 91, 94] : []} 
+      />
     ),
     "stat-patients": (
-      <StatCard title="Total de Pacientes" value={stats.patients.toLocaleString()} trend="+0" description="Base de Dados" icon={Users} color="brand" chartData={[]} />
+      <StatCard 
+        title="Total de Pacientes" 
+        value={displayStats.patients.toLocaleString()} 
+        trend={isDemoMode ? "+8%" : "+0"} 
+        description="Base de Dados" 
+        icon={Users} 
+        color="brand" 
+        chartData={isDemoMode ? [105, 112, 118, 126, 134, 142] : []} 
+      />
     ),
     "stat-meetings": (
-      <StatCard title="Consultas Hoje" value={stats.meetingsToday.toString()} trend="0" description="Agenda" icon={Calendar} color="emerald" chartData={[]} />
+      <StatCard 
+        title="Consultas Hoje" 
+        value={displayStats.meetingsToday.toString()} 
+        trend={isDemoMode ? "+4" : "0"} 
+        description="Agenda" 
+        icon={Calendar} 
+        color="emerald" 
+        chartData={isDemoMode ? [8, 10, 14, 12, 16, 18] : []} 
+      />
     ),
     "stat-reminders": (
-      <StatCard title="Lembretes Pendentes" value={stats.reminders.toString()} trend={stats.reminders > 5 ? "Alta" : "Estável"} description="Ações Prioritárias" icon={AlertCircle} color="amber" />
+      <StatCard 
+        title="Lembretes Pendentes" 
+        value={displayStats.reminders.toString()} 
+        trend={displayStats.reminders > 5 ? "Alta" : "Estável"} 
+        description="Ações Prioritárias" 
+        icon={AlertCircle} 
+        color="amber" 
+      />
     ),
     "chart-occupancy": (
       <div className={cn("no-line-card !p-6 space-y-6 transition-all duration-500 h-full", theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200")}>
         <div className={cn("flex items-center justify-between border-b pb-4", theme === 'dark' ? "border-zinc-800/50" : "border-zinc-100")}>
           <h2 className={cn("font-heading text-sm font-semibold uppercase tracking-[0.2em] flex items-center gap-3", theme === 'dark' ? "text-white/95" : "text-black/95")}>
-            <TrendingUp size={18} className="text-rd-cyan" /> Ocupação Estrutural (Em Breve)
+            <TrendingUp size={18} className="text-rd-cyan" /> Ocupação Estrutural
           </h2>
           <button onClick={handleRelatorioFull} disabled={isGeneratingReport} className={cn("text-sm font-semibold text-rd-cyan uppercase tracking-widest border border-rd-cyan/30 px-3 py-1.5 rounded-lg bg-rd-cyan/5 hover:bg-rd-cyan/10 transition-all flex items-center gap-2", isGeneratingReport && "opacity-50 cursor-wait")}>
             {isGeneratingReport ? <div className="w-3 h-3 border-2 border-rd-cyan border-t-transparent rounded-full animate-spin" /> : <Download size={14} />} Relatório Full
@@ -322,20 +375,20 @@ export default function DashboardPage() {
           <div className={cn("rounded-2xl p-4 border hover:border-rd-cyan/30 transition-all", theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100")}>
             <p className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-3 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Leitos de UTI</p>
             <div className="flex items-end justify-between gap-2">
-              <span className={cn("text-3xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{stats.utiOccupancy}%</span>
-              {stats.utiOccupancy > 80 && <span className="text-sm text-red-500 font-medium mb-1 uppercase tracking-tighter">Capacidade Crítica</span>}
+              <span className={cn("text-3xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{displayStats.utiOccupancy}%</span>
+              {displayStats.utiOccupancy > 80 && <span className="text-sm text-red-500 font-medium mb-1 uppercase tracking-tighter">Capacidade Crítica</span>}
             </div>
             <div className={cn("w-full h-2 rounded-full mt-3 overflow-hidden border", theme === 'dark' ? "bg-zinc-900 border-zinc-800" : "bg-zinc-200 border-zinc-300/50")}>
-              <div className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full" style={{ width: `${stats.utiOccupancy}%` }}></div>
+              <div className="h-full bg-gradient-to-r from-amber-500 to-red-500 rounded-full transition-all duration-1000" style={{ width: `${displayStats.utiOccupancy}%` }}></div>
             </div>
           </div>
           <div className={cn("rounded-2xl p-4 border hover:border-rd-cyan/30 transition-all", theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100")}>
             <p className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-3 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Bloco Cirúrgico</p>
             <div className="flex items-end justify-between gap-2">
-              <span className={cn("text-3xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{stats.surgeryOccupancy}%</span>
+              <span className={cn("text-3xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{displayStats.surgeryOccupancy}%</span>
             </div>
             <div className={cn("w-full h-2 rounded-full mt-3 overflow-hidden border", theme === 'dark' ? "bg-zinc-900 border-zinc-800" : "bg-zinc-200 border-zinc-300/50")}>
-              <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full" style={{ width: `${stats.surgeryOccupancy}%` }}></div>
+              <div className="h-full bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-full transition-all duration-1000" style={{ width: `${displayStats.surgeryOccupancy}%` }}></div>
             </div>
           </div>
         </div>
@@ -347,8 +400,8 @@ export default function DashboardPage() {
           <Zap size={18} className="text-rd-cyan" /> Saturação Staff
         </h2>
         <div className="flex-1 space-y-5">
-           {[ { name: "Enfermagem", val: stats.staffNursing }, { name: "Medicina", val: stats.staffMedicine }, { name: "Técnicos", val: stats.staffTechs } ].map((item) => (
-             <div key={item.name} className="space-y-2 opacity-50">
+           {[ { name: "Enfermagem", val: displayStats.staffNursing }, { name: "Medicina", val: displayStats.staffMedicine }, { name: "Técnicos", val: displayStats.staffTechs } ].map((item) => (
+             <div key={item.name} className="space-y-2">
                <div className="flex justify-between text-[11px] font-heading font-semibold uppercase tracking-[0.2em] opacity-90">
                  <span className={cn(theme === 'dark' ? "text-white/95" : "text-black/95")}>{item.name}</span>
                  <span className={cn("font-heading font-bold text-sm", item.val > 90 ? "text-red-400" : item.val > 70 ? "text-amber-400" : "text-emerald-400")}>{item.val}%</span>
@@ -358,7 +411,9 @@ export default function DashboardPage() {
                </div>
              </div>
            ))}
-           <p className={cn("text-xs font-sans font-medium uppercase tracking-wide text-center mt-2", theme === 'dark' ? "text-white/95" : "text-black/95")}>Módulo Inativo</p>
+           <p className={cn("text-xs font-sans font-medium uppercase tracking-wide text-center mt-2 text-zinc-500")}>
+             {isDemoMode ? "Escala Operacional com 92% de Adesão" : "Módulo Inativo"}
+           </p>
         </div>
       </div>
     ),
@@ -367,10 +422,26 @@ export default function DashboardPage() {
          <h2 className={cn("font-heading text-sm font-semibold uppercase tracking-[0.2em] flex items-center gap-3 border-b pb-4 mb-6", theme === 'dark' ? "text-white/95 border-zinc-800/50" : "text-black/95 border-zinc-100")}>
           <ShieldCheck size={18} className="text-rd-cyan" /> Auditoria IA
         </h2>
-        <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
-           <ShieldCheck size={32} className={cn("mb-3", theme === 'dark' ? "text-white/95" : "text-black/95")} />
-           <p className={cn("text-xs font-sans font-medium uppercase tracking-wide leading-relaxed max-w-[200px]", theme === 'dark' ? "text-white/95" : "text-black/95")}>Aguardando volume de atendimentos para gerar scores de auditoria.</p>
-        </div>
+        {isDemoMode ? (
+          <div className="flex-1 flex flex-col justify-center text-left space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-3xl font-bold font-heading text-emerald-500 tracking-tight">98.4/100</span>
+              <span className="text-[10px] font-heading uppercase font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                Conforme
+              </span>
+            </div>
+            <p className={cn("text-xs font-sans leading-relaxed text-zinc-500 dark:text-zinc-400")}>
+              Auditoria contínua de prontuários eletrônicos (PEP) e prescrições sem inconformidades críticas nas últimas 24 horas.
+            </p>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center text-center opacity-60">
+             <ShieldCheck size={32} className={cn("mb-3", theme === 'dark' ? "text-white/95" : "text-black/95")} />
+             <p className={cn("text-xs font-sans font-medium uppercase tracking-wide leading-relaxed max-w-[200px]", theme === 'dark' ? "text-white/95" : "text-black/95")}>
+               Aguardando volume de atendimentos para gerar scores de auditoria.
+             </p>
+          </div>
+        )}
       </div>
     ),
     "report-agenda": (
@@ -386,14 +457,14 @@ export default function DashboardPage() {
           <div className="flex justify-between items-end">
             <div>
               <p className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-2 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Atendimentos do Dia</p>
-              <p className={cn("text-3xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{stats.meetingsToday} / {stats.totalCapacityToday}</p>
+              <p className={cn("text-3xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{displayStats.meetingsToday} / {displayStats.totalCapacityToday}</p>
             </div>
           </div>
           <div className={cn("p-3 rounded-2xl border flex items-center gap-4", theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100")}>
              <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center text-red-500 shrink-0"><Users size={18} /></div>
              <div>
                 <p className={cn("text-xs font-sans font-medium uppercase tracking-wide", theme === 'dark' ? "text-white/95" : "text-black/95")}>Taxa de Absenteísmo</p>
-                <p className={cn("text-xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{stats.absenteeismRate}%</p>
+                <p className={cn("text-xl font-heading font-bold tracking-tighter", theme === 'dark' ? "text-white/95" : "text-black/95")}>{displayStats.absenteeismRate}%</p>
              </div>
           </div>
         </div>
@@ -411,11 +482,11 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 gap-3">
              <div className={cn("p-3 rounded-2xl border", theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100")}>
                 <p className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-2 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Pendentes</p>
-                <p className="text-2xl font-heading font-bold tracking-tighter text-amber-500">{stats.notasPendentes}</p>
+                <p className="text-2xl font-heading font-bold tracking-tighter text-amber-500">{displayStats.notasPendentes}</p>
              </div>
              <div className={cn("p-3 rounded-2xl border", theme === 'dark' ? "bg-zinc-950/50 border-zinc-800/50" : "bg-zinc-50 border-zinc-100")}>
                 <p className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-2 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Faturamento</p>
-                <p className="text-2xl font-heading font-bold tracking-tighter text-emerald-500">{formatCurrency(stats.faturamento)}</p>
+                <p className="text-2xl font-heading font-bold tracking-tighter text-emerald-500">{formatCurrency(displayStats.faturamento)}</p>
              </div>
           </div>
         </div>
@@ -429,9 +500,22 @@ export default function DashboardPage() {
             <h3 className={cn("text-xs font-semibold uppercase tracking-widest", theme === 'dark' ? "text-white/95" : "text-black/95")}>Mural de Avisos</h3>
           </div>
         </div>
-        <div className="space-y-4 flex-1 flex flex-col justify-center text-center opacity-50">
-           <p className={cn("text-xs font-sans font-medium uppercase tracking-wide", theme === 'dark' ? "text-white/95" : "text-black/95")}>Nenhum aviso hoje.</p>
-        </div>
+        {isDemoMode ? (
+          <div className="space-y-2.5 flex-1">
+            <div className="p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40 text-xs">
+              <span className="font-semibold text-rd-cyan block">Treinamento LGPD & PEP</span>
+              <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">Sexta-feira às 14:00 • Auditório Principal</span>
+            </div>
+            <div className="p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/40 text-xs">
+              <span className="font-semibold text-emerald-500 block">Manutenção Tomógrafo 2 Concluída</span>
+              <span className="text-zinc-500 dark:text-zinc-400 text-[11px]">Equipamento liberado para agendamentos</span>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4 flex-1 flex flex-col justify-center text-center opacity-50">
+             <p className={cn("text-xs font-sans font-medium uppercase tracking-wide", theme === 'dark' ? "text-white/95" : "text-black/95")}>Nenhum aviso hoje.</p>
+          </div>
+        )}
       </div>
     ),
     "ai-insights": (
@@ -442,7 +526,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-2 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Predição de Fluxo</h3>
                 <p className={cn("text-xs font-sans font-medium tracking-wide leading-relaxed", theme === 'dark' ? "text-white/95" : "text-black/95")}>
-                  {stats.aiPrediction}
+                  {displayStats.aiPrediction}
                 </p>
               </div>
            </div>
@@ -451,7 +535,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-2 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Compliance de Dados</h3>
                 <p className={cn("text-xs font-sans font-medium tracking-wide leading-relaxed", theme === 'dark' ? "text-white/95" : "text-black/95")}>
-                  {stats.aiCompliance}
+                  {displayStats.aiCompliance}
                 </p>
               </div>
            </div>
@@ -460,7 +544,7 @@ export default function DashboardPage() {
               <div>
                 <h3 className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] mb-2 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>Oportunidades IA</h3>
                 <p className={cn("text-xs font-sans font-medium tracking-wide leading-relaxed", theme === 'dark' ? "text-white/95" : "text-black/95")}>
-                  Nenhuma oportunidade sistêmica detectada no momento.
+                  {isDemoMode ? displayStats.aiOpportunities : "Nenhuma oportunidade sistêmica detectada no momento."}
                 </p>
               </div>
            </div>
@@ -495,6 +579,18 @@ export default function DashboardPage() {
           )}
         </button>
       </div>
+
+      {/* Alerta de Modo Demonstrativo */}
+      {isDemoMode && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 rounded-2xl bg-rd-cyan/10 border border-rd-cyan/30 text-on-surface text-xs shadow-sm">
+          <div className="flex items-center gap-2.5">
+            <Sparkles size={15} className="text-rd-cyan shrink-0 animate-pulse" />
+            <span>
+              <strong className="text-rd-cyan">Modo Demonstrativo Ativo:</strong> Exibindo dados fictícios nos cartões, gráficos e diagnósticos de IA para conferência visual de layout e cores. Alterne para <strong>&quot;Não&quot;</strong> na barra superior para operar com registros reais limpos.
+            </span>
+          </div>
+        </div>
+      )}
 
       <DndContext 
         sensors={sensors}
