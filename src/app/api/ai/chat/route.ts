@@ -22,7 +22,41 @@ const googleProvider = createGoogleGenerativeAI({
 
 export async function POST(req: Request) {
   try {
-    const { messages, meetingId } = await req.json();
+    let body: any = {};
+    try {
+      body = await req.json();
+    } catch {
+      body = {};
+    }
+
+    const { messages = [], meetingId } = body;
+
+    // Normalização estrita para compatibilidade com LLMs (Groq, OpenAI, etc.)
+    let cleanMessages = (Array.isArray(messages) ? messages : [])
+      .filter((m: any) => typeof m?.content === 'string' && m.content.trim().length > 0)
+      .map((m: any) => ({
+        role: (m.role === 'ai' || m.role === 'assistant') ? 'assistant' : 'user',
+        content: m.content.trim()
+      }));
+
+    // Remove mensagem inicial de boas-vindas do assistente
+    while (cleanMessages.length > 0 && cleanMessages[0].role === 'assistant') {
+      cleanMessages.shift();
+    }
+
+    // Mescla mensagens consecutivas do mesmo papel
+    const mergedMessages: { role: 'user' | 'assistant'; content: string }[] = [];
+    for (const msg of cleanMessages) {
+      if (mergedMessages.length > 0 && mergedMessages[mergedMessages.length - 1].role === msg.role) {
+        mergedMessages[mergedMessages.length - 1].content += `\n\n${msg.content}`;
+      } else {
+        mergedMessages.push({ ...msg });
+      }
+    }
+
+    if (mergedMessages.length === 0) {
+      mergedMessages.push({ role: 'user', content: 'Olá, Dra. Conte.' });
+    }
 
     let contexto = "Nenhum histórico médico encontrado para este paciente.";
     
@@ -75,7 +109,7 @@ ${contexto}
         result = await generateText({
           model: aiModel.model, 
           system: systemPrompt,
-          messages,
+          messages: mergedMessages,
         });
         if (result && result.text) {
           break; // Sucesso
