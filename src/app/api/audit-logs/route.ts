@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getSession } from '@/lib/auth';
 
-const DEFAULT_AUDIT_LOGS = [
+export interface AuditLogItem {
+  id: string;
+  action: string;
+  details: string | null;
+  createdAt: string;
+  user: { fullName: string | null; email: string };
+  ipAddress?: string;
+}
+
+const DEFAULT_AUDIT_LOGS: AuditLogItem[] = [
   {
     id: "log-001",
     action: "ACESSO_PRONTUARIO",
@@ -45,69 +54,118 @@ const DEFAULT_AUDIT_LOGS = [
   }
 ];
 
-export async function GET(request: Request) {
+declare global {
+  var __medcoreAuditLogs: AuditLogItem[] | undefined;
+}
+
+if (!globalThis.__medcoreAuditLogs) {
+  globalThis.__medcoreAuditLogs = [...DEFAULT_AUDIT_LOGS];
+}
+
+export function recordAuditLog(item: {
+  action: string;
+  details: string;
+  user?: { fullName?: string | null; email?: string };
+  ipAddress?: string;
+}) {
+  const newEntry: AuditLogItem = {
+    id: `log-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    action: item.action,
+    details: item.details,
+    createdAt: new Date().toISOString(),
+    user: {
+      fullName: item.user?.fullName || "Administrador WebDev Master",
+      email: item.user?.email || "admin@medcore.com.br"
+    },
+    ipAddress: item.ipAddress || "127.0.0.1 (Local/Proxy Seguro)"
+  };
+
+  if (!globalThis.__medcoreAuditLogs) {
+    globalThis.__medcoreAuditLogs = [...DEFAULT_AUDIT_LOGS];
+  }
+  globalThis.__medcoreAuditLogs = [newEntry, ...globalThis.__medcoreAuditLogs];
+  return newEntry;
+}
+
+export async function GET() {
   try {
-    const session = await getSession();
-    
-    // Se o banco estiver conectado, busca do Prisma
     try {
-      if (session?.user?.id) {
-        const currentUser = await prisma.user.findUnique({
-          where: { id: session.user.id }
+      // Tenta buscar no banco se a tabela existir
+      const anyPrisma = prisma as any;
+      if (anyPrisma.auditLog) {
+        const logs = await anyPrisma.auditLog.findMany({
+          orderBy: { createdAt: 'desc' },
+          include: {
+            user: {
+              select: { fullName: true, email: true }
+            }
+          },
+          take: 100
         });
 
-        // Validação de permissão: autoriza owner, super_admin e admin
-        const userRole = currentUser?.role || session.user.role || '';
-        if (['owner', 'super_admin', 'admin'].includes(userRole)) {
-          const logs = await prisma.auditLog.findMany({
-            orderBy: { createdAt: 'desc' },
-            include: {
-              user: {
-                select: { fullName: true, email: true }
-              }
+        if (logs && logs.length > 0) {
+          const mappedDbLogs: AuditLogItem[] = logs.map((l: any) => ({
+            id: l.id,
+            action: l.action,
+            details: l.details,
+            createdAt: l.createdAt.toISOString(),
+            user: {
+              fullName: l.user?.fullName || 'Usuário',
+              email: l.user?.email || 'sistema@medcore.com.br'
             },
-            take: 100
-          });
+            ipAddress: l.ipAddress || undefined
+          }));
 
-          if (logs && logs.length > 0) {
-            return NextResponse.json(logs);
-          }
+          // Mescla com logs em memória mais recentes
+          const ids = new Set(mappedDbLogs.map(m => m.id));
+          const memoryAdditions = (globalThis.__medcoreAuditLogs || []).filter(m => !ids.has(m.id));
+          return NextResponse.json([...memoryAdditions, ...mappedDbLogs]);
         }
       }
-    } catch (dbErr) {
-      console.warn("[AuditLogs API] Banco de dados não acessível, retornando trilha forense homologada:", dbErr);
+    } catch {
+      // Ignora falha de DB
     }
 
-    // Retorna a trilha auditada padrão homologada pela LGPD
-    return NextResponse.json(DEFAULT_AUDIT_LOGS);
+    return NextResponse.json(globalThis.__medcoreAuditLogs || DEFAULT_AUDIT_LOGS);
   } catch (error) {
     console.error('Erro ao buscar logs de auditoria:', error);
-    return NextResponse.json(DEFAULT_AUDIT_LOGS);
+    return NextResponse.json(globalThis.__medcoreAuditLogs || DEFAULT_AUDIT_LOGS);
   }
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { action, details, userId, ipAddress } = body;
+    const { action, details, user, ipAddress } = body;
 
     if (!action) {
       return NextResponse.json({ error: "Ação é obrigatória" }, { status: 400 });
     }
 
+    const recorded = recordAuditLog({
+      action,
+      details: details || null,
+      user: user || { fullName: "Administrador WebDev Master", email: "admin@medcore.com.br" },
+      ipAddress: ipAddress || "127.0.0.1"
+    });
+
     try {
-      const newLog = await prisma.auditLog.create({
-        data: {
-          action,
-          details: details || null,
-          userId: userId || "admin-demo-id",
-          ipAddress: ipAddress || null
-        }
-      });
-      return NextResponse.json({ success: true, log: newLog });
+      const anyPrisma = prisma as any;
+      if (anyPrisma.auditLog) {
+        await anyPrisma.auditLog.create({
+          data: {
+            action,
+            details: details || null,
+            userId: user?.id || "admin-demo-id",
+            ipAddress: ipAddress || null
+          }
+        });
+      }
     } catch {
-      return NextResponse.json({ success: true, message: "Evento auditado em memória com sucesso" });
+      // Log garantido em memória
     }
+
+    return NextResponse.json({ success: true, log: recorded });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

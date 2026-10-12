@@ -260,15 +260,15 @@ export default function PontoEletronicoPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 pt-4">
-      {/* Action Bar Compacta & Seletor de Modo */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
-        <div className="flex items-center gap-3 flex-wrap">
+    <div className="w-full space-y-6 animate-in fade-in duration-500 pb-20 pt-2">
+      {/* Action Bar Compacta & Seletor de Modo Responsiva */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-4 sm:px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <Clock className="text-rd-cyan" size={18} />
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Ponto Eletrônico Digital</span>
           </div>
-          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="text-zinc-300 dark:text-zinc-700 hidden sm:inline">|</span>
           <div className="text-xs font-medium flex items-center gap-1.5">
             {locationStatus === "ok" ? (
               <span className="flex items-center gap-1 text-emerald-500 font-semibold"><MapPin size={13}/> GPS Capturado (Portaria 671)</span>
@@ -280,23 +280,23 @@ export default function PontoEletronicoPage() {
           </div>
         </div>
         
-        {/* Alternador de Modo */}
-        <div className="flex items-center gap-2">
-          <div className="bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl flex items-center gap-1 border border-zinc-200 dark:border-zinc-700">
+        {/* Alternador de Modo Responsivo */}
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="bg-zinc-100 dark:bg-zinc-800 p-1 rounded-xl flex items-center gap-1 border border-zinc-200 dark:border-zinc-700 w-full sm:w-auto">
             <button
               onClick={() => setViewMode("totem")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === "totem"
                   ? "bg-rd-cyan text-white shadow-sm"
                   : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
               }`}
             >
               <ScanFace size={14} />
-              <span>Totem Facial (Tablet Kiosk)</span>
+              <span>Totem Facial</span>
             </button>
             <button
               onClick={() => setViewMode("individual")}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+              className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                 viewMode === "individual"
                   ? "bg-zinc-900 text-white dark:bg-white dark:text-zinc-900 shadow-sm"
                   : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
@@ -307,7 +307,7 @@ export default function PontoEletronicoPage() {
             </button>
           </div>
 
-          <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-rd-cyan/10 border border-rd-cyan/30 text-rd-cyan hidden md:inline-flex">
+          <span className="px-3 py-1.5 rounded-full text-xs font-bold bg-rd-cyan/10 border border-rd-cyan/30 text-rd-cyan hidden md:inline-flex shrink-0">
             {historico.length} Batidas Hoje
           </span>
         </div>

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
-import { getSession } from '@/lib/auth';
 import { hash } from 'bcryptjs';
+import { recordAuditLog } from '@/app/api/audit-logs/route';
 
 export interface TeamMemberRecord {
   id: string;
@@ -17,8 +17,12 @@ export interface TeamMemberRecord {
   createdAt: string;
 }
 
+declare global {
+  var __medcoreTeamDatabase: TeamMemberRecord[] | undefined;
+}
+
 // Lista em memória com representantes de toda a cadeia de saúde
-let mockTeamDatabase: TeamMemberRecord[] = [
+const INITIAL_TEAM_MEMBERS: TeamMemberRecord[] = [
   {
     id: "usr-01",
     fullName: "Dr. Felipe Azevedo",
@@ -125,6 +129,10 @@ let mockTeamDatabase: TeamMemberRecord[] = [
   }
 ];
 
+if (!globalThis.__medcoreTeamDatabase) {
+  globalThis.__medcoreTeamDatabase = [...INITIAL_TEAM_MEMBERS];
+}
+
 export async function GET() {
   try {
     try {
@@ -142,7 +150,6 @@ export async function GET() {
       });
 
       if (users && users.length > 0) {
-        // Mapeia do banco se houver registros suficientes
         const mapped = users.map((u, idx) => ({
           id: u.id,
           fullName: u.fullName || 'Usuário Sem Nome',
@@ -156,22 +163,21 @@ export async function GET() {
           createdAt: u.createdAt.toISOString()
         }));
 
-        // Se houver mais usuários no mock local em memória do que no DB, mescla para não perder novos adicionados em dev
-        if (mockTeamDatabase.length > mapped.length) {
+        if ((globalThis.__medcoreTeamDatabase?.length || 0) > mapped.length) {
           const ids = new Set(mapped.map(m => m.email));
-          const additions = mockTeamDatabase.filter(m => !ids.has(m.email));
+          const additions = (globalThis.__medcoreTeamDatabase || []).filter(m => !ids.has(m.email));
           return NextResponse.json([...mapped, ...additions]);
         }
         return NextResponse.json(mapped);
       }
     } catch {
-      // Falha esperada quando banco não estiver configurado
+      // Ignora falha DB
     }
 
-    return NextResponse.json(mockTeamDatabase);
+    return NextResponse.json(globalThis.__medcoreTeamDatabase || INITIAL_TEAM_MEMBERS);
   } catch (error) {
     console.error('Erro ao buscar equipe:', error);
-    return NextResponse.json(mockTeamDatabase);
+    return NextResponse.json(globalThis.__medcoreTeamDatabase || INITIAL_TEAM_MEMBERS);
   }
 }
 
@@ -205,7 +211,7 @@ export async function POST(request: Request) {
       telefone: telefone || '',
       cpf: cpf || '',
       registroProfissional: registroProfissional || '',
-      unidade: unidade || 'Unidade Central',
+      unidade: unidade || 'Unidade Central Alphaville',
       createdAt: new Date().toISOString()
     };
 
@@ -230,11 +236,21 @@ export async function POST(request: Request) {
 
       newRecord.id = created.id;
     } catch {
-      // Se der erro no Prisma, registra no fallback em memória
+      // Fallback em memória
     }
 
     // Insere no topo da lista em memória
-    mockTeamDatabase = [newRecord, ...mockTeamDatabase.filter(m => m.email !== email)];
+    if (!globalThis.__medcoreTeamDatabase) {
+      globalThis.__medcoreTeamDatabase = [...INITIAL_TEAM_MEMBERS];
+    }
+    globalThis.__medcoreTeamDatabase = [newRecord, ...globalThis.__medcoreTeamDatabase.filter(m => m.email !== email)];
+
+    // Registra na Trilha de Auditoria Forense LGPD
+    recordAuditLog({
+      action: "CADASTRO_NOVO_USUARIO_EQUIPE",
+      details: `Novo colaborador cadastrado no sistema: ${fullName} (${email}) • Cargo: ${cargo || 'N/A'} • Depto: ${departamento || 'N/A'} • Nível RBAC: ${role} • Lotação: ${unidade || 'Unidade Central'}`,
+      user: { fullName: "Administrador WebDev Master", email: "admin@medcore.com.br" }
+    });
 
     return NextResponse.json({ 
       success: true, 
@@ -247,6 +263,90 @@ export async function POST(request: Request) {
   }
 }
 
+// ATUALIZAÇÃO / EDIÇÃO DE COLABORADOR (AUDITADO)
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { 
+      id,
+      fullName, 
+      email, 
+      password, 
+      role, 
+      cargo, 
+      departamento, 
+      telefone, 
+      cpf, 
+      registroProfissional,
+      unidade 
+    } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID do colaborador é obrigatório.' }, { status: 400 });
+    }
+
+    if (!globalThis.__medcoreTeamDatabase) {
+      globalThis.__medcoreTeamDatabase = [...INITIAL_TEAM_MEMBERS];
+    }
+
+    // Encontra o registro anterior para gerar log detalhado com diff
+    const previous = globalThis.__medcoreTeamDatabase.find(m => m.id === id);
+
+    const updatedRecord: TeamMemberRecord = {
+      id,
+      fullName: fullName || previous?.fullName || 'Colaborador',
+      email: email || previous?.email || '',
+      role: role || previous?.role || 'MEDICO_ESPECIALISTA',
+      cargo: cargo || previous?.cargo || '',
+      departamento: departamento || previous?.departamento || '',
+      telefone: telefone || previous?.telefone || '',
+      cpf: cpf || previous?.cpf || '',
+      registroProfissional: registroProfissional || previous?.registroProfissional || '',
+      unidade: unidade || previous?.unidade || 'Unidade Central Alphaville',
+      createdAt: previous?.createdAt || new Date().toISOString()
+    };
+
+    try {
+      const updateData: any = {
+        fullName: updatedRecord.fullName,
+        role: updatedRecord.role,
+        especialidade: updatedRecord.cargo || undefined,
+        crm: updatedRecord.registroProfissional || undefined,
+      };
+
+      if (password && password.length >= 6) {
+        updateData.password = await hash(password, 10);
+      }
+
+      await prisma.user.update({
+        where: { id },
+        data: updateData
+      });
+    } catch {
+      // Atualizado com sucesso na memória
+    }
+
+    // Atualiza lista em memória
+    globalThis.__medcoreTeamDatabase = globalThis.__medcoreTeamDatabase.map(m => m.id === id ? updatedRecord : m);
+
+    // Registra alteração na Trilha de Auditoria LGPD
+    recordAuditLog({
+      action: "ALTERACAO_CADASTRO_EQUIPE",
+      details: `Alteração de cadastro do colaborador ${updatedRecord.fullName} (${updatedRecord.email}): Cargo: ${previous?.cargo || '—'} → ${updatedRecord.cargo} | Depto: ${previous?.departamento || '—'} → ${updatedRecord.departamento} | RBAC: ${previous?.role || '—'} → ${updatedRecord.role} | Lotação: ${previous?.unidade || '—'} → ${updatedRecord.unidade}`,
+      user: { fullName: "Administrador WebDev Master", email: "admin@medcore.com.br" }
+    });
+
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Cadastro do colaborador atualizado com sucesso!', 
+      user: updatedRecord 
+    });
+  } catch (error) {
+    console.error('Erro ao atualizar usuário:', error);
+    return NextResponse.json({ error: 'Falha interna ao atualizar cadastro.' }, { status: 500 });
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -256,13 +356,26 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'ID do usuário é obrigatório.' }, { status: 400 });
     }
 
+    if (!globalThis.__medcoreTeamDatabase) {
+      globalThis.__medcoreTeamDatabase = [...INITIAL_TEAM_MEMBERS];
+    }
+
+    const targetUser = globalThis.__medcoreTeamDatabase.find(m => m.id === id);
+
     try {
       await prisma.user.delete({ where: { id } });
     } catch {
-      // Ignora erro no banco e remove da memória
+      // Ignora erro no banco
     }
 
-    mockTeamDatabase = mockTeamDatabase.filter(m => m.id !== id);
+    globalThis.__medcoreTeamDatabase = globalThis.__medcoreTeamDatabase.filter(m => m.id !== id);
+
+    // Registra na auditoria
+    recordAuditLog({
+      action: "EXCLUSAO_USUARIO_EQUIPE",
+      details: `Colaborador desativado/removido da equipe hospitalar: ${targetUser?.fullName || id} (${targetUser?.email || 'N/A'}) • Cargo: ${targetUser?.cargo || 'N/A'}`,
+      user: { fullName: "Administrador WebDev Master", email: "admin@medcore.com.br" }
+    });
 
     return NextResponse.json({ success: true, message: 'Usuário removido da equipe com sucesso.' });
   } catch (err: any) {

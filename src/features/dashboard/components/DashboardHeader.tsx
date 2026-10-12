@@ -20,7 +20,7 @@ const routeTitles: Record<string, string> = {
   "/dashboard/pacotes": "Pacotes de Vendas e Tratamento",
   "/dashboard/marketing": "Marketing & CRM",
   "/dashboard/nps": "Pesquisa NPS",
-  "/dashboard/mensagens": "Inbox CRM",
+  "/dashboard/mensagens": "Inbox",
   "/dashboard/agenda": "Agenda Clínica",
   "/dashboard/agendamento-online": "Agendamento Online",
   "/dashboard/painel-tv": "Painel de TV",

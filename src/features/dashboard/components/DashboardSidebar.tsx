@@ -145,7 +145,7 @@ const menuBlocks = [
       { icon: Package, label: "Pacotes & Vendas", href: "/dashboard/pacotes", requiredPlan: "BASIC" as PlanLevel },
       { icon: Megaphone, label: "Marketing", href: "/dashboard/marketing", requiredPlan: "PRO" as PlanLevel },
       { icon: Smile, label: "Pesquisa NPS", href: "/dashboard/nps", requiredPlan: "BASIC" as PlanLevel },
-      { icon: MessageSquare, label: "Inbox CRM", href: "/dashboard/mensagens", requiredPlan: "BASIC" as PlanLevel },
+      { icon: MessageSquare, label: "Inbox", href: "/dashboard/mensagens", requiredPlan: "BASIC" as PlanLevel },
     ]
   },
   {
@@ -581,7 +581,7 @@ export function DashboardSidebar() {
         <div className="flex items-center justify-start sm:justify-around px-2 py-2 w-full overflow-x-auto no-scrollbar gap-2 sm:gap-0">
           {[
             { icon: LayoutGrid, label: "Início", href: "/dashboard" },
-            { icon: MessageSquare, label: "Inbox CRM", href: "/dashboard/mensagens" },
+            { icon: MessageSquare, label: "Inbox", href: "/dashboard/mensagens" },
             { icon: BrainCircuit, label: "Dra. Conte", href: "/dashboard/ia-executiva", highlight: true },
             { icon: CalendarRange, label: "Agenda", href: "/dashboard/agenda" },
             { icon: Users, label: "Pacientes", href: "/dashboard/pacientes" },

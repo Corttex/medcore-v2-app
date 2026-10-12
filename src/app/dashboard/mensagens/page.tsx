@@ -5,7 +5,7 @@ import {
   Search, Phone, Mail, MessageCircle, FileText, User, MapPin, Calendar, 
   CreditCard, CheckCircle2, AlertCircle, Plus, Settings, ExternalLink, 
   RefreshCw, Filter, ShieldCheck, Zap, ArrowUpRight, Send, X, Radio,
-  Sparkles, Tag, Flame, Clock, Stethoscope, Building
+  Sparkles, Tag, Flame, Clock, Stethoscope, Building, ArrowLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -40,6 +40,7 @@ export default function InboxPage() {
   const [pacientes, setPacientes] = useState<Paciente[]>([]);
   const [convenios, setConvenios] = useState<Convenio[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [mobileTab, setMobileTab] = useState<"list" | "detail">("list");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [search, setSearch] = useState("");
@@ -223,7 +224,10 @@ export default function InboxPage() {
       <div className="flex-1 flex gap-4 min-h-0">
         
         {/* Sidebar de Leads/Chats (Sem fundo cinza escuro no hover!) */}
-        <div className="w-full md:w-80 lg:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-sm shrink-0">
+        <div className={cn(
+          "w-full md:w-80 lg:w-96 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-sm shrink-0",
+          mobileTab === "detail" ? "hidden md:flex" : "flex"
+        )}>
           <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 space-y-3">
             <div className="relative">
               <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
@@ -289,7 +293,10 @@ export default function InboxPage() {
                 return (
                   <button 
                     key={paciente.id}
-                    onClick={() => setSelectedId(paciente.id)}
+                    onClick={() => {
+                      setSelectedId(paciente.id);
+                      setMobileTab("detail");
+                    }}
                     className={cn(
                       "w-full text-left p-3.5 rounded-xl transition-all border group cursor-pointer",
                       isSelected 
@@ -335,7 +342,10 @@ export default function InboxPage() {
         </div>
 
         {/* Main Area - Perfil do Paciente & Ficha Clínica */}
-        <div className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-sm relative">
+        <div className={cn(
+          "flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-sm relative",
+          mobileTab === "list" ? "hidden md:flex" : "flex"
+        )}>
           {!selectedPaciente ? (
             <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 space-y-4 p-8 text-center">
                <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -345,41 +355,56 @@ export default function InboxPage() {
                  <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Nenhum Lead Selecionado</h2>
                  <p className="text-xs text-zinc-500 max-w-sm">Selecione um contato na lista ao lado ou cadastre um novo lead com dados completos.</p>
                </div>
-               <button
-                 onClick={() => setShowNewLeadModal(true)}
-                 className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
-               >
-                 <Plus size={15} /> Cadastrar Novo Lead
-               </button>
+               <div className="flex items-center gap-2">
+                 <button
+                   onClick={() => setMobileTab("list")}
+                   className="md:hidden px-4 py-2 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 rounded-xl text-xs font-bold"
+                 >
+                   Ver Lista
+                 </button>
+                 <button
+                   onClick={() => setShowNewLeadModal(true)}
+                   className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+                 >
+                   <Plus size={15} /> Cadastrar Novo Lead
+                 </button>
+               </div>
             </div>
           ) : (
             <div className="flex-1 overflow-y-auto custom-blue-scrollbar">
               
-              {/* Header do Lead com Ações Rápidas */}
-              <div className="p-5 lg:p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-10 backdrop-blur-md">
-                 <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-lg font-bold shadow-md shrink-0">
+              {/* Header do Lead com Ações Rápidas Responsivo */}
+              <div className="p-3.5 sm:p-5 lg:p-6 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-10 backdrop-blur-md">
+                 <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
+                    <button
+                      onClick={() => setMobileTab("list")}
+                      className="md:hidden p-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 hover:bg-zinc-300 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 transition-colors shrink-0 flex items-center justify-center"
+                      title="Voltar à lista de contatos"
+                    >
+                      <ArrowLeft size={16} />
+                    </button>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white flex items-center justify-center text-base sm:text-lg font-bold shadow-md shrink-0">
                        {selectedPaciente.nome.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <h2 className="text-xl font-bold text-zinc-900 dark:text-white leading-tight">{selectedPaciente.nome}</h2>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-2 mt-0.5">
-                         <Phone size={13} className="text-blue-500" /> {selectedPaciente.telefone || "Sem telefone"}
+                    <div className="min-w-0">
+                      <h2 className="text-base sm:text-xl font-bold text-zinc-900 dark:text-white leading-tight truncate">{selectedPaciente.nome}</h2>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-2 mt-0.5 truncate">
+                         <Phone size={12} className="text-blue-500 shrink-0" /> <span className="truncate">{selectedPaciente.telefone || "Sem telefone"}</span>
                          {selectedPaciente.leadSource === 'whatsapp' && (
-                           <span className="text-emerald-600 dark:text-emerald-400 font-semibold">• Origem: WhatsApp Z-API</span>
+                           <span className="text-emerald-600 dark:text-emerald-400 font-semibold shrink-0 hidden sm:inline">• Origem: WhatsApp Z-API</span>
                          )}
                       </p>
                     </div>
                  </div>
                  
                  {/* Barra de Ações Rápidas */}
-                 <div className="flex items-center gap-2 shrink-0">
+                 <div className="flex items-center gap-2 shrink-0 flex-wrap">
                    {selectedPaciente.telefone && (
                      <a
                        href={`https://wa.me/55${selectedPaciente.telefone.replace(/\D/g, "")}`}
                        target="_blank"
                        rel="noopener noreferrer"
-                       className="px-3.5 py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all"
+                       className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all"
                      >
                        <MessageCircle size={14} /> WhatsApp Direct
                      </a>
@@ -387,14 +412,14 @@ export default function InboxPage() {
                    {selectedPaciente.email && (
                      <a
                        href={`mailto:${selectedPaciente.email}`}
-                       className="px-3.5 py-2 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all"
+                       className="px-3 py-1.5 sm:px-3.5 sm:py-2 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 font-bold text-xs rounded-xl flex items-center gap-1.5 transition-all"
                      >
                        <Mail size={14} /> E-mail
                      </a>
                    )}
                    <Link
                      href="/dashboard/agenda"
-                     className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                     className="px-3.5 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                    >
                      <Calendar size={14} /> Agendar Consulta
                    </Link>

@@ -24,7 +24,9 @@ import {
   Receipt,
   Boxes,
   Eye,
-  EyeOff
+  EyeOff,
+  Pencil,
+  RotateCcw
 } from "lucide-react";
 
 export interface TeamMember {
@@ -218,7 +220,11 @@ export const HEALTHCARE_ROLES: RoleDefinition[] = [
 export default function EquipePage() {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
+  
+  // Modais
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("TODOS");
   const [showPassword, setShowPassword] = useState(false);
@@ -226,8 +232,8 @@ export default function EquipePage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
-  // Formulário Completo com todos os campos solicitados
-  const [form, setForm] = useState({
+  // Formulário de Cadastro
+  const [createForm, setCreateForm] = useState({
     fullName: "",
     email: "",
     cpf: "",
@@ -240,7 +246,22 @@ export default function EquipePage() {
     role: "MEDICO_ESPECIALISTA"
   });
 
-  const [error, setError] = useState("");
+  // Formulário de Edição
+  const [editForm, setEditForm] = useState({
+    id: "",
+    fullName: "",
+    email: "",
+    cpf: "",
+    telefone: "",
+    cargo: "",
+    departamento: "Corpo Clínico",
+    registroProfissional: "",
+    unidade: "Unidade Central Alphaville",
+    password: "",
+    role: "MEDICO_ESPECIALISTA"
+  });
+
+  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchTeam = async () => {
     try {
@@ -260,31 +281,51 @@ export default function EquipePage() {
     fetchTeam();
   }, []);
 
+  // Abre modal de edição com dados pré-preenchidos
+  const handleOpenEdit = (member: TeamMember) => {
+    setErrorMessage("");
+    setEditForm({
+      id: member.id,
+      fullName: member.fullName || "",
+      email: member.email || "",
+      cpf: member.cpf || "",
+      telefone: member.telefone || "",
+      cargo: member.cargo || "",
+      departamento: member.departamento || "Corpo Clínico",
+      registroProfissional: member.registroProfissional || "",
+      unidade: member.unidade || "Unidade Central Alphaville",
+      password: "",
+      role: member.role || "MEDICO_ESPECIALISTA"
+    });
+    setShowEditModal(true);
+  };
+
+  // Criação de Colaborador
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setErrorMessage("");
     setIsSubmitting(true);
 
     try {
       const res = await fetch("/api/team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form)
+        body: JSON.stringify(createForm)
       });
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || "Erro ao adicionar usuário à equipe.");
+        setErrorMessage(data.error || "Erro ao adicionar usuário à equipe.");
         setIsSubmitting(false);
         return;
       }
 
-      setShowModal(false);
-      setActionSuccess("Novo colaborador cadastrado com sucesso!");
+      setShowCreateModal(false);
+      setActionSuccess("Novo colaborador cadastrado com sucesso! Evento registrado na auditoria LGPD.");
       setTimeout(() => setActionSuccess(null), 4000);
 
-      // Reseta formulário
-      setForm({
+      // Reseta form de criação
+      setCreateForm({
         fullName: "",
         email: "",
         cpf: "",
@@ -299,19 +340,52 @@ export default function EquipePage() {
 
       fetchTeam();
     } catch {
-      setError("Erro de conexão ao salvar usuário.");
+      setErrorMessage("Erro de conexão ao salvar usuário.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Edição de Colaborador
+  const handleUpdateMember = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMessage("");
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch("/api/team", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editForm)
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setErrorMessage(data.error || "Erro ao atualizar dados do colaborador.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      setShowEditModal(false);
+      setActionSuccess(`Cadastro de ${editForm.fullName} atualizado! Alteração auditada e gravada.`);
+      setTimeout(() => setActionSuccess(null), 4000);
+
+      fetchTeam();
+    } catch {
+      setErrorMessage("Erro de conexão ao atualizar usuário.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Exclusão
   const handleDeleteMember = async (id: string) => {
     try {
       const res = await fetch(`/api/team?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         setTeam(prev => prev.filter(m => m.id !== id));
         setDeleteConfirmId(null);
-        setActionSuccess("Colaborador removido da equipe.");
+        setActionSuccess("Colaborador removido da equipe. Ação registrada no log de auditoria.");
         setTimeout(() => setActionSuccess(null), 3000);
       }
     } catch (e) {
@@ -340,9 +414,13 @@ export default function EquipePage() {
     });
   }, [team, searchTerm, selectedCategory]);
 
-  const selectedRoleInfo = useMemo(() => {
-    return HEALTHCARE_ROLES.find(r => r.code === form.role) || HEALTHCARE_ROLES[0];
-  }, [form.role]);
+  const selectedCreateRoleInfo = useMemo(() => {
+    return HEALTHCARE_ROLES.find(r => r.code === createForm.role) || HEALTHCARE_ROLES[0];
+  }, [createForm.role]);
+
+  const selectedEditRoleInfo = useMemo(() => {
+    return HEALTHCARE_ROLES.find(r => r.code === editForm.role) || HEALTHCARE_ROLES[0];
+  }, [editForm.role]);
 
   // Contadores
   const stats = useMemo(() => {
@@ -355,98 +433,99 @@ export default function EquipePage() {
   }, [team]);
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 w-full pb-20">
+    <div className="space-y-5 sm:space-y-6 animate-in fade-in duration-500 w-full pb-20">
+      
       {/* Toast de Sucesso */}
       {actionSuccess && (
-        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500/40 rounded-2xl text-emerald-800 dark:text-emerald-300 text-sm font-semibold flex items-center justify-between shadow-lg animate-in slide-in-from-top duration-300">
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500/40 rounded-2xl text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm font-semibold flex items-center justify-between shadow-lg animate-in slide-in-from-top duration-300">
           <div className="flex items-center gap-2">
             <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
             <span>{actionSuccess}</span>
           </div>
-          <button onClick={() => setActionSuccess(null)} className="text-emerald-500 hover:text-emerald-700">
+          <button onClick={() => setActionSuccess(null)} className="text-emerald-500 hover:text-emerald-700 p-1">
             <X size={16} />
           </button>
         </div>
       )}
 
-      {/* Action Bar Superior */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-4 rounded-2xl shadow-sm backdrop-blur-md">
-        <div className="flex items-center gap-3 flex-wrap">
+      {/* Action Bar Superior Responsiva */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
             <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
               Gestão de Equipe & Controle RBAC
             </span>
           </div>
-          <span className="text-zinc-300 dark:text-zinc-700">|</span>
+          <span className="text-zinc-300 dark:text-zinc-700 hidden sm:inline">|</span>
           <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
             {team.length} Colaboradores Ativos
           </span>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hidden md:inline">
-            22 Níveis de Permissões de Saúde Configurados
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hidden lg:inline">
+            22 Perfis de Saúde Auditados
           </span>
         </div>
 
         <button 
           onClick={() => {
-            setError("");
-            setShowModal(true);
+            setErrorMessage("");
+            setShowCreateModal(true);
           }} 
-          className="px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shrink-0 bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 shadow-md shadow-rd-cyan/20 cursor-pointer active:scale-95"
+          className="w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shrink-0 bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 shadow-md shadow-rd-cyan/20 cursor-pointer active:scale-95"
         >
           <Plus size={16} /> Cadastrar Novo Usuário
         </button>
       </div>
 
       {/* Métricas Resumidas da Equipe */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-zinc-900/85 p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="bg-white dark:bg-zinc-900/85 p-3.5 sm:p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total de Equipe</span>
-            <Users size={16} className="text-primary" />
+            <span className="text-[10px] sm:text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total de Equipe</span>
+            <Users size={16} className="text-primary shrink-0" />
           </div>
-          <p className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-2">{stats.total}</p>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Cadastros corporativos</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-1.5">{stats.total}</p>
+          <p className="text-[10px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">Cadastros ativos</p>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900/85 p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900/85 p-3.5 sm:p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Corpo Clínico</span>
-            <Stethoscope size={16} className="text-cyan-500" />
+            <span className="text-[10px] sm:text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Corpo Clínico</span>
+            <Stethoscope size={16} className="text-cyan-500 shrink-0" />
           </div>
-          <p className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-2">{stats.clinicos}</p>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Médicos & Especialistas</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-1.5">{stats.clinicos}</p>
+          <p className="text-[10px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">Médicos & CRM</p>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900/85 p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900/85 p-3.5 sm:p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Enfermagem & Apoio</span>
-            <HeartPulse size={16} className="text-rose-500" />
+            <span className="text-[10px] sm:text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Enfermagem & Apoio</span>
+            <HeartPulse size={16} className="text-rose-500 shrink-0" />
           </div>
-          <p className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-2">{stats.enfermagem}</p>
-          <p className="text-[11px] text-zinc-400 mt-0.5">COREN, Fisio & Farmácia</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-1.5">{stats.enfermagem}</p>
+          <p className="text-[10px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">COREN & Fisio</p>
         </div>
 
-        <div className="bg-white dark:bg-zinc-900/85 p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
+        <div className="bg-white dark:bg-zinc-900/85 p-3.5 sm:p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Gestão & TISS</span>
-            <Receipt size={16} className="text-emerald-500" />
+            <span className="text-[10px] sm:text-[11px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Gestão & TISS</span>
+            <Receipt size={16} className="text-emerald-500 shrink-0" />
           </div>
-          <p className="text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-2">{stats.gestaoBackoffice}</p>
-          <p className="text-[11px] text-zinc-400 mt-0.5">Faturamento, RH & Estoque</p>
+          <p className="text-xl sm:text-2xl font-extrabold text-zinc-900 dark:text-zinc-100 mt-1.5">{stats.gestaoBackoffice}</p>
+          <p className="text-[10px] sm:text-[11px] text-zinc-400 mt-0.5 truncate">Faturamento & RH</p>
         </div>
       </div>
 
       {/* Barra de Filtros e Busca */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900/85 p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 bg-white dark:bg-zinc-900/85 p-3.5 sm:p-4 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-sm">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
+          <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
           <input
             type="text"
-            placeholder="Buscar por nome, e-mail, cargo, CRM/COREN ou função..."
+            placeholder="Buscar por nome, cargo, CRM/COREN ou permissão..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-xs rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-rd-cyan"
+            className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-rd-cyan"
           />
         </div>
 
@@ -455,7 +534,7 @@ export default function EquipePage() {
           <select
             value={selectedCategory}
             onChange={e => setSelectedCategory(e.target.value)}
-            className="text-xs py-2 px-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-rd-cyan"
+            className="w-full sm:w-auto text-xs py-2 px-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/60 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-rd-cyan"
           >
             <option value="TODOS">Todas as Categorias</option>
             <option value="Diretoria & Gestão">Diretoria & Gestão</option>
@@ -467,18 +546,18 @@ export default function EquipePage() {
         </div>
       </div>
 
-      {/* Tabela de Equipe */}
+      {/* Tabela de Equipe Responsiva */}
       <div className="w-full bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 overflow-hidden shadow-md">
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[850px]">
+          <table className="w-full text-left border-collapse min-w-[780px]">
             <thead>
-              <tr className="border-b-2 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 text-xs uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                <th className="p-4 font-bold">Colaborador / Contato</th>
-                <th className="p-4 font-bold">Cargo & Departamento</th>
-                <th className="p-4 font-bold">Permissão / Perfil RBAC</th>
-                <th className="p-4 font-bold">Registro Profissional</th>
-                <th className="p-4 font-bold">Unidade</th>
-                <th className="p-4 font-bold text-right">Ações</th>
+              <tr className="border-b-2 border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 text-[11px] sm:text-xs uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                <th className="p-3.5 sm:p-4 font-bold">Colaborador / Contato</th>
+                <th className="p-3.5 sm:p-4 font-bold">Cargo & Setor</th>
+                <th className="p-3.5 sm:p-4 font-bold">Permissão / Perfil RBAC</th>
+                <th className="p-3.5 sm:p-4 font-bold">Registro Profissional</th>
+                <th className="p-3.5 sm:p-4 font-bold">Unidade de Lotação</th>
+                <th className="p-3.5 sm:p-4 font-bold text-right">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800 text-sm">
@@ -487,7 +566,7 @@ export default function EquipePage() {
                   <td colSpan={6} className="p-10 text-center text-zinc-500">
                     <div className="flex flex-col items-center gap-2">
                       <span className="w-6 h-6 border-2 border-rd-cyan border-t-transparent rounded-full animate-spin" />
-                      <span>Carregando equipe hospitalar...</span>
+                      <span className="text-xs">Carregando equipe hospitalar...</span>
                     </div>
                   </td>
                 </tr>
@@ -511,17 +590,17 @@ export default function EquipePage() {
 
                   return (
                     <tr key={member.id} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition-colors group">
-                      <td className="p-4">
+                      <td className="p-3.5 sm:p-4">
                         <div className="flex items-center gap-3">
                           <div className="w-9 h-9 rounded-xl bg-rd-cyan/15 flex items-center justify-center text-rd-cyan font-bold text-xs border border-rd-cyan/20 shrink-0">
                             {member.fullName ? member.fullName.charAt(0).toUpperCase() : "U"}
                           </div>
                           <div>
-                            <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm">
+                            <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm leading-tight">
                               {member.fullName || "Sem Nome"}
                             </p>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 mt-0.5">
-                              <Mail size={12} /> {member.email}
+                              <Mail size={11} /> {member.email}
                             </p>
                             {member.telefone && (
                               <p className="text-[11px] text-zinc-400 flex items-center gap-1 mt-0.5">
@@ -532,7 +611,7 @@ export default function EquipePage() {
                         </div>
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-3.5 sm:p-4">
                         <div>
                           <p className="font-semibold text-xs text-zinc-800 dark:text-zinc-200">
                             {member.cargo || "Profissional de Saúde"}
@@ -543,10 +622,10 @@ export default function EquipePage() {
                         </div>
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-3.5 sm:p-4">
                         <div className="space-y-1">
                           <span className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border ${roleMeta.badgeColor}`}>
-                            <Shield size={12} /> {roleMeta.label}
+                            <Shield size={11} /> {roleMeta.label}
                           </span>
                           <p className="text-[10px] text-zinc-400 max-w-[220px] line-clamp-1">
                             {roleMeta.description}
@@ -554,20 +633,20 @@ export default function EquipePage() {
                         </div>
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-3.5 sm:p-4">
                         <span className="text-xs font-mono font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">
                           {member.registroProfissional || "—"}
                         </span>
                       </td>
 
-                      <td className="p-4">
+                      <td className="p-3.5 sm:p-4">
                         <span className="text-xs text-zinc-600 dark:text-zinc-400 flex items-center gap-1">
                           <Building2 size={12} className="text-zinc-400 shrink-0" />
                           {member.unidade || "Unidade Central Alphaville"}
                         </span>
                       </td>
 
-                      <td className="p-4 text-right">
+                      <td className="p-3.5 sm:p-4 text-right">
                         {deleteConfirmId === member.id ? (
                           <div className="flex items-center justify-end gap-1.5">
                             <button
@@ -584,13 +663,22 @@ export default function EquipePage() {
                             </button>
                           </div>
                         ) : (
-                          <button 
-                            onClick={() => setDeleteConfirmId(member.id)}
-                            title="Remover Colaborador"
-                            className="text-zinc-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-500/10 rounded-lg"
-                          >
-                            <Trash2 size={15} />
-                          </button>
+                          <div className="flex items-center justify-end gap-1">
+                            <button 
+                              onClick={() => handleOpenEdit(member)}
+                              title="Editar Cadastro do Colaborador"
+                              className="text-zinc-500 hover:text-rd-cyan transition-colors p-2 hover:bg-rd-cyan/10 rounded-lg cursor-pointer"
+                            >
+                              <Pencil size={15} />
+                            </button>
+                            <button 
+                              onClick={() => setDeleteConfirmId(member.id)}
+                              title="Remover Colaborador"
+                              className="text-zinc-400 hover:text-rose-500 transition-colors p-2 hover:bg-rose-500/10 rounded-lg cursor-pointer"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
                         )}
                       </td>
                     </tr>
@@ -602,12 +690,12 @@ export default function EquipePage() {
         </div>
       </div>
 
-      {/* MODAL CADASTRAR NOVO USUÁRIO (100% CLEAN WHITE NO TEMA CLARO) */}
-      {showModal && (
+      {/* MODAL 1: CADASTRAR NOVO USUÁRIO (CLEAN WHITE NO TEMA CLARO) */}
+      {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
-          <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-6 sm:p-8 space-y-6 animate-in fade-in zoom-in-95 relative">
+          <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-5 sm:p-8 space-y-5 animate-in fade-in zoom-in-95 relative">
             
-            {/* Header do Modal */}
+            {/* Header Modal */}
             <div className="flex items-start justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
               <div>
                 <div className="flex items-center gap-2">
@@ -620,111 +708,94 @@ export default function EquipePage() {
                   Cadastrar Novo Usuário
                 </h2>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                  Preencha os dados cadastrais e selecione o perfil de permissão adequado à função hospitalar.
+                  Preencha os dados e defina a permissão adequada. O cadastro será registrado nos logs de auditoria.
                 </p>
               </div>
 
               <button 
-                onClick={() => setShowModal(false)}
+                onClick={() => setShowCreateModal(false)}
                 className="p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
 
-            {error && (
+            {errorMessage && (
               <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2">
                 <AlertCircle size={16} className="shrink-0 text-rose-500" />
-                <span>{error}</span>
+                <span>{errorMessage}</span>
               </div>
             )}
 
-            {/* Formulário Completo */}
             <form onSubmit={handleAddMember} className="space-y-4">
-              
-              {/* Linha 1: Nome e Email */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    Nome Completo *
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Nome Completo *</label>
                   <input
                     required
                     type="text"
                     placeholder="Ex: Dra. Mariana Costa"
-                    value={form.fullName}
-                    onChange={e => setForm({...form, fullName: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    value={createForm.fullName}
+                    onChange={e => setCreateForm({...createForm, fullName: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    E-mail Corporativo *
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">E-mail Corporativo *</label>
                   <input
                     required
                     type="email"
                     placeholder="Ex: mariana.costa@medcore.com.br"
-                    value={form.email}
-                    onChange={e => setForm({...form, email: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    value={createForm.email}
+                    onChange={e => setCreateForm({...createForm, email: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
                   />
                 </div>
               </div>
 
-              {/* Linha 2: CPF e Telefone */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    CPF
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">CPF</label>
                   <input
                     type="text"
                     placeholder="000.000.000-00"
-                    value={form.cpf}
-                    onChange={e => setForm({...form, cpf: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    value={createForm.cpf}
+                    onChange={e => setCreateForm({...createForm, cpf: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    Telefone / WhatsApp
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Telefone / WhatsApp</label>
                   <input
                     type="text"
                     placeholder="(11) 90000-0000"
-                    value={form.telefone}
-                    onChange={e => setForm({...form, telefone: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    value={createForm.telefone}
+                    onChange={e => setCreateForm({...createForm, telefone: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
                   />
                 </div>
               </div>
 
-              {/* Linha 3: Cargo e Departamento */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    Cargo / Função
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Cargo / Função</label>
                   <input
                     type="text"
-                    placeholder="Ex: Cardiologista / Enfermeiro Plantonista"
-                    value={form.cargo}
-                    onChange={e => setForm({...form, cargo: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    placeholder="Ex: Cardiologista / Enfermeiro Chefe"
+                    value={createForm.cargo}
+                    onChange={e => setCreateForm({...createForm, cargo: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    Departamento / Setor
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Departamento / Setor</label>
                   <select
-                    value={form.departamento}
-                    onChange={e => setForm({...form, departamento: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    value={createForm.departamento}
+                    onChange={e => setCreateForm({...createForm, departamento: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
                   >
                     <option value="Corpo Clínico">Corpo Clínico / Médicos</option>
                     <option value="Enfermagem Assistencial">Enfermagem Assistencial</option>
@@ -734,34 +805,28 @@ export default function EquipePage() {
                     <option value="Patrimônio & Farmácia">Patrimônio, CAF & Farmácia</option>
                     <option value="Recursos Humanos">Recursos Humanos & Departamento Pessoal</option>
                     <option value="Gestão & Operações">Gestão Geral & Operações</option>
-                    <option value="Tecnologia & TI">Tecnologia & Suporte</option>
                   </select>
                 </div>
               </div>
 
-              {/* Linha 4: Registro Profissional e Unidade de Lotação */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    Registro Profissional (CRM, COREN, CRF...)
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Registro Profissional (CRM, COREN...)</label>
                   <input
                     type="text"
-                    placeholder="Ex: CRM-SP 123456 ou COREN-SP 98765"
-                    value={form.registroProfissional}
-                    onChange={e => setForm({...form, registroProfissional: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    placeholder="Ex: CRM-SP 123456"
+                    value={createForm.registroProfissional}
+                    onChange={e => setCreateForm({...createForm, registroProfissional: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                    Unidade de Atendimento / Lotação
-                  </label>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Unidade de Lotação</label>
                   <select
-                    value={form.unidade}
-                    onChange={e => setForm({...form, unidade: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    value={createForm.unidade}
+                    onChange={e => setCreateForm({...createForm, unidade: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
                   >
                     <option value="Unidade Central Alphaville">Unidade Central Alphaville</option>
                     <option value="Hospital Geral Morumbi">Hospital Geral Morumbi</option>
@@ -772,88 +837,66 @@ export default function EquipePage() {
                 </div>
               </div>
 
-              {/* Linha 5: Tipo de Permissão (20+ OPÇÕES DE SAÚDE) */}
+              {/* Permissão RBAC */}
               <div className="pt-2">
                 <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
-                  <span>Tipo de Permissão / Papel de Acesso (RBAC) *</span>
-                  <span className="text-[11px] font-normal text-rd-cyan lowercase">define os módulos visíveis</span>
+                  <span>Tipo de Permissão / Papel RBAC *</span>
+                  <span className="text-[11px] font-normal text-rd-cyan lowercase">define os módulos acessíveis</span>
                 </label>
                 
                 <select
                   required
-                  value={form.role}
-                  onChange={e => setForm({...form, role: e.target.value})}
-                  className="w-full bg-zinc-50 dark:bg-zinc-800/70 border-2 border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-3 text-sm text-zinc-900 dark:text-zinc-100 font-semibold focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                  value={createForm.role}
+                  onChange={e => setCreateForm({...createForm, role: e.target.value})}
+                  className="w-full bg-zinc-50 dark:bg-zinc-800/70 border-2 border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 font-semibold focus:border-rd-cyan focus:outline-none"
                 >
                   <optgroup label="👑 Diretoria & Alta Gestão">
                     {HEALTHCARE_ROLES.filter(r => r.category === "Diretoria & Gestão").map(r => (
-                      <option key={r.code} value={r.code}>
-                        {r.label}
-                      </option>
+                      <option key={r.code} value={r.code}>{r.label}</option>
                     ))}
                   </optgroup>
-
-                  <optgroup label="🩺 Corpo Clínico & Médicos Especialistas">
+                  <optgroup label="🩺 Corpo Clínico & Médicos">
                     {HEALTHCARE_ROLES.filter(r => r.category === "Corpo Clínico & Especialistas").map(r => (
-                      <option key={r.code} value={r.code}>
-                        {r.label}
-                      </option>
+                      <option key={r.code} value={r.code}>{r.label}</option>
                     ))}
                   </optgroup>
-
                   <optgroup label="💉 Enfermagem & Equipe Assistencial">
                     {HEALTHCARE_ROLES.filter(r => r.category === "Enfermagem & Assistencial").map(r => (
-                      <option key={r.code} value={r.code}>
-                        {r.label}
-                      </option>
+                      <option key={r.code} value={r.code}>{r.label}</option>
                     ))}
                   </optgroup>
-
-                  <optgroup label="🛎️ Atendimento, Recepção & Call Center">
+                  <optgroup label="🛎️ Atendimento, Recepção & Apoio">
                     {HEALTHCARE_ROLES.filter(r => r.category === "Atendimento & Recepção").map(r => (
-                      <option key={r.code} value={r.code}>
-                        {r.label}
-                      </option>
+                      <option key={r.code} value={r.code}>{r.label}</option>
                     ))}
                   </optgroup>
-
-                  <optgroup label="📊 Faturamento TISS, Patrimônio, RH & Apoio">
+                  <optgroup label="📊 Faturamento TISS, Patrimônio & RH">
                     {HEALTHCARE_ROLES.filter(r => r.category === "Faturamento, Patrimônio & RH").map(r => (
-                      <option key={r.code} value={r.code}>
-                        {r.label}
-                      </option>
+                      <option key={r.code} value={r.code}>{r.label}</option>
                     ))}
                   </optgroup>
                 </select>
 
-                {/* Card explicativo da permissão selecionada */}
                 <div className="mt-2.5 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/80 flex items-start gap-2.5">
                   <Shield size={16} className="text-primary shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">
-                      {selectedRoleInfo.label} ({selectedRoleInfo.category})
-                    </p>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                      {selectedRoleInfo.description}
-                    </p>
+                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{selectedCreateRoleInfo.label}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{selectedCreateRoleInfo.description}</p>
                   </div>
                 </div>
               </div>
 
-              {/* Linha 6: Senha Provisória */}
               <div>
-                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                  Senha Provisória de Acesso *
-                </label>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Senha Provisória *</label>
                 <div className="relative">
                   <input
                     required
                     type={showPassword ? "text" : "password"}
                     minLength={6}
                     placeholder="Mínimo de 6 caracteres"
-                    value={form.password}
-                    onChange={e => setForm({...form, password: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:ring-1 focus:ring-rd-cyan focus:outline-none transition-all"
+                    value={createForm.password}
+                    onChange={e => setCreateForm({...createForm, password: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
                   />
                   <button
                     type="button"
@@ -863,41 +906,258 @@ export default function EquipePage() {
                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                 </div>
-                <p className="text-[11px] text-zinc-400 mt-1">
-                  O colaborador será solicitado a alterar a senha provisória no primeiro login.
-                </p>
               </div>
 
-              {/* Botões do Rodapé */}
               <div className="flex items-center gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
-                  className="flex-1 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+                  onClick={() => setShowCreateModal(false)}
+                  className="flex-1 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wider"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="flex-1 py-3 rounded-xl bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 text-xs font-bold uppercase tracking-wider shadow-lg shadow-rd-cyan/20 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-3 rounded-xl bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 text-xs font-bold uppercase tracking-wider shadow-lg shadow-rd-cyan/20 flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? (
-                    <>
-                      <span className="w-4 h-4 border-2 border-zinc-950 border-t-transparent rounded-full animate-spin" />
-                      Salvando...
-                    </>
-                  ) : (
-                    <>
-                      <UserCheck size={16} /> Salvar e Cadastrar
-                    </>
-                  )}
+                  {isSubmitting ? "Salvando..." : <><UserCheck size={16} /> Cadastrar</>}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* MODAL 2: EDITAR COLABORADOR (AUDITADO E COM REGISTRO DE HISTÓRICO) */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-700 text-zinc-900 dark:text-zinc-100 rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] overflow-y-auto p-5 sm:p-8 space-y-5 animate-in fade-in zoom-in-95 relative">
+            
+            {/* Header Modal */}
+            <div className="flex items-start justify-between pb-4 border-b border-zinc-200 dark:border-zinc-800">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Pencil size={15} className="text-rd-cyan" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    Edição Auditada de Colaborador
+                  </span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 mt-1">
+                  Editar Cadastro de {editForm.fullName || "Colaborador"}
+                </h2>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  Atualize cargo, transferência de unidade ou alteração de permissão. Toda alteração é registrada na Trilha de Auditoria LGPD.
+                </p>
+              </div>
+
+              <button 
+                onClick={() => setShowEditModal(false)}
+                className="p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-xl hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {errorMessage && (
+              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle size={16} className="shrink-0 text-rose-500" />
+                <span>{errorMessage}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleUpdateMember} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Nome Completo *</label>
+                  <input
+                    required
+                    type="text"
+                    value={editForm.fullName}
+                    onChange={e => setEditForm({...editForm, fullName: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">E-mail Corporativo *</label>
+                  <input
+                    required
+                    type="email"
+                    value={editForm.email}
+                    onChange={e => setEditForm({...editForm, email: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">CPF</label>
+                  <input
+                    type="text"
+                    value={editForm.cpf}
+                    onChange={e => setEditForm({...editForm, cpf: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Telefone / WhatsApp</label>
+                  <input
+                    type="text"
+                    value={editForm.telefone}
+                    onChange={e => setEditForm({...editForm, telefone: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Cargo / Função *</label>
+                  <input
+                    required
+                    type="text"
+                    value={editForm.cargo}
+                    onChange={e => setEditForm({...editForm, cargo: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Departamento / Setor *</label>
+                  <select
+                    value={editForm.departamento}
+                    onChange={e => setEditForm({...editForm, departamento: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  >
+                    <option value="Corpo Clínico">Corpo Clínico / Médicos</option>
+                    <option value="Enfermagem Assistencial">Enfermagem Assistencial</option>
+                    <option value="Diretoria Médica">Diretoria Médica</option>
+                    <option value="Atendimento & Recepção">Atendimento & Recepção</option>
+                    <option value="Faturamento & Convênios">Faturamento & Convênios (TISS)</option>
+                    <option value="Patrimônio & Farmácia">Patrimônio, CAF & Farmácia</option>
+                    <option value="Recursos Humanos">Recursos Humanos & Departamento Pessoal</option>
+                    <option value="Gestão & Operações">Gestão Geral & Operações</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Registro Profissional (CRM, COREN...)</label>
+                  <input
+                    type="text"
+                    value={editForm.registroProfissional}
+                    onChange={e => setEditForm({...editForm, registroProfissional: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Unidade de Lotação / Transferência</label>
+                  <select
+                    value={editForm.unidade}
+                    onChange={e => setEditForm({...editForm, unidade: e.target.value})}
+                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                  >
+                    <option value="Unidade Central Alphaville">Unidade Central Alphaville</option>
+                    <option value="Hospital Geral Morumbi">Hospital Geral Morumbi</option>
+                    <option value="Clínica Diagnóstica Zona Sul">Clínica Diagnóstica Zona Sul</option>
+                    <option value="Sede Corporativa & Backoffice">Sede Corporativa & Backoffice</option>
+                    <option value="Todas as Unidades (Multilocal)">Todas as Unidades (Multilocal)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Permissão RBAC */}
+              <div className="pt-2">
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                  <span>Tipo de Permissão / Papel RBAC *</span>
+                  <span className="text-[11px] font-normal text-rd-cyan lowercase">define o que o usuário visualiza</span>
+                </label>
+                
+                <select
+                  required
+                  value={editForm.role}
+                  onChange={e => setEditForm({...editForm, role: e.target.value})}
+                  className="w-full bg-zinc-50 dark:bg-zinc-800/70 border-2 border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 font-semibold focus:border-rd-cyan focus:outline-none"
+                >
+                  <optgroup label="👑 Diretoria & Alta Gestão">
+                    {HEALTHCARE_ROLES.filter(r => r.category === "Diretoria & Gestão").map(r => (
+                      <option key={r.code} value={r.code}>{r.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="🩺 Corpo Clínico & Médicos">
+                    {HEALTHCARE_ROLES.filter(r => r.category === "Corpo Clínico & Especialistas").map(r => (
+                      <option key={r.code} value={r.code}>{r.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="💉 Enfermagem & Equipe Assistencial">
+                    {HEALTHCARE_ROLES.filter(r => r.category === "Enfermagem & Assistencial").map(r => (
+                      <option key={r.code} value={r.code}>{r.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="🛎️ Atendimento, Recepção & Apoio">
+                    {HEALTHCARE_ROLES.filter(r => r.category === "Atendimento & Recepção").map(r => (
+                      <option key={r.code} value={r.code}>{r.label}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="📊 Faturamento TISS, Patrimônio & RH">
+                    {HEALTHCARE_ROLES.filter(r => r.category === "Faturamento, Patrimônio & RH").map(r => (
+                      <option key={r.code} value={r.code}>{r.label}</option>
+                    ))}
+                  </optgroup>
+                </select>
+
+                <div className="mt-2.5 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/80 flex items-start gap-2.5">
+                  <Shield size={16} className="text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{selectedEditRoleInfo.label}</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{selectedEditRoleInfo.description}</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
+                  Redefinir Senha de Acesso (Opcional)
+                </label>
+                <input
+                  type="password"
+                  placeholder="Deixe em branco para manter a senha atual"
+                  value={editForm.password}
+                  onChange={e => setEditForm({...editForm, password: e.target.value})}
+                  className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
+                />
+              </div>
+
+              <div className="p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-xl text-blue-700 dark:text-blue-300 text-xs">
+                🔒 Esta edição será gravada com assinatura digital e carimbo de data/hora na <strong>Trilha de Auditoria Forense LGPD</strong>.
+              </div>
+
+              <div className="flex items-center gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 py-3 rounded-xl border border-zinc-300 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-bold uppercase tracking-wider"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 rounded-xl bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 text-xs font-bold uppercase tracking-wider shadow-lg shadow-rd-cyan/20 flex items-center justify-center gap-2"
+                >
+                  {isSubmitting ? "Atualizando..." : <><UserCheck size={16} /> Salvar Alterações</>}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
