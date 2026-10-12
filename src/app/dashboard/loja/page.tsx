@@ -28,7 +28,7 @@ import { useTheme } from "@/context/ThemeContext";
 interface ModuloLoja {
   id: string;
   name: string;
-  category: "marketing" | "fiscal" | "ia" | "recepcao";
+  category: "marketing" | "fiscal" | "ia" | "recepcao" | "hardware";
   badge: string;
   badgeColor: string;
   isPopular?: boolean;
@@ -48,6 +48,29 @@ interface ModuloLoja {
 }
 
 const MODULOS: ModuloLoja[] = [
+  {
+    id: "kit-totem",
+    name: "Kit Totem Facial Homologado (Portaria 671)",
+    category: "hardware",
+    badge: "HARDWARE • PLUG & PLAY",
+    badgeColor: "bg-rd-cyan/15 text-rd-cyan border-rd-cyan/30",
+    isPopular: true,
+    shortDesc: "Tablet Kiosk dedicado com suporte de parede anti-furto, biometria facial e blindagem contra fraudes.",
+    longDesc: "Elimine 100% de passivos trabalhistas. Entregue um totem pronto para a recepção da clínica: o colaborador aproxima o rosto, o sistema identifica e registra o ponto em 3 segundos.",
+    monthlyPrice: 119,
+    annualPrice: 1190,
+    features: [
+      "Tablet Samsung Corporativo 8.7\" com Android Kiosk pré-configurado",
+      "Suporte articulado de parede em aço carbono com chave anti-furto",
+      "Reconhecimento facial com máscara de dados LGPD (Portaria MTP 671/2021)",
+      "Dispensa acordo coletivo com sindicato (enquadrado como coletor REP-P)",
+      "Garantia estendida com troca expressa em caso de defeito",
+      "Opção de compra única à vista (R$ 2.490) ou locação mensal recorrente"
+    ],
+    roiQuote: "Um relógio de ponto físico tradicional custa mais de R$ 4.500 e quebra bobina todo mês. O Totem MedCore é mais moderno, econômico e 100% blindado juridicamente.",
+    targetHref: "/dashboard/ponto"
+  },
+
   {
     id: "marketing-crm",
     name: "Marketing & CRM Automático",
@@ -298,10 +321,11 @@ export default function LojaModulosPage() {
       <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
         {[
           { id: "all", label: "Todos os Módulos", count: MODULOS.length },
-          { id: "marketing", label: "Marketing & Vendas", count: 1 },
-          { id: "fiscal", label: "Fiscal & Contábil", count: 1 },
-          { id: "ia", label: "Inteligência Artificial", count: 1 },
-          { id: "recepcao", label: "Recepção & Espera", count: 1 },
+          { id: "hardware", label: "Hardware & Totens", count: MODULOS.filter(m => m.category === "hardware").length },
+          { id: "marketing", label: "Marketing & Vendas", count: MODULOS.filter(m => m.category === "marketing").length },
+          { id: "fiscal", label: "Fiscal & Contábil", count: MODULOS.filter(m => m.category === "fiscal").length },
+          { id: "ia", label: "Inteligência Artificial", count: MODULOS.filter(m => m.category === "ia").length },
+          { id: "recepcao", label: "Recepção & Espera", count: MODULOS.filter(m => m.category === "recepcao").length },
         ].map(cat => (
           <button
             key={cat.id}
