@@ -313,9 +313,10 @@ export default function DesempenhoPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md w-full">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <Target className="text-rd-cyan" size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-              Avaliação de Desempenho Hospitalar & 360°
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
+              <Target size={14} className="text-rd-cyan" />
+              Ciclo 360° Hospitalar
             </span>
           </div>
           <span className="text-zinc-300 dark:text-zinc-700">|</span>

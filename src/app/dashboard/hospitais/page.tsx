@@ -29,6 +29,8 @@ interface Unit {
   id: string;
   name: string;
   type: "Hospital" | "UPA" | "Clínica" | "Policlínica" | "Centro Cirúrgico" | "Outro";
+  country?: "BR" | "US" | "EU";
+  taxRegime?: string;
   address: string | null;
   responsible: string | null;
   phone: string | null;
@@ -51,14 +53,25 @@ const UNIT_TYPES = ["Hospital", "UPA", "Clínica", "Policlínica", "Centro Cirú
 const initialUnits: Unit[] = [];
 
 export default function UnitsPage() {
-  const { selectedUnitId, setSelectedUnitId } = useDashboardContext();
+  const { selectedUnitId, setSelectedUnitId, refreshUnits } = useDashboardContext();
   const { theme } = useTheme();
   const router = useRouter();
   const [units, setUnits] = useState<Unit[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
-  const [form, setForm] = useState({ name: "", type: "Hospital" as Unit["type"], address: "", responsible: "", phone: "", email: "", cnpj: "", color: UNIT_COLORS[0] });
+  const [form, setForm] = useState({ 
+    name: "", 
+    type: "Hospital" as Unit["type"], 
+    country: "BR" as "BR" | "US" | "EU",
+    taxRegime: "SIMPLES_NACIONAL",
+    address: "", 
+    responsible: "", 
+    phone: "", 
+    email: "", 
+    cnpj: "", 
+    color: UNIT_COLORS[0] 
+  });
 
   // Confirmation state
   const [confirmDelete, setConfirmDelete] = useState<Unit | null>(null);
@@ -95,8 +108,17 @@ export default function UnitsPage() {
     };
 
     if (editingUnit) {
-      // Implementação futura de edição (PUT)
+      try {
+        await fetch("/api/units", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: editingUnit.id, ...sanitizedForm })
+        });
+      } catch (err) {
+        console.error("Erro ao atualizar unidade:", err);
+      }
       setUnits(units.map(u => u.id === editingUnit.id ? { ...editingUnit, ...sanitizedForm } : u));
+      if (refreshUnits) refreshUnits();
     } else {
       const res = await fetch("/api/units", {
         method: "POST",
@@ -106,11 +128,23 @@ export default function UnitsPage() {
       if (res.ok) {
         const data = await res.json();
         setUnits([...units, { ...data.unit, active: true }]);
+        if (refreshUnits) refreshUnits();
       }
     }
     setShowForm(false);
     setEditingUnit(null);
-    setForm({ name: "", type: "Hospital", address: "", responsible: "", phone: "", email: "", cnpj: "", color: UNIT_COLORS[0] });
+    setForm({ 
+      name: "", 
+      type: "Hospital", 
+      country: "BR",
+      taxRegime: "SIMPLES_NACIONAL",
+      address: "", 
+      responsible: "", 
+      phone: "", 
+      email: "", 
+      cnpj: "", 
+      color: UNIT_COLORS[0] 
+    });
   };
 
   const openEdit = (unit: Unit) => {
@@ -118,6 +152,8 @@ export default function UnitsPage() {
     setForm({ 
       name: unit.name, 
       type: unit.type, 
+      country: (unit.country as "BR" | "US" | "EU") || "BR",
+      taxRegime: unit.taxRegime || (unit.country === "US" ? "W2_1099" : unit.country === "EU" ? "PAYE" : "SIMPLES_NACIONAL"),
       address: unit.address || "", 
       responsible: unit.responsible || "", 
       phone: unit.phone || "", 
@@ -261,7 +297,75 @@ export default function UnitsPage() {
                   <label className={cn(
                     "text-sm font-bold uppercase tracking-[0.15em] mb-2 block ml-1",
                     theme === 'dark' ? "text-zinc-300" : "text-zinc-500"
-                  )}>CNPJ</label>
+                  )}>País de Tributação *</label>
+                  <select
+                    className={cn(
+                      "w-full rounded-xl px-4 py-3.5 text-sm font-medium outline-none border transition-all shadow-inner focus:ring-1 focus:ring-rd-cyan cursor-pointer",
+                      theme === 'dark' 
+                        ? "bg-zinc-950 border-white/10 text-white focus:border-rd-cyan [color-scheme:dark]" 
+                        : "bg-black/5 border-zinc-300 text-zinc-900 focus:border-rd-cyan"
+                    )}
+                    value={form.country}
+                    onChange={e => {
+                      const c = e.target.value as "BR" | "US" | "EU";
+                      setForm({
+                        ...form,
+                        country: c,
+                        taxRegime: c === "BR" ? "SIMPLES_NACIONAL" : c === "US" ? "W2_1099" : "PAYE"
+                      });
+                    }}
+                  >
+                    <option value="BR">🇧🇷 Brasil (eSocial • CLT / PJ)</option>
+                    <option value="US">🇺🇸 Estados Unidos (IRS • W-2 / 1099)</option>
+                    <option value="EU">🇪🇺 Europa / Reino Unido (PAYE • HMRC)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className={cn(
+                    "text-sm font-bold uppercase tracking-[0.15em] mb-2 block ml-1",
+                    theme === 'dark' ? "text-zinc-300" : "text-zinc-500"
+                  )}>Regime Tributário</label>
+                  <select
+                    className={cn(
+                      "w-full rounded-xl px-4 py-3.5 text-sm font-medium outline-none border transition-all shadow-inner focus:ring-1 focus:ring-rd-cyan cursor-pointer",
+                      theme === 'dark' 
+                        ? "bg-zinc-950 border-white/10 text-white focus:border-rd-cyan [color-scheme:dark]" 
+                        : "bg-black/5 border-zinc-300 text-zinc-900 focus:border-rd-cyan"
+                    )}
+                    value={form.taxRegime}
+                    onChange={e => setForm({ ...form, taxRegime: e.target.value })}
+                  >
+                    {form.country === "BR" && (
+                      <>
+                        <option value="SIMPLES_NACIONAL">Simples Nacional (Anexo III)</option>
+                        <option value="LUCRO_PRESUMIDO">Lucro Presumido (Equiparado a Hospital)</option>
+                        <option value="LUCRO_REAL">Lucro Real</option>
+                      </>
+                    )}
+                    {form.country === "US" && (
+                      <>
+                        <option value="W2_1099">W-2 & 1099 Standard Healthcare</option>
+                        <option value="LLC_PARTNERSHIP">Medical LLC / Partnership</option>
+                        <option value="S_CORP">S-Corporation (Pass-Through)</option>
+                      </>
+                    )}
+                    {form.country === "EU" && (
+                      <>
+                        <option value="PAYE">PAYE & National Insurance</option>
+                        <option value="LTD_LOCUM">Private Limited (Locum Agency)</option>
+                        <option value="NHS_TRUST">NHS Trust Partner</option>
+                      </>
+                    )}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className={cn(
+                    "text-sm font-bold uppercase tracking-[0.15em] mb-2 block ml-1",
+                    theme === 'dark' ? "text-zinc-300" : "text-zinc-500"
+                  )}>{form.country === "BR" ? "CNPJ" : form.country === "US" ? "EIN / Tax ID" : "VAT Number"}</label>
                   <input
                     className={cn(
                       "w-full rounded-xl px-4 py-3.5 text-sm font-medium outline-none border transition-all shadow-inner focus:ring-1 focus:ring-rd-cyan",
@@ -392,10 +496,15 @@ export default function UnitsPage() {
                       "font-heading font-semibold text-sm leading-tight ",
                       theme === 'dark' ? "text-white" : "text-zinc-900"
                     )}>{unit.name}</h3>
-                    <span className={cn(
-                      "text-sm font-semibold uppercase tracking-widest",
-                      theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
-                    )}>{unit.type}</span>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className={cn(
+                        "text-xs font-semibold uppercase tracking-widest",
+                        theme === 'dark' ? "text-zinc-500" : "text-zinc-400"
+                      )}>{unit.type}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rd-cyan/10 border border-rd-cyan/30 text-rd-cyan flex items-center gap-1">
+                        {unit.country === "US" ? "🇺🇸 USA" : unit.country === "EU" ? "🇪🇺 Europa" : "🇧🇷 Brasil"}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">

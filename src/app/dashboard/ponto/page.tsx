@@ -264,11 +264,6 @@ export default function PontoEletronicoPage() {
       {/* Action Bar Compacta & Seletor de Modo Responsiva */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-4 sm:px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
         <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
-          <div className="flex items-center gap-2">
-            <Clock className="text-rd-cyan" size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Ponto Eletrônico Digital</span>
-          </div>
-          <span className="text-zinc-300 dark:text-zinc-700 hidden sm:inline">|</span>
           <div className="text-xs font-medium flex items-center gap-1.5">
             {locationStatus === "ok" ? (
               <span className="flex items-center gap-1 text-emerald-500 font-semibold"><MapPin size={13}/> GPS Capturado (Portaria 671)</span>

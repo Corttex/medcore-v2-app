@@ -40,6 +40,8 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
   });
   const [formData, setFormData] = useState({
     name: "",
+    country: "BR" as "BR" | "US" | "EU",
+    taxRegime: "SIMPLES_NACIONAL",
     cnpj: "",
     email: "",
     phone: "",
@@ -59,6 +61,8 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ 
           name: formData.name, 
           type: "Hospital",
+          country: formData.country,
+          taxRegime: formData.taxRegime,
           cnpj: formData.cnpj,
           email: formData.email,
           phone: formData.phone,
@@ -183,11 +187,62 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
                   autoFocus
                 />
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[11px] font-semibold text-zinc-400 block mb-1">País de Tributação *</label>
+                    <select
+                      value={formData.country}
+                      onChange={(e) => {
+                        const c = e.target.value as "BR" | "US" | "EU";
+                        setFormData({ 
+                          ...formData, 
+                          country: c,
+                          taxRegime: c === "BR" ? "SIMPLES_NACIONAL" : c === "US" ? "W2_1099" : "PAYE"
+                        });
+                      }}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-white text-xs font-semibold focus:outline-none focus:border-rd-cyan cursor-pointer"
+                    >
+                      <option value="BR">🇧🇷 Brasil (eSocial • CLT/PJ)</option>
+                      <option value="US">🇺🇸 USA (IRS • W-2 / 1099)</option>
+                      <option value="EU">🇪🇺 Europe / UK (PAYE • HMRC)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-zinc-400 block mb-1">Regime Tributário</label>
+                    <select
+                      value={formData.taxRegime}
+                      onChange={(e) => setFormData({ ...formData, taxRegime: e.target.value })}
+                      className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-white text-xs font-semibold focus:outline-none focus:border-rd-cyan cursor-pointer"
+                    >
+                      {formData.country === "BR" && (
+                        <>
+                          <option value="SIMPLES_NACIONAL">Simples Nacional (Anexo III)</option>
+                          <option value="LUCRO_PRESUMIDO">Lucro Presumido (Hospitalar)</option>
+                          <option value="LUCRO_REAL">Lucro Real</option>
+                        </>
+                      )}
+                      {formData.country === "US" && (
+                        <>
+                          <option value="W2_1099">W-2 & 1099 Standard</option>
+                          <option value="LLC_PARTNERSHIP">Medical LLC / Partnership</option>
+                          <option value="S_CORP">S-Corporation (Pass-Through)</option>
+                        </>
+                      )}
+                      {formData.country === "EU" && (
+                        <>
+                          <option value="PAYE">PAYE & National Insurance</option>
+                          <option value="LTD_LOCUM">Private Limited (Locum)</option>
+                          <option value="NHS_TRUST">NHS Trust Partner</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
                 <input 
                   type="text" 
-                  placeholder="CNPJ"
+                  placeholder={formData.country === "BR" ? "CNPJ" : formData.country === "US" ? "EIN / Tax ID" : "VAT / Company Number"}
                   value={formData.cnpj}
-                  onChange={(e) => setFormData({ ...formData, cnpj: maskCnpj(e.target.value) })}
+                  onChange={(e) => setFormData({ ...formData, cnpj: formData.country === "BR" ? maskCnpj(e.target.value) : e.target.value })}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
                 />
                 <div className="grid grid-cols-2 gap-3">
@@ -296,11 +351,62 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
               autoFocus
             />
             <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">País de Tributação *</label>
+                <select
+                  value={formData.country}
+                  onChange={(e) => {
+                    const c = e.target.value as "BR" | "US" | "EU";
+                    setFormData({ 
+                      ...formData, 
+                      country: c,
+                      taxRegime: c === "BR" ? "SIMPLES_NACIONAL" : c === "US" ? "W2_1099" : "PAYE"
+                    });
+                  }}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-white text-xs font-semibold focus:outline-none focus:border-rd-cyan cursor-pointer"
+                >
+                  <option value="BR">🇧🇷 Brasil (eSocial • CLT/PJ)</option>
+                  <option value="US">🇺🇸 USA (IRS • W-2 / 1099)</option>
+                  <option value="EU">🇪🇺 Europe / UK (PAYE • HMRC)</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-[11px] font-semibold text-zinc-400 block mb-1">Regime Tributário</label>
+                <select
+                  value={formData.taxRegime}
+                  onChange={(e) => setFormData({ ...formData, taxRegime: e.target.value })}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-white text-xs font-semibold focus:outline-none focus:border-rd-cyan cursor-pointer"
+                >
+                  {formData.country === "BR" && (
+                    <>
+                      <option value="SIMPLES_NACIONAL">Simples Nacional (Anexo III)</option>
+                      <option value="LUCRO_PRESUMIDO">Lucro Presumido (Hospitalar)</option>
+                      <option value="LUCRO_REAL">Lucro Real</option>
+                    </>
+                  )}
+                  {formData.country === "US" && (
+                    <>
+                      <option value="W2_1099">W-2 & 1099 Standard</option>
+                      <option value="LLC_PARTNERSHIP">Medical LLC / Partnership</option>
+                      <option value="S_CORP">S-Corporation (Pass-Through)</option>
+                    </>
+                  )}
+                  {formData.country === "EU" && (
+                    <>
+                      <option value="PAYE">PAYE & National Insurance</option>
+                      <option value="LTD_LOCUM">Private Limited (Locum)</option>
+                      <option value="NHS_TRUST">NHS Trust Partner</option>
+                    </>
+                  )}
+                </select>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
               <input 
                 type="text" 
-                placeholder="CNPJ"
+                placeholder={formData.country === "BR" ? "CNPJ" : formData.country === "US" ? "EIN / Tax ID" : "VAT / Company Number"}
                 value={formData.cnpj}
-                onChange={(e) => setFormData({ ...formData, cnpj: maskCnpj(e.target.value) })}
+                onChange={(e) => setFormData({ ...formData, cnpj: formData.country === "BR" ? maskCnpj(e.target.value) : e.target.value })}
                 className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
               />
               <input 

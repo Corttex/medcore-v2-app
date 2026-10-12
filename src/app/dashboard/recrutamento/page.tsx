@@ -23,7 +23,10 @@ import {
   AlertCircle, 
   ShieldCheck, 
   Calendar,
-  CheckCircle
+  CheckCircle,
+  Share2,
+  Copy,
+  ExternalLink
 } from "lucide-react";
 
 export interface Candidate {
@@ -165,6 +168,8 @@ export default function RecrutamentoPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedJobDetail, setSelectedJobDetail] = useState<JobOpening | null>(null);
+  const [shareJobModal, setShareJobModal] = useState<JobOpening | null>(null);
+  const [copiedJobLink, setCopiedJobLink] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -344,9 +349,10 @@ export default function RecrutamentoPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md w-full">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <UserPlus className="text-rd-cyan" size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-              Recrutamento, Seleção & ATS Hospitalar
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
+              <UserPlus size={14} className="text-rd-cyan" />
+              Painel de Vagas
             </span>
           </div>
           <span className="text-zinc-300 dark:text-zinc-700">|</span>
@@ -587,6 +593,16 @@ export default function RecrutamentoPage() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => {
+                              setShareJobModal(item);
+                              setCopiedJobLink(false);
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-emerald-500 rounded-lg hover:bg-emerald-500/10 transition-colors"
+                            title="Compartilhar Link Público da Vaga"
+                          >
+                            <Share2 size={15} />
+                          </button>
                           <button
                             onClick={() => setSelectedJobDetail(item)}
                             className="p-1.5 text-zinc-500 hover:text-rd-cyan rounded-lg hover:bg-rd-cyan/10 transition-colors"
@@ -1070,6 +1086,84 @@ export default function RecrutamentoPage() {
         </div>
       )}
 
+      {/* MODAL 4: COMPARTILHAR LINK PÚBLICO DA VAGA (MEDCORE JOBS) */}
+      {shareJobModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 border-2 border-emerald-500/40 text-zinc-900 dark:text-zinc-100 rounded-3xl shadow-2xl w-full max-w-lg p-6 sm:p-8 space-y-5 animate-in fade-in zoom-in-95 relative">
+            <div className="flex items-start justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-500">
+                  <Share2 size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Compartilhar Vaga Pública</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Mini Landing Page MedCore Jobs</p>
+                </div>
+              </div>
+              <button onClick={() => setShareJobModal(null)} className="p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+                <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">{shareJobModal.titulo}</p>
+                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
+                  {shareJobModal.unidade} • {shareJobModal.regime} • {shareJobModal.faixaSalarial}
+                </p>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
+                  Link Direto da Vaga (Aberto a Candidatos)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${typeof window !== "undefined" ? window.location.origin : ""}/vagas/${shareJobModal.id}`}
+                    className="flex-1 bg-zinc-100 dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100"
+                  />
+                  <button
+                    onClick={() => {
+                      const url = `${window.location.origin}/vagas/${shareJobModal.id}`;
+                      navigator.clipboard.writeText(url);
+                      setCopiedJobLink(true);
+                      setTimeout(() => setCopiedJobLink(false), 2500);
+                    }}
+                    className="px-3.5 py-2 bg-emerald-500 text-zinc-950 font-bold text-xs rounded-xl hover:bg-emerald-400 transition-colors flex items-center gap-1.5 shrink-0"
+                  >
+                    <Copy size={13} />
+                    {copiedJobLink ? "Copiado!" : "Copiar"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Botões de Ação Rápida */}
+              <div className="grid grid-cols-2 gap-2.5 pt-1">
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    `*Oportunidade na MedCore Health:* Vaga aberta para ${shareJobModal.titulo} (${shareJobModal.unidade}). Confira e candidate-se: ${typeof window !== "undefined" ? window.location.origin : ""}/vagas/${shareJobModal.id}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                >
+                  <Share2 size={13} /> Compartilhar no WhatsApp
+                </a>
+                <a
+                  href={`/vagas/${shareJobModal.id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="py-2.5 px-3 rounded-xl bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-zinc-300 dark:border-zinc-700"
+                >
+                  <ExternalLink size={13} /> Abrir Página Pública
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

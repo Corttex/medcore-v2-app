@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
+import Link from "next/link";
 import { 
   GraduationCap, 
   Award, 
@@ -24,7 +25,10 @@ import {
   Download, 
   Play, 
   Building, 
-  UserCheck 
+  UserCheck,
+  PlayCircle,
+  ExternalLink,
+  HeartPulse
 } from "lucide-react";
 
 export interface TrainingCourse {
@@ -137,6 +141,11 @@ export default function TreinamentosPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedTrainingDetail, setSelectedTrainingDetail] = useState<TrainingCourse | null>(null);
+  const [classroomCourse, setClassroomCourse] = useState<TrainingCourse | null>(null);
+  const [classroomTab, setClassroomTab] = useState<"AULA" | "APOSTILA" | "QUIZ" | "CERTIFICADO">("AULA");
+  const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
+  const [quizSubmitted, setQuizSubmitted] = useState(false);
+  const [quizScore, setQuizScore] = useState(0);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -323,9 +332,10 @@ export default function TreinamentosPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md w-full">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <GraduationCap className="text-rd-cyan" size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-              Treinamentos & Educação Continuada (LMS Hospitalar)
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
+              <GraduationCap size={14} className="text-rd-cyan" />
+              Programa Educacional
             </span>
           </div>
           <span className="text-zinc-300 dark:text-zinc-700">|</span>
@@ -568,6 +578,18 @@ export default function TreinamentosPage() {
                         </div>
                       ) : (
                         <div className="flex items-center justify-end gap-1">
+                          <button
+                            onClick={() => {
+                              setClassroomCourse(item);
+                              setClassroomTab("AULA");
+                              setQuizSubmitted(false);
+                              setQuizAnswers({});
+                            }}
+                            className="p-1.5 text-zinc-500 hover:text-emerald-500 rounded-lg hover:bg-emerald-500/10 transition-colors"
+                            title="Assistir Aula & Fazer Avaliação"
+                          >
+                            <PlayCircle size={15} />
+                          </button>
                           <button
                             onClick={() => setSelectedTrainingDetail(item)}
                             className="p-1.5 text-zinc-500 hover:text-rd-cyan rounded-lg hover:bg-rd-cyan/10 transition-colors"
@@ -1026,6 +1048,364 @@ export default function TreinamentosPage() {
               >
                 Fechar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: SALA DE AULA DO ALUNO (LMS CORPORATIVO COM AULA, APOSTILA, QUIZ & CERTIFICADO) */}
+      {classroomCourse && (
+        <div className="fixed inset-0 bg-black/75 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+          <div className="bg-zinc-950 border-2 border-zinc-800 text-zinc-100 rounded-3xl shadow-2xl w-full max-w-4xl max-h-[94vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95">
+            
+            {/* Header da Sala de Aula */}
+            <div className="p-4 sm:p-6 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between gap-4 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-rd-cyan/15 border border-rd-cyan/30 text-rd-cyan flex items-center justify-center shrink-0">
+                  <GraduationCap size={22} />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-rd-cyan/20 text-rd-cyan border border-rd-cyan/30">
+                      Universidade MedCore
+                    </span>
+                    <span className="text-xs text-zinc-400 font-medium hidden sm:inline">• {classroomCourse.cargaHoraria}</span>
+                  </div>
+                  <h3 className="text-base sm:text-lg font-heading font-extrabold text-white line-clamp-1 mt-0.5">
+                    {classroomCourse.titulo}
+                  </h3>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setClassroomCourse(null)}
+                className="p-2 text-zinc-400 hover:text-white rounded-xl hover:bg-zinc-800 transition-colors shrink-0"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Abas da Sala de Aula: Videoaula | Apostila Digital | Avaliação / Quiz | Certificado */}
+            <div className="flex border-b border-zinc-800 bg-zinc-900/60 px-4 sm:px-6 overflow-x-auto shrink-0">
+              <button
+                onClick={() => setClassroomTab("AULA")}
+                className={`py-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 shrink-0 ${
+                  classroomTab === "AULA" 
+                    ? "border-rd-cyan text-rd-cyan bg-rd-cyan/5" 
+                    : "border-transparent text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                <Play size={14} /> Videoaula Interativa
+              </button>
+
+              <button
+                onClick={() => setClassroomTab("APOSTILA")}
+                className={`py-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 shrink-0 ${
+                  classroomTab === "APOSTILA" 
+                    ? "border-rd-cyan text-rd-cyan bg-rd-cyan/5" 
+                    : "border-transparent text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                <FileText size={14} /> Apostila & Protocolo
+              </button>
+
+              <button
+                onClick={() => setClassroomTab("QUIZ")}
+                className={`py-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 shrink-0 ${
+                  classroomTab === "QUIZ" 
+                    ? "border-rd-cyan text-rd-cyan bg-rd-cyan/5" 
+                    : "border-transparent text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                <CheckCircle2 size={14} /> Avaliação (Quiz)
+              </button>
+
+              <button
+                onClick={() => setClassroomTab("CERTIFICADO")}
+                className={`py-3 px-4 text-xs font-bold transition-all border-b-2 flex items-center gap-2 shrink-0 ${
+                  classroomTab === "CERTIFICADO" 
+                    ? "border-emerald-400 text-emerald-400 bg-emerald-500/5" 
+                    : "border-transparent text-zinc-400 hover:text-zinc-200"
+                }`}
+              >
+                <Award size={14} /> Certificado Oficial
+              </button>
+            </div>
+
+            {/* Conteúdo Dinâmico por Aba */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5">
+              
+              {/* ABA 1: VIDEOAULA INTERATIVA */}
+              {classroomTab === "AULA" && (
+                <div className="space-y-4 animate-in fade-in">
+                  <div className="relative aspect-video w-full bg-zinc-900 rounded-3xl border-2 border-zinc-800 overflow-hidden shadow-2xl flex flex-col items-center justify-center group">
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-900/60 to-transparent" />
+                    <div className="relative z-10 text-center space-y-3 p-6">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-rd-cyan/20 border-2 border-rd-cyan/50 text-rd-cyan flex items-center justify-center mx-auto shadow-xl group-hover:scale-105 transition-transform cursor-pointer">
+                        <Play size={32} className="ml-1 text-rd-cyan" />
+                      </div>
+                      <p className="text-sm sm:text-base font-bold text-white max-w-md">
+                        Módulo 1: Diretrizes Fundamentais e Casos Práticos de Aplicação Clínica
+                      </p>
+                      <span className="text-xs text-zinc-400 block font-mono">
+                        Instrutor: {classroomCourse.instrutor} • Duração: 45 min
+                      </span>
+                    </div>
+
+                    <div className="absolute bottom-4 left-4 right-4 z-10 flex items-center justify-between text-xs text-zinc-400 bg-zinc-950/80 px-4 py-2 rounded-xl backdrop-blur-md border border-zinc-800">
+                      <span>Qualidade: 1080p Full HD</span>
+                      <span className="text-emerald-400 font-semibold">Progresso: 85% Concluído</span>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-zinc-900/70 border border-zinc-800 rounded-2xl flex items-center justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-bold text-white">Próximo Passo:</p>
+                      <p className="text-[11px] text-zinc-400">Consulte a apostila ou avance direto para a Avaliação com nota de corte mínima de 70%.</p>
+                    </div>
+                    <button
+                      onClick={() => setClassroomTab("QUIZ")}
+                      className="px-4 py-2 bg-rd-cyan text-zinc-950 font-bold text-xs rounded-xl hover:bg-rd-cyan/90 transition-all uppercase tracking-wider shrink-0"
+                    >
+                      Ir para Avaliação
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* ABA 2: APOSTILA & PROTOCOLO */}
+              {classroomTab === "APOSTILA" && (
+                <div className="space-y-4 animate-in fade-in">
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 space-y-4">
+                    <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+                      <div>
+                        <span className="text-[10px] font-mono text-zinc-400 uppercase">Manual Institucional 2026</span>
+                        <h4 className="text-lg font-bold text-white">{classroomCourse.titulo}</h4>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setToastMessage("Download da apostila PDF iniciado.");
+                          setTimeout(() => setToastMessage(null), 3000);
+                        }}
+                        className="px-3.5 py-1.5 rounded-xl border border-zinc-700 hover:border-zinc-500 text-xs text-zinc-300 font-semibold flex items-center gap-1.5 transition-colors"
+                      >
+                        <Download size={13} /> Baixar PDF
+                      </button>
+                    </div>
+
+                    <div className="space-y-3 text-xs sm:text-sm text-zinc-300 leading-relaxed font-sans">
+                      <p className="font-semibold text-white">1. Objetivos da Capacitação Hospitalar:</p>
+                      <p>{classroomCourse.descricao}</p>
+
+                      <p className="font-semibold text-white pt-2">2. Procedimentos Operacionais Padrão (POP):</p>
+                      <ul className="list-disc list-inside space-y-1 text-zinc-400">
+                        <li>Higienização das mãos segundo os 5 momentos preconizados pela ANVISA/OMS.</li>
+                        <li>Notificação compulsória em até 24 horas no sistema interno e Ministério da Saúde.</li>
+                        <li>Registro circunstanciado em prontuário eletrônico certificado com assinatura ICP-Brasil.</li>
+                        <li>Descarte exclusivo de resíduos infectantes e perfurocortantes em caixas rígidas Descarpax.</li>
+                      </ul>
+
+                      <p className="font-semibold text-white pt-2">3. Sanções e Auditorias:</p>
+                      <p className="text-zinc-400">A reciclagem deste treinamento tem validade de {classroomCourse.validadeReciclagem}. A conformidade é monitorada automaticamente pelo comitê de controle de infecção hospitalar (CCIH).</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ABA 3: QUIZ / AVALIAÇÃO DE CONHECIMENTOS */}
+              {classroomTab === "QUIZ" && (
+                <div className="space-y-5 animate-in fade-in">
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 space-y-6">
+                    <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+                      <div>
+                        <span className="text-[10px] font-mono text-amber-400 uppercase font-bold">Nota de Corte: 70%</span>
+                        <h4 className="text-lg font-bold text-white">Avaliação Técnica de Conhecimentos</h4>
+                      </div>
+                      <span className="text-xs text-zinc-400 font-mono">3 Questões Objetivas</span>
+                    </div>
+
+                    {/* Questão 1 */}
+                    <div className="space-y-3">
+                      <p className="text-xs sm:text-sm font-bold text-white">
+                        1. Qual a frequência regulamentar obrigatória para reciclagem das capacitações da NR-32 e diretrizes críticas?
+                      </p>
+                      <div className="space-y-2 text-xs">
+                        {["Apenas no momento da admissão do colaborador", "Anual ou sempre que houver alteração de processo de trabalho", "A cada 5 anos"].map((opt, i) => (
+                          <label key={i} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/60 border border-zinc-700/80 cursor-pointer hover:bg-zinc-800 transition-colors">
+                            <input
+                              type="radio"
+                              name="q1"
+                              checked={quizAnswers[1] === i}
+                              onChange={() => setQuizAnswers({ ...quizAnswers, 1: i })}
+                              className="text-rd-cyan focus:ring-0"
+                            />
+                            <span className="text-zinc-300">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Questão 2 */}
+                    <div className="space-y-3">
+                      <p className="text-xs sm:text-sm font-bold text-white">
+                        2. Em caso de acidente de trabalho com material perfurocortante biológico, qual a conduta imediata preconizada?
+                      </p>
+                      <div className="space-y-2 text-xs">
+                        {["Lavar abundantemente com água e sabão e comunicar imediatamente a chefia e CCIH/SESMT", "Aguardar o final do plantão para preencher a CAT", "Aplicar álcool 70% com força até parar o sangramento"].map((opt, i) => (
+                          <label key={i} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/60 border border-zinc-700/80 cursor-pointer hover:bg-zinc-800 transition-colors">
+                            <input
+                              type="radio"
+                              name="q2"
+                              checked={quizAnswers[2] === i}
+                              onChange={() => setQuizAnswers({ ...quizAnswers, 2: i })}
+                              className="text-rd-cyan focus:ring-0"
+                            />
+                            <span className="text-zinc-300">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Questão 3 */}
+                    <div className="space-y-3">
+                      <p className="text-xs sm:text-sm font-bold text-white">
+                        3. A validação de certificados corporativos MedCore é garantida através de:
+                      </p>
+                      <div className="space-y-2 text-xs">
+                        {["Apenas assinatura física manuscrita em papel timbrado", "Código criptográfico único verificado publicamente no portal /validar-certificado", "Carimbo simples sem número de registro"].map((opt, i) => (
+                          <label key={i} className="flex items-center gap-3 p-3 rounded-xl bg-zinc-800/60 border border-zinc-700/80 cursor-pointer hover:bg-zinc-800 transition-colors">
+                            <input
+                              type="radio"
+                              name="q3"
+                              checked={quizAnswers[3] === i}
+                              onChange={() => setQuizAnswers({ ...quizAnswers, 3: i })}
+                              className="text-rd-cyan focus:ring-0"
+                            />
+                            <span className="text-zinc-300">{opt}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Resultado / Submissão */}
+                    {quizSubmitted ? (
+                      <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 size={24} className="text-emerald-400" />
+                          <div>
+                            <p className="text-xs font-bold text-white">Aprovado com Distinção! ({quizScore}%)</p>
+                            <p className="text-[11px] text-zinc-400">Você superou a nota de corte. Seu certificado oficial foi liberado.</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setClassroomTab("CERTIFICADO")}
+                          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs uppercase rounded-xl transition-all shadow-md shrink-0"
+                        >
+                          Visualizar Certificado
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          const correct = (quizAnswers[1] === 1 ? 1 : 0) + (quizAnswers[2] === 0 ? 1 : 0) + (quizAnswers[3] === 1 ? 1 : 0);
+                          const score = Math.round((correct / 3) * 100);
+                          setQuizScore(score);
+                          setQuizSubmitted(true);
+                        }}
+                        className="w-full py-3 bg-gradient-to-r from-rd-cyan to-indigo-600 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-rd-cyan/20 cursor-pointer"
+                      >
+                        Submeter Respostas & Avaliar
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* ABA 4: CERTIFICADO OFICIAL WHITE-LABEL COM LOGO DA CLÍNICA & ASSINATURA */}
+              {classroomTab === "CERTIFICADO" && (
+                <div className="space-y-4 animate-in fade-in">
+                  
+                  {/* Visualização de Impressão do Certificado */}
+                  <div className="bg-white text-zinc-900 rounded-3xl p-6 sm:p-10 border-4 border-double border-zinc-300 shadow-2xl relative overflow-hidden font-serif">
+                    
+                    {/* Borda Decorativa Dourada/Cyan */}
+                    <div className="absolute inset-2 border-2 border-dashed border-amber-600/30 rounded-2xl pointer-events-none" />
+
+                    {/* Cabeçalho do Certificado */}
+                    <div className="flex items-center justify-between pb-6 border-b border-zinc-200 relative z-10">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-2xl bg-zinc-950 text-white flex items-center justify-center font-bold text-xl shadow-md">
+                          <HeartPulse size={26} className="text-cyan-400" />
+                        </div>
+                        <div>
+                          <h4 className="text-lg font-extrabold uppercase tracking-tight text-zinc-950">MedCore Health Care</h4>
+                          <p className="text-[10px] font-sans text-zinc-500 uppercase tracking-widest">Universidade Corporativa & Educação Médica Continuada</p>
+                        </div>
+                      </div>
+
+                      <div className="text-right">
+                        <span className="text-[10px] font-mono text-zinc-500 uppercase block">Registro de Autenticidade</span>
+                        <span className="text-xs font-mono font-bold text-indigo-700">MED-CERT-2026-9481</span>
+                      </div>
+                    </div>
+
+                    {/* Título & Corpo */}
+                    <div className="text-center py-8 space-y-4 relative z-10">
+                      <span className="text-xs uppercase font-sans tracking-widest text-amber-700 font-bold">
+                        Certificado de Conclusão e Habilitação
+                      </span>
+                      <h2 className="text-xl sm:text-3xl font-extrabold text-zinc-900 tracking-tight">
+                        Certificamos com louvor que o profissional
+                      </h2>
+                      <p className="text-xl sm:text-2xl font-bold text-indigo-900 underline decoration-cyan-500 decoration-2 underline-offset-4">
+                        Dr. Felipe Azevedo — CRM-SP 124.890
+                      </p>
+                      <p className="text-xs sm:text-sm text-zinc-600 max-w-2xl mx-auto font-sans leading-relaxed">
+                        concluiu com êxito a capacitação em <strong>{classroomCourse.titulo}</strong> com carga horária oficial de <strong>{classroomCourse.cargaHoraria}</strong>, obtendo aproveitamento satisfatório de 100% nas avaliações teóricas e práticas.
+                      </p>
+                    </div>
+
+                    {/* Rodapé com Assinaturas & QR Code */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-6 border-t border-zinc-200 relative z-10 font-sans text-xs">
+                      <div>
+                        <p className="text-[11px] text-zinc-500">Validação e Autenticidade Eletrônica:</p>
+                        <p className="font-mono text-[10px] text-zinc-700 mt-0.5">
+                          Hash SHA-256: 8a9f4c2e9102b371fc59b48f6c
+                        </p>
+                        <Link
+                          href="/validar-certificado?codigo=MED-CERT-2026-9481"
+                          target="_blank"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-cyan-700 hover:text-cyan-900 mt-1"
+                        >
+                          <ExternalLink size={12} /> Consultar Autenticidade em /validar-certificado
+                        </Link>
+                      </div>
+
+                      <div className="sm:text-right border-t sm:border-t-0 pt-3 sm:pt-0 border-zinc-200">
+                        <div className="w-40 sm:ml-auto border-b border-zinc-800 pb-1 mb-1 font-serif italic text-zinc-800 text-sm">
+                          Dr. Felipe Azevedo
+                        </div>
+                        <p className="font-bold text-zinc-900 text-xs">Dr. Felipe Azevedo</p>
+                        <p className="text-[10px] text-zinc-500 font-mono">Diretoria Médica • CRM-SP 124.890</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Ações do Certificado */}
+                  <div className="flex items-center justify-between gap-3 pt-2">
+                    <span className="text-xs text-zinc-400">Certificado emitido e registrado no banco institucional.</span>
+                    <button
+                      onClick={() => {
+                        window.print();
+                      }}
+                      className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs uppercase tracking-wider rounded-xl transition-all flex items-center gap-1.5 shadow-md shadow-emerald-500/20"
+                    >
+                      <Download size={14} /> Imprimir / Salvar PDF
+                    </button>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>

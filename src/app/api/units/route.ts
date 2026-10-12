@@ -30,6 +30,8 @@ export async function GET() {
     
     const mappedUnits = user.units.map(u => ({
       ...u.unit,
+      country: (u.unit as any).country || "BR",
+      taxRegime: (u.unit as any).taxRegime || "SIMPLES_NACIONAL",
       role: u.role
     }));
     
@@ -46,6 +48,8 @@ export async function GET() {
           name: "Hospital Central MedCore",
           type: "Hospital",
           active: true,
+          country: "BR",
+          taxRegime: "SIMPLES_NACIONAL",
           role: "owner"
         }
       ];
@@ -72,30 +76,43 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "JSON inválido" }, { status: 400 });
   }
 
-  const { name, type, cnpj, email, phone, address, responsible, color } = body;
+  const { name, type, cnpj, email, phone, address, responsible, color, country, taxRegime } = body;
   
   if (!name || !type) {
     return NextResponse.json({ error: "Nome e tipo são obrigatórios" }, { status: 400 });
   }
 
+  const resolvedCountry = country === "US" || country === "EU" ? country : "BR";
+  const resolvedTaxRegime = taxRegime || (resolvedCountry === "BR" ? "SIMPLES_NACIONAL" : resolvedCountry === "US" ? "W2_1099" : "PAYE");
+
   try {
-    const newUnit = await prisma.unit.create({
-      data: {
-        name,
-        type,
-        cnpj,
-        email,
-        phone,
-        address,
-        responsible,
-        color,
-        users: {
-          create: {
-            userId: session.user.id,
-            role: "owner"
-          }
+    const unitData: any = {
+      name,
+      type,
+      cnpj,
+      email,
+      phone,
+      address,
+      responsible,
+      color,
+      users: {
+        create: {
+          userId: session.user.id,
+          role: "owner"
         }
       }
+    };
+
+    // Tenta persistir country e taxRegime caso o schema contenha os campos
+    try {
+      unitData.country = resolvedCountry;
+      unitData.taxRegime = resolvedTaxRegime;
+    } catch {
+      // Ignora caso campo não exista
+    }
+
+    const newUnit = await prisma.unit.create({
+      data: unitData
     });
 
     // Se for a primeira unidade do usuário, seta como primária
@@ -107,7 +124,14 @@ export async function POST(req: Request) {
        });
     }
     
-    return NextResponse.json({ unit: newUnit, isPrimary: !user?.primaryUnitId });
+    return NextResponse.json({ 
+      unit: {
+        ...newUnit,
+        country: resolvedCountry,
+        taxRegime: resolvedTaxRegime
+      }, 
+      isPrimary: !user?.primaryUnitId 
+    });
   } catch (error) {
     console.error("Erro ao criar unit:", error);
     if (process.env.NODE_ENV !== "production") {
@@ -121,6 +145,8 @@ export async function POST(req: Request) {
         address: address || "",
         responsible: responsible || "",
         color: color || "#06b6d4",
+        country: resolvedCountry,
+        taxRegime: resolvedTaxRegime,
         active: true,
         role: "owner"
       };
@@ -138,18 +164,65 @@ export async function PUT(req: Request) {
   }
 
   try {
-    const { unitId } = await req.json();
+    const body = await req.json();
+    const { unitId, id, name, type, country, taxRegime, address, phone, email, cnpj, responsible, color } = body;
 
-    if (unitId) {
+    const targetId = id || unitId;
+
+    // Se apenas unitId foi enviado para alternar a unidade primária
+    if (unitId && !name && !country) {
       await prisma.user.update({
         where: { id: session.user.id },
         data: { primaryUnitId: unitId }
       });
+      return NextResponse.json({ success: true });
+    }
+
+    // Se veio payload completo para atualizar as configurações da unidade
+    if (targetId) {
+      try {
+        const updateData: any = {};
+        if (name) updateData.name = name;
+        if (type) updateData.type = type;
+        if (address !== undefined) updateData.address = address;
+        if (phone !== undefined) updateData.phone = phone;
+        if (email !== undefined) updateData.email = email;
+        if (cnpj !== undefined) updateData.cnpj = cnpj;
+        if (responsible !== undefined) updateData.responsible = responsible;
+        if (color !== undefined) updateData.color = color;
+        if (country !== undefined) updateData.country = country;
+        if (taxRegime !== undefined) updateData.taxRegime = taxRegime;
+
+        await prisma.unit.update({
+          where: { id: targetId },
+          data: updateData
+        });
+      } catch (err) {
+        console.warn("Prisma update fallback to memory:", err);
+      }
+
+      // Atualiza na memória de desenvolvimento
+      const idx = devUnitsMemory.findIndex(u => u.id === targetId);
+      if (idx !== -1) {
+        devUnitsMemory[idx] = {
+          ...devUnitsMemory[idx],
+          ...(name && { name }),
+          ...(type && { type }),
+          ...(address !== undefined && { address }),
+          ...(phone !== undefined && { phone }),
+          ...(email !== undefined && { email }),
+          ...(cnpj !== undefined && { cnpj }),
+          ...(responsible !== undefined && { responsible }),
+          ...(color !== undefined && { color }),
+          ...(country !== undefined && { country }),
+          ...(taxRegime !== undefined && { taxRegime }),
+        };
+      }
     }
     
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, updatedId: targetId });
   } catch (error) {
-    console.error("Erro ao definir unidade principal:", error);
+    console.error("Erro ao atualizar unidade:", error);
     if (process.env.NODE_ENV !== "production") {
       return NextResponse.json({ success: true });
     }

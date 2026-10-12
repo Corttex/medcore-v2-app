@@ -153,10 +153,117 @@ export default function FolhaBeneficiosPage() {
   const [lancamentoDescricao, setLancamentoDescricao] = useState("");
 
   // Multi-País / Global Payroll & Conectores
-  const [jurisdiction, setJurisdiction] = useState<"BR" | "US" | "EU">("BR");
+  const [jurisdiction, setJurisdiction] = useState<"BR" | "US" | "EU">((activeUnit as any)?.country || "BR");
   const [showApiConnectorModal, setShowApiConnectorModal] = useState(false);
   const [showAiTaxModal, setShowAiTaxModal] = useState(false);
   const [apiToken, setApiToken] = useState("medcore_sec_" + Math.random().toString(36).substring(2, 10));
+
+  useEffect(() => {
+    if ((activeUnit as any)?.country) {
+      setJurisdiction((activeUnit as any).country as "BR" | "US" | "EU");
+    }
+  }, [(activeUnit as any)?.country]);
+
+  const JURISDICTION_CONFIG = useMemo(() => ({
+    BR: {
+      flag: "🇧🇷",
+      name: "Brasil",
+      currency: "R$",
+      tabs: {
+        folha: "Folha Mensal & Holerites",
+        beneficios: "Benefícios & Convênios",
+        guias: "Guias & Tributos (eSocial)",
+        simulador: "Simulador CLT vs PJ",
+      },
+      kpis: {
+        bruto: "Folha Bruta Total",
+        liquido: "Líquido a Pagar",
+        beneficios: "Benefícios Concedidos",
+        encargos: "Encargos Hospitalares",
+        encargosDetail: "FGTS Digital + INSS Patronal + IRRF",
+      },
+      compliance: "eSocial S-1200 / S-1210 • DCTFWeb",
+      simulador: {
+        title: "Simulador CLT vs PJ (Médicos e Enfermagem)",
+        regimeA: "Regime CLT",
+        regimeB: "Regime PJ (Médico / Prestador)",
+        regimeADesc: "Equipe Assistencial / Fixa",
+        regimeBDesc: "Corpo Clínico & Especialistas",
+        salarioLabel: "Salário Base Pretendido",
+        adicionalLabel: "Adicional Insalubridade (NR-15):",
+        retencao1Label: "Desconto INSS:",
+        retencao2Label: "Desconto IRRF:",
+        custoEmpresaLabel: "Custo Total para a Clínica:",
+        custoDetail: "Inclui 20% INSS Patronal + 8% FGTS + Provisão 13º / Férias + Benefícios.",
+      }
+    },
+    US: {
+      flag: "🇺🇸",
+      name: "United States",
+      currency: "$",
+      tabs: {
+        folha: "Payroll & Pay Stubs",
+        beneficios: "Benefits & Perks (401k/Health)",
+        guias: "Taxes & Filings (IRS/W-2/1099)",
+        simulador: "Contractor vs W-2 Simulator",
+      },
+      kpis: {
+        bruto: "Gross Payroll Total",
+        liquido: "Net Pay Total",
+        beneficios: "Benefits & 401(k) Match",
+        encargos: "Employer Payroll Taxes",
+        encargosDetail: "FICA • Medicare • FUTA/SUTA Withholding",
+      },
+      compliance: "IRS W-2 / 1099-NEC • FICA Compliance",
+      simulador: {
+        title: "W-2 Employee vs 1099 Independent Contractor Simulator",
+        regimeA: "W-2 Salaried / Hourly",
+        regimeB: "1099 Medical Contractor",
+        regimeADesc: "Clinical Staff / Nursing",
+        regimeBDesc: "Attending Physicians & Specialists",
+        salarioLabel: "Base Pay / Gross Compensation",
+        adicionalLabel: "Shift Differential / Hazard:",
+        retencao1Label: "FICA Social Security & Medicare:",
+        retencao2Label: "Federal & State Withholding:",
+        custoEmpresaLabel: "Total Employer Healthcare Cost:",
+        custoDetail: "Includes Employer 7.65% FICA + FUTA/SUTA + Workers Comp + Health & 401(k).",
+      }
+    },
+    EU: {
+      flag: "🇪🇺",
+      name: "Europe / UK",
+      currency: "€",
+      tabs: {
+        folha: "Monthly Payroll & Payslips",
+        beneficios: "Benefits & Workplace Pension",
+        guias: "HMRC Taxes & Contributions (PAYE)",
+        simulador: "PAYE vs Contractor Simulator",
+      },
+      kpis: {
+        bruto: "Gross Payroll Total",
+        liquido: "Net Pay Total",
+        beneficios: "Benefits & Pension Package",
+        encargos: "Employer Social Contributions",
+        encargosDetail: "National Insurance (NIC) • Workplace Pension",
+      },
+      compliance: "HMRC PAYE • EU Social Security Accord",
+      simulador: {
+        title: "PAYE Staff vs Locum Doctor / Contractor Simulator",
+        regimeA: "Direct PAYE Staff",
+        regimeB: "Locum / Limited Company",
+        regimeADesc: "NHS / Clinic Salaried Staff",
+        regimeBDesc: "Locum Doctors & Medical Consultants",
+        salarioLabel: "Base Annual / Monthly Gross Pay",
+        adicionalLabel: "On-Call / Clinical Allowance:",
+        retencao1Label: "Employee National Insurance (NIC):",
+        retencao2Label: "PAYE Income Tax:",
+        custoEmpresaLabel: "Total Clinic Employment Cost:",
+        custoDetail: "Includes Employer Secondary NIC (13.8%) + Mandatory Workplace Pension (3%+).",
+      }
+    }
+  }), []);
+
+  const curConfig = JURISDICTION_CONFIG[jurisdiction] || JURISDICTION_CONFIG.BR;
 
   const handleExportExcel = () => {
     window.open(`/api/folha/export?competencia=${competencia}&format=csv&jurisdiction=${jurisdiction}`, "_blank");
@@ -460,8 +567,10 @@ export default function FolhaBeneficiosPage() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <Briefcase className="text-rd-cyan" size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Folha de Pagamento & Benefícios</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+              Unidade: <strong className="text-zinc-900 dark:text-zinc-100">{activeUnit?.name || "Unidade Central"}</strong>
+            </span>
           </div>
           <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-2.5 py-1 text-xs">
             <Globe size={14} className="text-rd-cyan" />
@@ -472,15 +581,13 @@ export default function FolhaBeneficiosPage() {
               className="bg-transparent text-zinc-900 dark:text-zinc-100 font-bold text-xs focus:outline-none cursor-pointer"
             >
               <option value="BR" className="bg-zinc-900 text-white">🇧🇷 Brasil (BRL • eSocial • CLT/PJ)</option>
-              <option value="US" className="bg-zinc-900 text-white">🇺🇸 USA (USD • IRS • W-2/1099 • Hourly)</option>
+              <option value="US" className="bg-zinc-900 text-white">🇺🇸 USA (USD • IRS • W-2/1099)</option>
               <option value="EU" className="bg-zinc-900 text-white">🇪🇺 Europe / UK (EUR • PAYE • HMRC)</option>
             </select>
           </div>
 
           <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 text-xs font-bold">
-            {jurisdiction === "BR" && "eSocial S-1200 / S-1210 • DCTFWeb"}
-            {jurisdiction === "US" && "IRS W-2 / 1099-NEC • FICA Compliance"}
-            {jurisdiction === "EU" && "HMRC PAYE • EU Social Security"}
+            {curConfig.compliance}
           </span>
 
           <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-2.5 py-1 text-xs">
@@ -506,7 +613,7 @@ export default function FolhaBeneficiosPage() {
             title="Exportar planilha Excel completa (.CSV UTF-8) com todos os proventos e retenções para o contador"
           >
             <FileSpreadsheet size={15} />
-            Exportar Excel (Contador)
+            Exportar Excel ({jurisdiction === "BR" ? "Contador" : jurisdiction === "US" ? "CPA" : "Accountant"})
           </button>
 
           <button
@@ -545,19 +652,19 @@ export default function FolhaBeneficiosPage() {
         </div>
       </div>
 
-      {/* Top KPIs / Cards de Resumo */}
+      {/* Top KPIs / Cards de Resumo com Nomenclaturas por País */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Folha Bruta Total */}
         <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-rd-cyan/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-rd-cyan/10 rounded-full blur-xl group-hover:bg-rd-cyan/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Folha Bruta Total</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{curConfig.kpis.bruto}</span>
             <div className="w-8 h-8 rounded-xl bg-rd-cyan/10 flex items-center justify-center text-rd-cyan">
               <DollarSign size={16} />
             </div>
           </div>
           <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
-            R$ {resumo?.totalBruto?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "115.354,80"}
+            {curConfig.currency} {resumo?.totalBruto?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "115.354,80"}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-xs font-semibold text-emerald-500">
             <TrendingUp size={13} />
@@ -570,13 +677,13 @@ export default function FolhaBeneficiosPage() {
         <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-emerald-500/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-500/10 rounded-full blur-xl group-hover:bg-emerald-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Líquido a Pagar</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{curConfig.kpis.liquido}</span>
             <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
               <Wallet size={16} />
             </div>
           </div>
           <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
-            R$ {resumo?.totalLiquido?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "90.871,05"}
+            {curConfig.currency} {resumo?.totalLiquido?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "90.871,05"}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
             <Clock size={13} className="text-amber-500" />
@@ -588,16 +695,16 @@ export default function FolhaBeneficiosPage() {
         <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-violet-500/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-violet-500/10 rounded-full blur-xl group-hover:bg-violet-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Benefícios Concedidos</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{curConfig.kpis.beneficios}</span>
             <div className="w-8 h-8 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-500">
               <HeartHandshake size={16} />
             </div>
           </div>
           <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
-            R$ {resumo?.totalBeneficios?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "13.560,00"}
+            {curConfig.currency} {resumo?.totalBeneficios?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "13.560,00"}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-            <span>VR/VA, Saúde, Odonto, VT & Vida</span>
+            <span>{jurisdiction === "BR" ? "VR/VA, Saúde, Odonto, VT & Vida" : jurisdiction === "US" ? "Health, Dental, 401(k) Match & HSA" : "Private Medical, Pension & Perks"}</span>
           </div>
         </div>
 
@@ -605,21 +712,21 @@ export default function FolhaBeneficiosPage() {
         <div className="p-5 bg-white dark:bg-zinc-900/85 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 shadow-md relative overflow-hidden group hover:border-amber-500/50 backdrop-blur-xl transition-all">
           <div className="absolute -right-6 -top-6 w-24 h-24 bg-amber-500/10 rounded-full blur-xl group-hover:bg-amber-500/20 transition-all" />
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Encargos Hospitalares</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">{curConfig.kpis.encargos}</span>
             <div className="w-8 h-8 rounded-xl bg-amber-500/10 flex items-center justify-center text-amber-500">
               <ShieldCheck size={16} />
             </div>
           </div>
           <p className="text-2xl lg:text-3xl font-heading font-extrabold text-zinc-900 dark:text-zinc-100 tabular-nums">
-            R$ {resumo?.totalEncargos?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "20.370,45"}
+            {curConfig.currency} {resumo?.totalEncargos?.toLocaleString("pt-BR", { minimumFractionDigits: 2 }) || "20.370,45"}
           </p>
           <div className="flex items-center gap-1.5 mt-2 text-xs text-zinc-500 dark:text-zinc-400">
-            <span>FGTS Digital + INSS Patronal + IRRF</span>
+            <span>{curConfig.kpis.encargosDetail}</span>
           </div>
         </div>
       </div>
 
-      {/* Abas de Navegação */}
+      {/* Abas de Navegação Personalizadas por Jurisdição */}
       <div className="flex items-center gap-2 border-b border-outline-variant/40 pb-1 overflow-x-auto">
         <button
           onClick={() => setActiveTab("FOLHA")}
@@ -631,7 +738,7 @@ export default function FolhaBeneficiosPage() {
           )}
         >
           <FileSpreadsheet size={16} />
-          Folha Mensal & Holerites
+          {curConfig.tabs.folha}
           <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-black/20">
             {colaboradores.length}
           </span>
@@ -647,7 +754,7 @@ export default function FolhaBeneficiosPage() {
           )}
         >
           <HeartHandshake size={16} />
-          Benefícios & Convênios
+          {curConfig.tabs.beneficios}
           <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-black/20">
             {beneficios.length}
           </span>
@@ -663,7 +770,7 @@ export default function FolhaBeneficiosPage() {
           )}
         >
           <Receipt size={16} />
-          Guias & Tributos (eSocial)
+          {curConfig.tabs.guias}
           <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-black/20">
             {guias.length}
           </span>
@@ -679,7 +786,7 @@ export default function FolhaBeneficiosPage() {
           )}
         >
           <Calculator size={16} />
-          Simulador CLT vs PJ
+          {curConfig.tabs.simulador}
           <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300">
             NOVO
           </span>
@@ -1092,19 +1199,21 @@ export default function FolhaBeneficiosPage() {
             <div>
               <h2 className="text-lg font-heading font-bold text-on-surface flex items-center gap-2">
                 <Calculator className="text-rd-cyan" size={20} />
-                Parâmetros de Contratação
+                {curConfig.simulador.title}
               </h2>
               <p className="text-xs text-on-surface-variant mt-1">
-                Simule custos trabalhistas hospitalares, insalubridade e encargos em tempo real.
+                {jurisdiction === "BR" && "Simule custos trabalhistas hospitalares, insalubridade e encargos em tempo real."}
+                {jurisdiction === "US" && "Simulate W-2 healthcare payroll vs 1099 contractor medical billing & tax liability."}
+                {jurisdiction === "EU" && "Simulate clinic direct PAYE costs vs Locum agency and contractor rates."}
               </p>
             </div>
 
             {/* Salário Base */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-on-surface flex justify-between">
-                <span>Salário Base Pretendido</span>
+                <span>{curConfig.simulador.salarioLabel}</span>
                 <span className="text-rd-cyan font-mono text-sm">
-                  R$ {simSalarioBase.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  {curConfig.currency} {simSalarioBase.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                 </span>
               </label>
               <input
@@ -1117,15 +1226,17 @@ export default function FolhaBeneficiosPage() {
                 className="w-full accent-rd-cyan cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-on-surface-variant font-mono">
-                <span>R$ 1.500</span>
-                <span>R$ 15.000</span>
-                <span>R$ 35.000</span>
+                <span>{curConfig.currency} 1.500</span>
+                <span>{curConfig.currency} 15.000</span>
+                <span>{curConfig.currency} 35.000</span>
               </div>
             </div>
 
             {/* Insalubridade Hospitalar */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-on-surface">Adicional de Insalubridade / Risco</label>
+              <label className="text-xs font-bold text-on-surface">
+                {jurisdiction === "BR" ? "Adicional de Insalubridade / Risco (NR-15)" : jurisdiction === "US" ? "Hazard / Shift Differential" : "Clinical Risk / On-Call Allowance"}
+              </label>
               <div className="grid grid-cols-4 gap-2">
                 {[
                   { label: "0% Nenhum", val: 0 },
@@ -1149,13 +1260,17 @@ export default function FolhaBeneficiosPage() {
                 ))}
               </div>
               <p className="text-[11px] text-on-surface-variant">
-                *20% hospitalar padrão calculado sobre salário mínimo (R$ 1.412,00). 40% para raio-X / radiação ionizante sobre salário base.
+                {jurisdiction === "BR" && "*20% hospitalar padrão calculado sobre salário mínimo (R$ 1.412,00). 40% para raio-X / radiação ionizante."}
+                {jurisdiction === "US" && "*Differential rate for night shifts, intensive care units and hazardous exposure."}
+                {jurisdiction === "EU" && "*Standard allowance for NHS high-intensity acute wards and unsocial hours."}
               </p>
             </div>
 
             {/* Dependentes IRRF */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-on-surface">Dependentes Legais para IRRF</label>
+              <label className="text-xs font-bold text-on-surface">
+                {jurisdiction === "BR" ? "Dependentes Legais para IRRF" : jurisdiction === "US" ? "W-4 Allowances & Dependents" : "Tax Dependents / Allowances"}
+              </label>
               <div className="flex items-center gap-3">
                 {[0, 1, 2, 3, 4].map((dep) => (
                   <button
@@ -1173,14 +1288,16 @@ export default function FolhaBeneficiosPage() {
                   </button>
                 ))}
                 <span className="text-xs text-on-surface-variant">
-                  (R$ {(simDependentes * 189.59).toFixed(2)} dedução base)
+                  ({curConfig.currency} {(simDependentes * 189.59).toFixed(2)} {jurisdiction === "BR" ? "dedução base" : "monthly credit"})
                 </span>
               </div>
             </div>
 
             {/* Benefícios Médios */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-on-surface">Custo Mensal de Benefícios (VR + VT + Saúde)</label>
+              <label className="text-xs font-bold text-on-surface">
+                {jurisdiction === "BR" ? "Custo Mensal de Benefícios (VR + VT + Saúde)" : jurisdiction === "US" ? "Health Insurance & Benefits Cost" : "Workplace Benefits & Pension Cost"}
+              </label>
               <input
                 type="number"
                 value={simBeneficiosEstimados}
@@ -1197,44 +1314,46 @@ export default function FolhaBeneficiosPage() {
               <div className="p-5 bg-surface border border-blue-500/30 rounded-2xl shadow-sm space-y-4 relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                    Regime CLT
+                    {curConfig.simulador.regimeA}
                   </span>
-                  <span className="text-xs text-on-surface-variant font-medium">Equipe Assistencial / Fixa</span>
+                  <span className="text-xs text-on-surface-variant font-medium">{curConfig.simulador.regimeADesc}</span>
                 </div>
 
                 <div>
-                  <span className="text-xs text-on-surface-variant block">Líquido Estimado do Colaborador:</span>
+                  <span className="text-xs text-on-surface-variant block">
+                    {jurisdiction === "BR" ? "Líquido Estimado do Colaborador:" : jurisdiction === "US" ? "Estimated Take-Home Pay (Net):" : "Estimated Net Take-Home:"}
+                  </span>
                   <p className="text-2xl font-heading font-bold text-emerald-400 font-mono mt-0.5">
-                    R$ {simuladorCalculado.liquidoCLT.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {curConfig.currency} {simuladorCalculado.liquidoCLT.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
 
                 <div className="space-y-2 pt-3 border-t border-outline-variant/30 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Salário Bruto Total:</span>
-                    <span className="font-mono text-on-surface">R$ {simuladorCalculado.salarioBrutoTotal.toFixed(2)}</span>
+                    <span className="text-on-surface-variant">{curConfig.simulador.salarioLabel}:</span>
+                    <span className="font-mono text-on-surface">{curConfig.currency} {simuladorCalculado.salarioBrutoTotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Adicional Insalubridade:</span>
-                    <span className="font-mono text-emerald-400">+R$ {simuladorCalculado.adicionalInsalubridade.toFixed(2)}</span>
+                    <span className="text-on-surface-variant">{curConfig.simulador.adicionalLabel}</span>
+                    <span className="font-mono text-emerald-400">+{curConfig.currency} {simuladorCalculado.adicionalInsalubridade.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Desconto INSS:</span>
-                    <span className="font-mono text-rose-400">-R$ {simuladorCalculado.inss.toFixed(2)}</span>
+                    <span className="text-on-surface-variant">{curConfig.simulador.retencao1Label}</span>
+                    <span className="font-mono text-rose-400">-{curConfig.currency} {simuladorCalculado.inss.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Desconto IRRF:</span>
-                    <span className="font-mono text-rose-400">-R$ {simuladorCalculado.irrf.toFixed(2)}</span>
+                    <span className="text-on-surface-variant">{curConfig.simulador.retencao2Label}</span>
+                    <span className="font-mono text-rose-400">-{curConfig.currency} {simuladorCalculado.irrf.toFixed(2)}</span>
                   </div>
                 </div>
 
                 <div className="p-3 bg-surface-container/60 rounded-xl border border-outline-variant/40 space-y-1.5 text-xs">
-                  <div className="text-on-surface font-bold">Custo Total para a Clínica:</div>
+                  <div className="text-on-surface font-bold">{curConfig.simulador.custoEmpresaLabel}</div>
                   <div className="text-xl font-heading font-bold text-rose-400 font-mono">
-                    R$ {simuladorCalculado.custoTotalClinicaCLT.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {curConfig.currency} {simuladorCalculado.custoTotalClinicaCLT.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                   <div className="text-[10px] text-on-surface-variant">
-                    Inclui 20% INSS Patronal + 8% FGTS + Provisão 13º / Férias + Benefícios.
+                    {curConfig.simulador.custoDetail}
                   </div>
                 </div>
               </div>
@@ -1243,40 +1362,50 @@ export default function FolhaBeneficiosPage() {
               <div className="p-5 bg-surface border border-purple-500/30 rounded-2xl shadow-sm space-y-4 relative overflow-hidden">
                 <div className="flex items-center justify-between">
                   <span className="px-2.5 py-1 rounded-xl text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">
-                    Regime PJ (Médico / Prestador)
+                    {curConfig.simulador.regimeB}
                   </span>
-                  <span className="text-xs text-on-surface-variant font-medium">Corpo Clínico & Especialistas</span>
+                  <span className="text-xs text-on-surface-variant font-medium">{curConfig.simulador.regimeBDesc}</span>
                 </div>
 
                 <div>
-                  <span className="text-xs text-on-surface-variant block">Líquido Estimado do Prestador:</span>
+                  <span className="text-xs text-on-surface-variant block">
+                    {jurisdiction === "BR" ? "Líquido Estimado do Prestador:" : jurisdiction === "US" ? "Net Contractor Earnings:" : "Net Locum / Limited Fee:"}
+                  </span>
                   <p className="text-2xl font-heading font-bold text-emerald-400 font-mono mt-0.5">
-                    R$ {simuladorCalculado.liquidoPJ.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {curConfig.currency} {simuladorCalculado.liquidoPJ.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
 
                 <div className="space-y-2 pt-3 border-t border-outline-variant/30 text-xs">
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Nota Fiscal Emitida:</span>
-                    <span className="font-mono text-on-surface">R$ {simSalarioBase.toFixed(2)}</span>
+                    <span className="text-on-surface-variant">
+                      {jurisdiction === "BR" ? "Nota Fiscal Emitida:" : jurisdiction === "US" ? "1099 Invoiced Amount:" : "Contractor Invoice Total:"}
+                    </span>
+                    <span className="font-mono text-on-surface">{curConfig.currency} {simSalarioBase.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Imposto Simples Nacional (~6%):</span>
-                    <span className="font-mono text-rose-400">-R$ {(simSalarioBase * 0.06).toFixed(2)}</span>
+                    <span className="text-on-surface-variant">
+                      {jurisdiction === "BR" ? "Imposto Simples Nacional (~6%):" : jurisdiction === "US" ? "Self-Employment Tax Est. (~7%):" : "Corp Tax / Self-Assessment (~7%):"}
+                    </span>
+                    <span className="font-mono text-rose-400">-{curConfig.currency} {(simSalarioBase * 0.06).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-on-surface-variant">Encargos CLT:</span>
-                    <span className="font-mono text-emerald-400">R$ 0,00</span>
+                    <span className="text-on-surface-variant">
+                      {jurisdiction === "BR" ? "Encargos CLT:" : jurisdiction === "US" ? "W-2 FICA Burden:" : "Employer NIC Burden:"}
+                    </span>
+                    <span className="font-mono text-emerald-400">{curConfig.currency} 0,00</span>
                   </div>
                 </div>
 
                 <div className="p-3 bg-surface-container/60 rounded-xl border border-outline-variant/40 space-y-1.5 text-xs">
-                  <div className="text-on-surface font-bold">Custo Total para a Clínica:</div>
+                  <div className="text-on-surface font-bold">{curConfig.simulador.custoEmpresaLabel}</div>
                   <div className="text-xl font-heading font-bold text-purple-400 font-mono">
-                    R$ {simuladorCalculado.custoTotalClinicaPJ.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    {curConfig.currency} {simuladorCalculado.custoTotalClinicaPJ.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
                   <div className="text-[10px] text-on-surface-variant">
-                    Sem passivo trabalhista de INSS patronal, FGTS ou aviso prévio.
+                    {jurisdiction === "BR" && "Sem passivo trabalhista de INSS patronal, FGTS ou aviso prévio."}
+                    {jurisdiction === "US" && "Zero employer payroll tax liability, 1099-NEC direct disbursement."}
+                    {jurisdiction === "EU" && "B2B medical services invoice, exempt from employer NIC & auto-enrolment."}
                   </div>
                 </div>
               </div>

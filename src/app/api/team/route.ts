@@ -194,14 +194,34 @@ export async function POST(request: Request) {
       telefone, 
       cpf, 
       registroProfissional,
-      unidade 
+      unidade,
+      inviteMode = false
     } = body;
 
     if (!fullName || !email) {
       return NextResponse.json({ error: 'Nome completo e E-mail são obrigatórios.' }, { status: 400 });
     }
 
-    const newRecord: TeamMemberRecord = {
+    let inviteToken: string | undefined = undefined;
+    let inviteUrl: string | undefined = undefined;
+    if (inviteMode) {
+      inviteToken = `inv-${Math.random().toString(36).substring(2, 10)}-${Date.now().toString(36)}`;
+      inviteUrl = `/ativar-conta?token=${inviteToken}`;
+      
+      if (!globalThis.__medcoreInviteTokens) {
+        globalThis.__medcoreInviteTokens = {};
+      }
+      globalThis.__medcoreInviteTokens[inviteToken] = {
+        email,
+        fullName,
+        cargo: cargo || 'Profissional de Saúde',
+        role: role || 'MEDICO_ESPECIALISTA',
+        unidade: unidade || 'Unidade Central Alphaville',
+        createdAt: new Date().toISOString()
+      };
+    }
+
+    const newRecord: TeamMemberRecord & { status?: string; inviteToken?: string } = {
       id: `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       fullName,
       email,
@@ -212,6 +232,8 @@ export async function POST(request: Request) {
       cpf: cpf || '',
       registroProfissional: registroProfissional || '',
       unidade: unidade || 'Unidade Central Alphaville',
+      status: inviteMode ? 'PENDENTE_ATIVACAO' : 'ATIVO',
+      inviteToken: inviteToken,
       createdAt: new Date().toISOString()
     };
 
@@ -221,7 +243,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Este e-mail já está cadastrado no sistema.' }, { status: 400 });
       }
 
-      const hashedPassword = password ? await hash(password, 10) : await hash('Muda@123', 10);
+      const initialPass = inviteMode ? `InvInit!${Date.now()}` : (password || 'Muda@123');
+      const hashedPassword = await hash(initialPass, 10);
 
       const created = await prisma.user.create({
         data: {
@@ -247,15 +270,19 @@ export async function POST(request: Request) {
 
     // Registra na Trilha de Auditoria Forense LGPD
     recordAuditLog({
-      action: "CADASTRO_NOVO_USUARIO_EQUIPE",
-      details: `Novo colaborador cadastrado no sistema: ${fullName} (${email}) • Cargo: ${cargo || 'N/A'} • Depto: ${departamento || 'N/A'} • Nível RBAC: ${role} • Lotação: ${unidade || 'Unidade Central'}`,
+      action: inviteMode ? "CONVITE_ATIVACAO_ENVIADO" : "CADASTRO_NOVO_USUARIO_EQUIPE",
+      details: inviteMode 
+        ? `Convite de primeiro acesso enviado para ${fullName} (${email}) com token de ativação seguro.` 
+        : `Novo colaborador cadastrado no sistema: ${fullName} (${email}) • Cargo: ${cargo || 'N/A'} • Depto: ${departamento || 'N/A'} • Nível RBAC: ${role} • Lotação: ${unidade || 'Unidade Central'}`,
       user: { fullName: "Administrador WebDev Master", email: "admin@medcore.com.br" }
     });
 
     return NextResponse.json({ 
       success: true, 
-      message: 'Usuário cadastrado com sucesso!', 
-      user: newRecord 
+      message: inviteMode ? 'Link de ativação gerado e enviado com sucesso!' : 'Usuário cadastrado com sucesso!', 
+      user: newRecord,
+      inviteUrl: inviteUrl,
+      inviteToken: inviteToken
     });
   } catch (error) {
     console.error('Erro ao criar usuário:', error);

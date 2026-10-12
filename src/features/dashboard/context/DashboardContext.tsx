@@ -7,6 +7,14 @@ export interface Unit {
   name: string;
   type: string;
   active: boolean;
+  country?: "BR" | "US" | "EU";
+  taxRegime?: string;
+  address?: string | null;
+  responsible?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  cnpj?: string | null;
+  color?: string | null;
 }
 
 interface DashboardContextType {
@@ -16,7 +24,9 @@ interface DashboardContextType {
   selectedUnitId: string | null;
   setSelectedUnitId: (id: string | null) => void;
   units: Unit[];
+  activeUnit?: Unit;
   loadingUnits: boolean;
+  refreshUnits: () => Promise<void>;
 }
 
 const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
@@ -25,7 +35,9 @@ const defaultUnit: Unit = {
   id: "default-unit-1",
   name: "Hospital Central MedCore",
   type: "Hospital Geral",
-  active: true
+  active: true,
+  country: "BR",
+  taxRegime: "SIMPLES_NACIONAL"
 };
 
 export function DashboardProvider({ children }: { children: ReactNode }) {
@@ -34,44 +46,47 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
   const [units, setUnits] = useState<Unit[]>([]);
   const [loadingUnits, setLoadingUnits] = useState<boolean>(true);
 
+  const fetchUnits = async () => {
+    try {
+      const res = await fetch("/api/units");
+      if (res.ok) {
+        const data = await res.json();
+        let loadedUnits = data.units || [];
+
+        // Se estiver em modo bypass de desenvolvimento e a lista vier vazia
+        if (loadedUnits.length === 0 && typeof window !== "undefined" && localStorage.getItem("medcore_bypass_unit") === "true") {
+          loadedUnits = [defaultUnit];
+        }
+
+        setUnits(loadedUnits);
+        
+        if (loadedUnits.length > 0) {
+          if (data.primaryUnitId) {
+            setSelectedUnitId(data.primaryUnitId);
+          } else if (!selectedUnitId) {
+            setSelectedUnitId(loadedUnits[0].id);
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Erro ao buscar unidades:", err);
+    } finally {
+      setLoadingUnits(false);
+    }
+  };
+
   useEffect(() => {
     if (typeof window !== "undefined") {
       const savedUnit = localStorage.getItem("medcore_selected_unit");
       if (savedUnit) setSelectedUnitId(savedUnit);
     }
 
-    async function fetchUnits() {
-      try {
-        const res = await fetch("/api/units");
-        if (res.ok) {
-          const data = await res.json();
-          let loadedUnits = data.units || [];
-
-          // Se estiver em modo bypass de desenvolvimento e a lista vier vazia
-          if (loadedUnits.length === 0 && typeof window !== "undefined" && localStorage.getItem("medcore_bypass_unit") === "true") {
-            loadedUnits = [defaultUnit];
-          }
-
-          setUnits(loadedUnits);
-          
-          if (loadedUnits.length > 0) {
-            if (data.primaryUnitId) {
-              setSelectedUnitId(data.primaryUnitId);
-            } else if (!selectedUnitId) {
-              setSelectedUnitId(loadedUnits[0].id);
-            }
-          }
-        }
-      } catch (err) {
-        console.error("Erro ao buscar unidades:", err);
-      } finally {
-        setLoadingUnits(false);
-      }
-    }
     fetchUnits();
   }, []);
 
   const toggleMobileMenu = () => setMobileMenuOpen((prev) => !prev);
+
+  const activeUnit = units.find((u) => u.id === selectedUnitId) || units[0] || defaultUnit;
 
   return (
     <DashboardContext.Provider 
@@ -82,7 +97,9 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
         selectedUnitId,
         setSelectedUnitId,
         units,
-        loadingUnits
+        activeUnit,
+        loadingUnits,
+        refreshUnits: fetchUnits
       }}
     >
       {children}

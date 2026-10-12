@@ -26,8 +26,13 @@ import {
   Eye,
   EyeOff,
   Pencil,
-  RotateCcw
+  RotateCcw,
+  Sparkles,
+  Send,
+  Copy,
+  ExternalLink
 } from "lucide-react";
+import { usePlan, PlanLevel } from "@/context/PlanContext";
 
 export interface TeamMember {
   id: string;
@@ -40,6 +45,8 @@ export interface TeamMember {
   cpf?: string;
   registroProfissional?: string;
   unidade?: string;
+  status?: string;
+  inviteToken?: string;
   createdAt: string;
 }
 
@@ -218,19 +225,38 @@ export const HEALTHCARE_ROLES: RoleDefinition[] = [
 ];
 
 export default function EquipePage() {
+  const { activePlan, setActivePlan } = usePlan();
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Modais
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   
+  // Modo de Onboarding no Modal: "SENHA" ou "CONVITE_EMAIL"
+  const [createMode, setCreateMode] = useState<"SENHA" | "CONVITE_EMAIL">("CONVITE_EMAIL");
+  const [lastGeneratedInvite, setLastGeneratedInvite] = useState<{ url: string; token: string; email: string } | null>(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("TODOS");
   const [showPassword, setShowPassword] = useState(false);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  // Limite de Usuários por Plano
+  const planLimits: Record<PlanLevel, { max: number; label: string; nextPlan?: PlanLevel }> = {
+    BASIC: { max: 5, label: "Plano Básico (Até 5 Usuários)", nextPlan: "PRO" },
+    PRO: { max: 20, label: "Plano Profissional (Até 20 Usuários)", nextPlan: "MAX" },
+    MAX: { max: 9999, label: "Plano Enterprise / Max (Ilimitado)" }
+  };
+
+  const currentLimit = planLimits[activePlan] || planLimits.BASIC;
+  const isQuotaReached = team.length >= currentLimit.max;
+  const quotaPercent = Math.min(100, Math.round((team.length / currentLimit.max) * 100));
 
   // Formulário de Cadastro
   const [createForm, setCreateForm] = useState({
@@ -260,8 +286,6 @@ export default function EquipePage() {
     password: "",
     role: "MEDICO_ESPECIALISTA"
   });
-
-  const [errorMessage, setErrorMessage] = useState("");
 
   const fetchTeam = async () => {
     try {
@@ -304,13 +328,25 @@ export default function EquipePage() {
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (isQuotaReached) {
+      setShowCreateModal(false);
+      setShowUpgradeModal(true);
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
+      const payload = {
+        ...createForm,
+        inviteMode: createMode === "CONVITE_EMAIL"
+      };
+
       const res = await fetch("/api/team", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(createForm)
+        body: JSON.stringify(payload)
       });
       const data = await res.json();
 
@@ -320,9 +356,19 @@ export default function EquipePage() {
         return;
       }
 
-      setShowCreateModal(false);
-      setActionSuccess("Novo colaborador cadastrado com sucesso! Evento registrado na auditoria LGPD.");
-      setTimeout(() => setActionSuccess(null), 4000);
+      if (createMode === "CONVITE_EMAIL" && data.inviteUrl) {
+        setLastGeneratedInvite({
+          url: window.location.origin + data.inviteUrl,
+          token: data.inviteToken,
+          email: createForm.email
+        });
+        setActionSuccess(`Convite gerado com sucesso para ${createForm.email}! Link de ativação pronto para compartilhamento.`);
+      } else {
+        setShowCreateModal(false);
+        setActionSuccess("Novo colaborador cadastrado com sucesso! Evento registrado na auditoria LGPD.");
+      }
+      
+      setTimeout(() => setActionSuccess(null), 6000);
 
       // Reseta form de criação
       setCreateForm({
@@ -448,33 +494,80 @@ export default function EquipePage() {
         </div>
       )}
 
-      {/* Action Bar Superior Responsiva */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-4 sm:px-5 py-3.5 sm:py-4 rounded-2xl shadow-sm backdrop-blur-md">
-        <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+      {/* Action Bar Superior Responsiva com Medidor de Cota do Plano */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-4 sm:px-5 py-4 rounded-2xl shadow-sm backdrop-blur-md">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">
-              Gestão de Equipe & Controle RBAC
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300 flex items-center gap-1.5">
+              <Users size={14} className="text-rd-cyan" />
+              Quadro de Colaboradores
             </span>
           </div>
           <span className="text-zinc-300 dark:text-zinc-700 hidden sm:inline">|</span>
-          <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
-            {team.length} Colaboradores Ativos
-          </span>
-          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium hidden lg:inline">
-            22 Perfis de Saúde Auditados
-          </span>
+          
+          {/* MEDIDOR DE COTA DE USUÁRIOS NO PLANO */}
+          <div className="flex items-center gap-3 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700 px-3.5 py-1.5 rounded-xl">
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold text-zinc-700 dark:text-zinc-200">
+                  {currentLimit.max < 9000 ? `${team.length} de ${currentLimit.max} Colaboradores` : `${team.length} Colaboradores (Ilimitado)`}
+                </span>
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold border border-primary/20">
+                  Plano {activePlan === "BASIC" ? "Básico" : activePlan === "PRO" ? "Pro" : "Enterprise"}
+                </span>
+              </div>
+              {currentLimit.max < 9000 && (
+                <div className="w-36 h-1.5 bg-zinc-300 dark:bg-zinc-700 rounded-full overflow-hidden mt-1">
+                  <div 
+                    className={`h-full transition-all duration-500 ${quotaPercent >= 100 ? "bg-rose-500" : quotaPercent >= 80 ? "bg-amber-500" : "bg-rd-cyan"}`} 
+                    style={{ width: `${quotaPercent}%` }} 
+                  />
+                </div>
+              )}
+            </div>
+            {isQuotaReached && currentLimit.max < 9000 && (
+              <button
+                onClick={() => setShowUpgradeModal(true)}
+                className="text-[10px] font-bold uppercase px-2 py-1 rounded-lg bg-amber-500 text-zinc-950 hover:bg-amber-400 transition-colors shadow-sm cursor-pointer animate-pulse"
+              >
+                Upgrade de Plano
+              </button>
+            )}
+          </div>
         </div>
 
-        <button 
-          onClick={() => {
-            setErrorMessage("");
-            setShowCreateModal(true);
-          }} 
-          className="w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shrink-0 bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 shadow-md shadow-rd-cyan/20 cursor-pointer active:scale-95"
-        >
-          <Plus size={16} /> Cadastrar Novo Usuário
-        </button>
+        <div className="flex items-center gap-2.5">
+          {currentLimit.nextPlan && (
+            <button
+              onClick={() => setShowUpgradeModal(true)}
+              className="px-3 py-2 rounded-xl border border-zinc-300 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 hover:text-rd-cyan hover:border-rd-cyan/50 text-xs font-semibold transition-all flex items-center gap-1.5"
+            >
+              <Sparkles size={13} className="text-amber-500" />
+              <span>Gerenciar Cota</span>
+            </button>
+          )}
+
+          <button 
+            onClick={() => {
+              setErrorMessage("");
+              setLastGeneratedInvite(null);
+              if (isQuotaReached) {
+                setShowUpgradeModal(true);
+              } else {
+                setShowCreateModal(true);
+              }
+            }} 
+            className={`w-full sm:w-auto px-4 sm:px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer active:scale-95 shadow-md ${
+              isQuotaReached 
+                ? "bg-zinc-300 dark:bg-zinc-800 text-zinc-500 border border-zinc-400 dark:border-zinc-700 cursor-not-allowed" 
+                : "bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 shadow-rd-cyan/20"
+            }`}
+          >
+            <Plus size={16} /> 
+            {isQuotaReached ? "Cota Atingida (Faça Upgrade)" : "Cadastrar Novo Usuário"}
+          </button>
+        </div>
       </div>
 
       {/* Métricas Resumidas da Equipe */}
@@ -596,9 +689,20 @@ export default function EquipePage() {
                             {member.fullName ? member.fullName.charAt(0).toUpperCase() : "U"}
                           </div>
                           <div>
-                            <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm leading-tight">
-                              {member.fullName || "Sem Nome"}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm leading-tight">
+                                {member.fullName || "Sem Nome"}
+                              </p>
+                              {member.status === "PENDENTE_ATIVACAO" ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                  Convite Pendente
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[9px] font-semibold px-1.5 py-0.2 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                  Ativo
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5 mt-0.5">
                               <Mail size={11} /> {member.email}
                             </p>
@@ -724,6 +828,73 @@ export default function EquipePage() {
               <div className="p-3.5 bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 rounded-xl text-rose-700 dark:text-rose-300 text-xs font-semibold flex items-center gap-2">
                 <AlertCircle size={16} className="shrink-0 text-rose-500" />
                 <span>{errorMessage}</span>
+              </div>
+            )}
+
+            {/* Alternador de Método de Onboarding: Senha Provisória vs Enviar Link de Ativação por E-mail */}
+            <div className="grid grid-cols-2 p-1 bg-zinc-100 dark:bg-zinc-800/80 rounded-2xl border border-zinc-200 dark:border-zinc-700">
+              <button
+                type="button"
+                onClick={() => setCreateMode("CONVITE_EMAIL")}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  createMode === "CONVITE_EMAIL"
+                    ? "bg-white dark:bg-zinc-900 text-rd-cyan shadow-sm border border-zinc-200 dark:border-zinc-700"
+                    : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                }`}
+              >
+                <Send size={14} />
+                <span>Link de Ativação por E-mail</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setCreateMode("SENHA")}
+                className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                  createMode === "SENHA"
+                    ? "bg-white dark:bg-zinc-900 text-rd-cyan shadow-sm border border-zinc-200 dark:border-zinc-700"
+                    : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
+                }`}
+              >
+                <Key size={14} />
+                <span>Definir Senha Provisória</span>
+              </button>
+            </div>
+
+            {/* Sucesso com Link de Ativação Gerado */}
+            {lastGeneratedInvite && (
+              <div className="p-4 bg-rd-cyan/10 border-2 border-rd-cyan/30 rounded-2xl space-y-3 animate-in zoom-in-95">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 size={18} className="text-rd-cyan" />
+                    <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+                      Link de Ativação Gerado!
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-zinc-500 font-mono">Token válido por 72h</span>
+                </div>
+                <p className="text-xs text-zinc-600 dark:text-zinc-300">
+                  Compartilhe com o colaborador <strong>{lastGeneratedInvite.email}</strong> para que ele defina sua senha definitiva:
+                </p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={lastGeneratedInvite.url}
+                    className="flex-1 bg-white dark:bg-zinc-900 border border-rd-cyan/40 rounded-xl px-3 py-2 text-xs font-mono text-zinc-900 dark:text-zinc-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(lastGeneratedInvite.url);
+                      setCopiedLink(true);
+                      setTimeout(() => setCopiedLink(false), 2500);
+                    }}
+                    className="px-3.5 py-2 bg-rd-cyan text-zinc-950 font-bold text-xs rounded-xl hover:bg-rd-cyan/90 transition-all flex items-center gap-1.5 shadow-sm"
+                  >
+                    <Copy size={13} />
+                    {copiedLink ? "Copiado!" : "Copiar Link"}
+                  </button>
+                </div>
               </div>
             )}
 
@@ -886,27 +1057,40 @@ export default function EquipePage() {
                 </div>
               </div>
 
-              <div>
-                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Senha Provisória *</label>
-                <div className="relative">
-                  <input
-                    required
-                    type={showPassword ? "text" : "password"}
-                    minLength={6}
-                    placeholder="Mínimo de 6 caracteres"
-                    value={createForm.password}
-                    onChange={e => setCreateForm({...createForm, password: e.target.value})}
-                    className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
-                  >
-                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
+              {/* Se for modo SENHA, exibe campo de senha. Se for CONVITE_EMAIL, exibe informativo */}
+              {createMode === "SENHA" ? (
+                <div>
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">Senha Provisória *</label>
+                  <div className="relative">
+                    <input
+                      required
+                      type={showPassword ? "text" : "password"}
+                      minLength={6}
+                      placeholder="Mínimo de 6 caracteres"
+                      value={createForm.password}
+                      onChange={e => setCreateForm({...createForm, password: e.target.value})}
+                      className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl pl-3.5 pr-10 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:border-rd-cyan focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-rd-cyan/5 border border-rd-cyan/20 flex items-start gap-3">
+                  <Mail size={18} className="text-rd-cyan shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-xs font-bold text-zinc-900 dark:text-zinc-100">Convite Seguro por E-mail</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                      Um link de ativação com token criptográfico seguro será gerado para o colaborador. Assim que ele definir a senha definitiva, um alerta em tempo real será disparado no sino do Gestor.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="flex items-center gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
                 <button
@@ -921,10 +1105,75 @@ export default function EquipePage() {
                   disabled={isSubmitting}
                   className="flex-1 py-3 rounded-xl bg-rd-cyan text-zinc-950 hover:bg-rd-cyan/90 text-xs font-bold uppercase tracking-wider shadow-lg shadow-rd-cyan/20 flex items-center justify-center gap-2"
                 >
-                  {isSubmitting ? "Salvando..." : <><UserCheck size={16} /> Cadastrar</>}
+                  {isSubmitting ? (
+                    "Processando..."
+                  ) : createMode === "CONVITE_EMAIL" ? (
+                    <><Send size={16} /> Enviar Link de Ativação</>
+                  ) : (
+                    <><UserCheck size={16} /> Cadastrar com Senha</>
+                  )}
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1.5: UPGRADE DE PLANO (TRAVA DE COTA) */}
+      {showUpgradeModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-5 overflow-y-auto">
+          <div className="bg-white dark:bg-zinc-900 border-2 border-amber-500/50 text-zinc-900 dark:text-zinc-100 rounded-3xl shadow-2xl w-full max-w-lg p-6 sm:p-8 space-y-5 animate-in fade-in zoom-in-95 relative">
+            <div className="flex items-start justify-between pb-3 border-b border-zinc-200 dark:border-zinc-800">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500">
+                  <Sparkles size={20} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Limite de Colaboradores Atingido</h3>
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">Plano Atual: {currentLimit.label}</p>
+                </div>
+              </div>
+              <button onClick={() => setShowUpgradeModal(false)} className="p-2 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200">
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs text-zinc-600 dark:text-zinc-300">
+              <p>
+                Sua clínica está utilizando <strong>{team.length} de {currentLimit.max} licenças</strong> contratadas no <strong>{activePlan}</strong>.
+              </p>
+              <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/60 rounded-xl border border-zinc-200 dark:border-zinc-700 space-y-2">
+                <p className="font-bold text-zinc-900 dark:text-zinc-100">Disponível no Plano Superior:</p>
+                <ul className="list-disc list-inside space-y-1 text-zinc-500 dark:text-zinc-400">
+                  <li>Até 20 colaboradores no Plano Pro ou Ilimitado no Enterprise</li>
+                  <li>Módulos de Auditoria Forense Avançada e SLA Hospitalar</li>
+                  <li>Integrações com convênios TISS e Prontuário RAG com IA</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowUpgradeModal(false)}
+                className="flex-1 py-2.5 rounded-xl border border-zinc-300 dark:border-zinc-700 text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider"
+              >
+                Voltar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (activePlan === "BASIC") setActivePlan("PRO");
+                  else if (activePlan === "PRO") setActivePlan("MAX");
+                  setShowUpgradeModal(false);
+                  setActionSuccess("Upgrade de plano simulado com sucesso! Cota expandida.");
+                  setTimeout(() => setActionSuccess(null), 4000);
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-zinc-950 text-xs font-bold uppercase tracking-wider shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2"
+              >
+                <Sparkles size={14} /> Fazer Upgrade Agora
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,187 +1,516 @@
 "use client";
 
-import React, { useState } from "react";
-import { Users, Calendar as CalendarIcon, Clock, ShieldCheck, ChevronLeft, ChevronRight, Plus, MoreVertical, Filter, Stethoscope } from "lucide-react";
+import React, { useState, useMemo } from "react";
+import { 
+  Users, 
+  Calendar as CalendarIcon, 
+  Clock, 
+  ShieldCheck, 
+  ChevronLeft, 
+  ChevronRight, 
+  Plus, 
+  Filter, 
+  Stethoscope, 
+  CheckCircle2, 
+  AlertCircle, 
+  X, 
+  Edit3, 
+  ArrowLeftRight, 
+  Search, 
+  Moon, 
+  Sun, 
+  Building2,
+  Trash2,
+  UserCheck,
+  Check
+} from "lucide-react";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
 import { cn } from "@/lib/utils";
 
-const MOCK_PROFISSIONAIS = [
-  { id: 1, name: "Dra. Ana Silva", role: "Dermatologista", status: "Em Plantão", time: "08:00 - 18:00", avatar: "AS" },
-  { id: 2, name: "Dr. Carlos Mendes", role: "Clínica Geral", status: "Folga", time: "-", avatar: "CM" },
-  { id: 3, name: "Mariana Costa", role: "Enfermeira Chefe", status: "Em Plantão", time: "07:00 - 19:00", avatar: "MC" },
-  { id: 4, name: "Juliana Santos", role: "Recepcionista", status: "Ausente", time: "08:00 - 17:00", avatar: "JS", alert: "Atestado Médico" },
-];
+interface ProfissionalEscala {
+  id: number;
+  name: string;
+  role: string;
+  setor: string;
+  categoria: "MEDICO" | "ENFERMAGEM" | "OUTRO";
+  status: "Em Plantão" | "Folga" | "Ausente" | "Sobreaviso";
+  time: string;
+  avatar: string;
+  alert?: string;
+}
+
+interface ShiftSlot {
+  id: string;
+  profId: number;
+  dayIndex: number; // 0 a 6 (Segunda a Domingo)
+  tipo: "DIURNO" | "NOTURNO" | "24H" | "FOLGA" | "SOBREAVISO";
+  horario: string;
+  setor: string;
+  status: "CONFIRMADO" | "PENDENTE" | "TROCA_SOLICITADA" | "FOLGA";
+}
 
 const WEEK_DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
-export default function RHPage() {
+const INITIAL_PROFISSIONAIS: ProfissionalEscala[] = [
+  { id: 1, name: "Dr. Felipe Azevedo", role: "Cirurgião Geral", setor: "Bloco Cirúrgico", categoria: "MEDICO", status: "Em Plantão", time: "07:00 - 19:00", avatar: "FA" },
+  { id: 2, name: "Dra. Beatriz Albuquerque", role: "Cardiologista", setor: "UTI Geral", categoria: "MEDICO", status: "Em Plantão", time: "07:00 - 19:00", avatar: "BA" },
+  { id: 3, name: "Dr. Carlos Mendes", role: "Clínico Geral", setor: "Pronto Atendimento", categoria: "MEDICO", status: "Folga", time: "-", avatar: "CM" },
+  { id: 4, name: "Mariana Costa", role: "Enfermeira Chefe UTI", setor: "UTI Geral", categoria: "ENFERMAGEM", status: "Em Plantão", time: "07:00 - 19:00", avatar: "MC" },
+  { id: 5, name: "Juliana Santos", role: "Técnica de Enfermagem", setor: "Pronto Atendimento", categoria: "ENFERMAGEM", status: "Ausente", time: "08:00 - 17:00", avatar: "JS", alert: "Atestado Médico" },
+  { id: 6, name: "Dr. Roberto Camargo", role: "Anestesiologista", setor: "Bloco Cirúrgico", categoria: "MEDICO", status: "Sobreaviso", time: "24h Sobreaviso", avatar: "RC" },
+];
+
+const INITIAL_SHIFTS: ShiftSlot[] = [
+  // Dr. Felipe Azevedo
+  { id: "s-1-0", profId: 1, dayIndex: 0, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+  { id: "s-1-1", profId: 1, dayIndex: 1, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
+  { id: "s-1-2", profId: 1, dayIndex: 2, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+  { id: "s-1-3", profId: 1, dayIndex: 3, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
+  { id: "s-1-4", profId: 1, dayIndex: 4, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+  { id: "s-1-5", profId: 1, dayIndex: 5, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
+  { id: "s-1-6", profId: 1, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
+
+  // Dra. Beatriz Albuquerque
+  { id: "s-2-0", profId: 2, dayIndex: 0, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
+  { id: "s-2-1", profId: 2, dayIndex: 1, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
+  { id: "s-2-2", profId: 2, dayIndex: 2, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
+  { id: "s-2-3", profId: 2, dayIndex: 3, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
+  { id: "s-2-4", profId: 2, dayIndex: 4, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
+  { id: "s-2-5", profId: 2, dayIndex: 5, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "UTI Geral", status: "CONFIRMADO" },
+  { id: "s-2-6", profId: 2, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
+
+  // Dr. Carlos Mendes
+  { id: "s-3-0", profId: 3, dayIndex: 0, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+  { id: "s-3-1", profId: 3, dayIndex: 1, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
+  { id: "s-3-2", profId: 3, dayIndex: 2, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+  { id: "s-3-3", profId: 3, dayIndex: 3, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
+  { id: "s-3-4", profId: 3, dayIndex: 4, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+  { id: "s-3-5", profId: 3, dayIndex: 5, tipo: "24H", horario: "07:00 - 07:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
+  { id: "s-3-6", profId: 3, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+
+  // Mariana Costa
+  { id: "s-4-0", profId: 4, dayIndex: 0, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
+  { id: "s-4-1", profId: 4, dayIndex: 1, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
+  { id: "s-4-2", profId: 4, dayIndex: 2, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
+  { id: "s-4-3", profId: 4, dayIndex: 3, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
+  { id: "s-4-4", profId: 4, dayIndex: 4, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "UTI Geral", status: "CONFIRMADO" },
+  { id: "s-4-5", profId: 4, dayIndex: 5, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
+  { id: "s-4-6", profId: 4, dayIndex: 6, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
+
+  // Juliana Santos
+  { id: "s-5-0", profId: 5, dayIndex: 0, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+  { id: "s-5-1", profId: 5, dayIndex: 1, tipo: "DIURNO", horario: "08:00 - 17:00", setor: "Pronto Atendimento", status: "PENDENTE" },
+  { id: "s-5-2", profId: 5, dayIndex: 2, tipo: "DIURNO", horario: "08:00 - 17:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
+  { id: "s-5-3", profId: 5, dayIndex: 3, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+  { id: "s-5-4", profId: 5, dayIndex: 4, tipo: "DIURNO", horario: "08:00 - 17:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
+  { id: "s-5-5", profId: 5, dayIndex: 5, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+  { id: "s-5-6", profId: 5, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
+
+  // Dr. Roberto Camargo
+  { id: "s-6-0", profId: 6, dayIndex: 0, tipo: "SOBREAVISO", horario: "24h Sobreaviso", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+  { id: "s-6-1", profId: 6, dayIndex: 1, tipo: "SOBREAVISO", horario: "24h Sobreaviso", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+  { id: "s-6-2", profId: 6, dayIndex: 2, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
+  { id: "s-6-3", profId: 6, dayIndex: 3, tipo: "SOBREAVISO", horario: "24h Sobreaviso", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+  { id: "s-6-4", profId: 6, dayIndex: 4, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
+  { id: "s-6-5", profId: 6, dayIndex: 5, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+  { id: "s-6-6", profId: 6, dayIndex: 6, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
+];
+
+export default function EscalasPage() {
   const { theme } = useTheme();
   const { selectedUnitId, units } = useDashboardContext();
-  const [currentWeek, setCurrentWeek] = useState("16 a 22 de Setembro");
-
   const activeUnit = units.find(u => u.id === selectedUnitId) || units[0];
 
+  const [currentWeek, setCurrentWeek] = useState("12 a 18 de Outubro / 2026");
+  const [profissionais, setProfissionais] = useState<ProfissionalEscala[]>(INITIAL_PROFISSIONAIS);
+  const [shifts, setShifts] = useState<ShiftSlot[]>(INITIAL_SHIFTS);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filterCategory, setFilterCategory] = useState<string>("TODOS");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Modal: Nova Escala
+  const [showNewEscalaModal, setShowNewEscalaModal] = useState(false);
+  const [newEscalaForm, setNewEscalaForm] = useState({
+    profId: "1",
+    dayIndex: "0",
+    tipo: "DIURNO" as ShiftSlot["tipo"],
+    horario: "07:00 - 19:00",
+    setor: "UTI Geral",
+    status: "CONFIRMADO" as ShiftSlot["status"],
+    observacoes: ""
+  });
+
+  // Modal: Editar / Trocar Data do Plantão
+  const [editingShift, setEditingShift] = useState<{
+    slot: ShiftSlot;
+    prof: ProfissionalEscala;
+  } | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Filtragem de profissionais
+  const filteredProfissionais = useMemo(() => {
+    return profissionais.filter(p => {
+      const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          p.setor.toLowerCase().includes(searchTerm.toLowerCase());
+      if (!matchSearch) return false;
+      if (filterCategory !== "TODOS" && p.categoria !== filterCategory) return false;
+      return true;
+    });
+  }, [profissionais, searchTerm, filterCategory]);
+
+  // Handler: Criar Nova Escala
+  const handleCreateEscala = (e: React.FormEvent) => {
+    e.preventDefault();
+    const profIdNum = Number(newEscalaForm.profId);
+    const dayIndexNum = Number(newEscalaForm.dayIndex);
+    const prof = profissionais.find(p => p.id === profIdNum);
+
+    const existingSlotIndex = shifts.findIndex(s => s.profId === profIdNum && s.dayIndex === dayIndexNum);
+
+    const newSlot: ShiftSlot = {
+      id: `s-${profIdNum}-${dayIndexNum}-${Date.now()}`,
+      profId: profIdNum,
+      dayIndex: dayIndexNum,
+      tipo: newEscalaForm.tipo,
+      horario: newEscalaForm.tipo === "FOLGA" ? "-" : newEscalaForm.horario,
+      setor: newEscalaForm.setor,
+      status: newEscalaForm.status
+    };
+
+    if (existingSlotIndex !== -1) {
+      setShifts(prev => {
+        const copy = [...prev];
+        copy[existingSlotIndex] = newSlot;
+        return copy;
+      });
+    } else {
+      setShifts(prev => [...prev, newSlot]);
+    }
+
+    setShowNewEscalaModal(false);
+    showToast(`Escala de ${prof?.name} alocada para ${WEEK_DAYS[dayIndexNum]} (${newEscalaForm.tipo}) com sucesso!`);
+  };
+
+  // Handler: Salvar Edição de Plantão
+  const handleSaveEditShift = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingShift) return;
+
+    setShifts(prev => prev.map(s => {
+      if (s.id === editingShift.slot.id || (s.profId === editingShift.slot.profId && s.dayIndex === editingShift.slot.dayIndex)) {
+        return {
+          ...s,
+          dayIndex: editingShift.slot.dayIndex,
+          tipo: editingShift.slot.tipo,
+          horario: editingShift.slot.tipo === "FOLGA" ? "-" : editingShift.slot.horario,
+          setor: editingShift.slot.setor,
+          status: editingShift.slot.status,
+          profId: editingShift.slot.profId
+        };
+      }
+      return s;
+    }));
+
+    showToast(`Plantão de ${editingShift.prof.name} atualizado com sucesso!`);
+    setEditingShift(null);
+  };
+
+  // Handler: Alternar Folga / Plantão rápido
+  const handleToggleFolga = (slot: ShiftSlot, prof: ProfissionalEscala) => {
+    const isCurrentlyFolga = slot.tipo === "FOLGA";
+    const nextTipo = isCurrentlyFolga ? "DIURNO" : "FOLGA";
+    const nextHorario = isCurrentlyFolga ? "07:00 - 19:00" : "-";
+
+    setShifts(prev => prev.map(s => {
+      if (s.profId === prof.id && s.dayIndex === slot.dayIndex) {
+        return {
+          ...s,
+          tipo: nextTipo,
+          horario: nextHorario,
+          status: isCurrentlyFolga ? "CONFIRMADO" : "FOLGA"
+        };
+      }
+      return s;
+    }));
+
+    showToast(`${prof.name}: alterado para ${isCurrentlyFolga ? "Plantão Ativo (07h-19h)" : "Folga"} em ${WEEK_DAYS[slot.dayIndex]}`);
+    if (editingShift) setEditingShift(null);
+  };
+
+  // Contadores
+  const ativosHoje = profissionais.filter(p => p.status === "Em Plantão").length;
+
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 pb-20 pt-4">
-      {/* Action Bar Compacta */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
+    <div className="w-full space-y-6 animate-in fade-in duration-500 pb-20 pt-2 px-2 sm:px-4">
+      {/* Toast Feedback */}
+      {toastMessage && (
+        <div className="p-4 bg-emerald-50 dark:bg-emerald-950/40 border-2 border-emerald-500/40 rounded-2xl text-emerald-800 dark:text-emerald-300 text-xs sm:text-sm font-semibold flex items-center justify-between shadow-lg animate-in slide-in-from-top duration-300">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 size={18} className="text-emerald-500 shrink-0" />
+            <span>{toastMessage}</span>
+          </div>
+          <button onClick={() => setToastMessage(null)} className="text-emerald-500 hover:text-emerald-700 p-1">
+            <X size={16} />
+          </button>
+        </div>
+      )}
+
+      {/* Action Bar Superior em Largura Total (Sem Duplicidade de Título) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md w-full">
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2">
-            <Users className="text-rd-cyan" size={18} />
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-700 dark:text-zinc-300">Escalas & Plantões Médicos</span>
+            <span className="w-2.5 h-2.5 rounded-full bg-rd-cyan animate-pulse" />
+            <span className="text-xs font-semibold text-zinc-600 dark:text-zinc-300">
+              Unidade: <strong className="text-zinc-900 dark:text-zinc-100">{activeUnit?.name || "Hospital Geral MedCore"}</strong>
+            </span>
           </div>
-          <span className="text-zinc-300 dark:text-zinc-700">|</span>
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
-            Unidade: {activeUnit?.name || "Geral"}
+          <span className="text-zinc-300 dark:text-zinc-700 hidden sm:inline">|</span>
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 flex items-center gap-1.5">
+            <UserCheck size={14} />
+            {ativosHoje} Profissionais em Plantão Hoje
           </span>
-          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
-            {MOCK_PROFISSIONAIS.filter(p => p.status === "Em Plantão").length} Ativos Hoje
+          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary/10 border border-primary/20 text-primary">
+            {profissionais.length} Colaboradores na Escala
           </span>
         </div>
         
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-3.5 py-2 border-2 border-zinc-200 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-300 hover:border-zinc-400 dark:hover:border-zinc-500 transition-colors">
-            <Filter size={14} />
-            Filtros
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-rd-cyan text-zinc-950 rounded-xl text-xs font-bold shadow-md shadow-rd-cyan/20 hover:bg-rd-cyan/90 transition-colors">
+          {/* Seletor de Categoria */}
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="bg-zinc-100 dark:bg-zinc-800 border-2 border-zinc-200 dark:border-zinc-700 px-3 py-2 rounded-xl text-xs font-bold text-zinc-700 dark:text-zinc-300 focus:outline-none cursor-pointer"
+          >
+            <option value="TODOS">Todos os Cargos</option>
+            <option value="MEDICO">Corpo Clínico (Médicos)</option>
+            <option value="ENFERMAGEM">Enfermagem & UTI</option>
+          </select>
+
+          <button 
+            onClick={() => setShowNewEscalaModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-rd-cyan text-zinc-950 rounded-xl text-xs font-bold shadow-md shadow-rd-cyan/20 hover:bg-rd-cyan/90 transition-all cursor-pointer active:scale-95"
+          >
             <Plus size={16} />
             Nova Escala
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      {/* Grid Principal Expandido em 100% da Largura da Tela */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 w-full">
         
-        {/* Lado Esquerdo - Status do Dia */}
-        <div className="lg:col-span-1 space-y-6">
+        {/* Lado Esquerdo - Status do Dia e Métricas */}
+        <div className="xl:col-span-3 space-y-6">
           <div className="p-5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/85 backdrop-blur-xl shadow-md transition-all relative overflow-hidden">
-            <h2 className="text-xs uppercase font-bold text-zinc-500 dark:text-zinc-400 tracking-wider mb-4">Plantão de Hoje</h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xs uppercase font-bold text-zinc-500 dark:text-zinc-400 tracking-wider">Plantão de Hoje</h2>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-rd-cyan/10 text-rd-cyan border border-rd-cyan/20">Ao Vivo</span>
+            </div>
             
-            <div className="space-y-4 relative z-10">
-              {MOCK_PROFISSIONAIS.map(prof => (
-                <div key={prof.id} className="flex items-center justify-between p-3 rounded-xl border border-outline-variant/30 bg-surface-container/30">
+            <div className="space-y-3 relative z-10">
+              {profissionais.slice(0, 5).map(prof => (
+                <div key={prof.id} className="flex items-center justify-between p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/60 dark:bg-zinc-950/40 hover:border-rd-cyan/40 transition-all">
                   <div className="flex items-center gap-3">
                     <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold font-heading",
+                      "w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold font-heading shrink-0 shadow-sm",
                       prof.status === "Em Plantão" ? "bg-rd-cyan text-zinc-950" : 
-                      prof.status === "Ausente" ? "bg-red-500 text-white" : "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                      prof.status === "Ausente" ? "bg-red-500 text-white" : 
+                      prof.status === "Sobreaviso" ? "bg-amber-500 text-zinc-950" :
+                      "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
                     )}>
                       {prof.avatar}
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-on-surface leading-tight">{prof.name}</h4>
-                      <p className="text-sm text-on-surface-variant uppercase tracking-wider mt-0.5">{prof.role}</p>
+                      <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{prof.name}</h4>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{prof.role}</p>
+                      <span className="text-[10px] text-zinc-400 font-medium">{prof.setor}</span>
                     </div>
                   </div>
-                  {prof.alert && (
-                    <div className="text-sm text-red-500 font-bold max-w-[60px] text-right leading-tight">
-                      {prof.alert}
-                    </div>
-                  )}
+                  <div className="text-right">
+                    <span className={cn(
+                      "text-[10px] px-2 py-0.5 rounded-full font-bold block",
+                      prof.status === "Em Plantão" ? "bg-emerald-500/10 text-emerald-500" :
+                      prof.status === "Ausente" ? "bg-rose-500/10 text-rose-500" :
+                      prof.status === "Sobreaviso" ? "bg-amber-500/10 text-amber-500" :
+                      "bg-zinc-500/10 text-zinc-400"
+                    )}>
+                      {prof.status}
+                    </span>
+                    <span className="text-[10px] font-mono text-zinc-400 mt-1 block">{prof.time}</span>
+                  </div>
                 </div>
               ))}
             </div>
             
-            <button className="w-full mt-4 py-2 text-xs font-bold text-rd-cyan border border-rd-cyan/20 rounded-xl hover:bg-rd-cyan/10 transition-colors">
-              Ver Todos (12)
+            <button 
+              onClick={() => showToast("Exibindo todos os plantonistas cadastrados na unidade.")}
+              className="w-full mt-4 py-2.5 text-xs font-bold text-rd-cyan border border-rd-cyan/20 rounded-xl hover:bg-rd-cyan/10 transition-colors"
+            >
+              Ver Lista Completa ({profissionais.length})
             </button>
           </div>
 
           <div className="p-5 rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/85 backdrop-blur-xl shadow-md">
-             <h2 className="text-xs uppercase font-bold text-zinc-500 dark:text-zinc-400 tracking-wider mb-4">Métricas do Mês</h2>
-             
-             <div className="space-y-3">
-               <div className="flex justify-between items-center text-sm">
-                 <span className="text-zinc-600 dark:text-zinc-300">Horas Extras</span>
-                 <span className="font-bold text-amber-500">42h</span>
-               </div>
-               <div className="flex justify-between items-center text-sm">
-                 <span className="text-zinc-600 dark:text-zinc-300">Faltas / Atrasos</span>
-                 <span className="font-bold text-rose-500">3 ocorrências</span>
-               </div>
-               <div className="flex justify-between items-center text-sm">
-                 <span className="text-zinc-600 dark:text-zinc-300">Custo Folha Estimado</span>
-                 <span className="font-bold text-emerald-500">R$ 48.500</span>
-               </div>
-             </div>
+            <h2 className="text-xs uppercase font-bold text-zinc-500 dark:text-zinc-400 tracking-wider mb-4">Métricas do Mês</h2>
+            
+            <div className="space-y-3.5">
+              <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
+                <span className="text-zinc-600 dark:text-zinc-400 font-medium">Horas de Plantão Alocadas</span>
+                <span className="font-bold text-emerald-500">1.480h</span>
+              </div>
+              <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
+                <span className="text-zinc-600 dark:text-zinc-400 font-medium">Horas Extras Acumuladas</span>
+                <span className="font-bold text-amber-500">42h</span>
+              </div>
+              <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
+                <span className="text-zinc-600 dark:text-zinc-400 font-medium">Trocas Solicitadas</span>
+                <span className="font-bold text-rd-cyan">4 pendentes</span>
+              </div>
+              <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
+                <span className="text-zinc-600 dark:text-zinc-400 font-medium">Faltas / Atestados</span>
+                <span className="font-bold text-rose-500">1 ocorrência</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Lado Direito - Matriz de Escala */}
-        <div className="lg:col-span-3 space-y-6">
-          <div className="rounded-2xl border-2 border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/85 backdrop-blur-xl shadow-md transition-all overflow-hidden flex flex-col">
+        {/* Lado Direito - Matriz de Escala Expandida em Largura Total */}
+        <div className="xl:col-span-9 space-y-6">
+          <div className="rounded-3xl border-2 border-zinc-200 dark:border-zinc-700/80 bg-white dark:bg-zinc-900/85 backdrop-blur-xl shadow-lg transition-all overflow-hidden flex flex-col w-full">
             
-            {/* Calendar Controls */}
-            <div className="p-4 border-b-2 border-zinc-200 dark:border-zinc-800 flex justify-between items-center bg-zinc-50/50 dark:bg-zinc-950/30">
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={20} className="text-rd-cyan" />
-                <h3 className="font-bold text-sm text-zinc-900 dark:text-zinc-100">Escala Semanal da Equipe</h3>
+            {/* Calendar Controls & Search Header */}
+            <div className="p-4 border-b-2 border-zinc-200 dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-zinc-50/60 dark:bg-zinc-950/40">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-xl bg-rd-cyan/15 flex items-center justify-center text-rd-cyan">
+                  <ShieldCheck size={18} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-sm text-zinc-900 dark:text-zinc-100">Escala Semanal & Gestão de Plantões</h3>
+                  <p className="text-[11px] text-zinc-500 dark:text-zinc-400">Clique em qualquer plantão para editar horários, trocar data ou conceder folga.</p>
+                </div>
               </div>
               
-              <div className="flex items-center gap-3">
-                <button className="p-1.5 rounded-lg border border-outline-variant hover:bg-surface-container text-on-surface">
-                  <ChevronLeft size={16} />
-                </button>
-                <span className="text-sm font-medium text-on-surface min-w-[140px] text-center">{currentWeek}</span>
-                <button className="p-1.5 rounded-lg border border-outline-variant hover:bg-surface-container text-on-surface">
-                  <ChevronRight size={16} />
-                </button>
+              <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar profissional..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-rd-cyan w-40 sm:w-52"
+                  />
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-700 rounded-xl p-1">
+                  <button 
+                    onClick={() => showToast("Navegando para a semana anterior.")}
+                    className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                  >
+                    <ChevronLeft size={16} />
+                  </button>
+                  <span className="text-xs font-bold text-zinc-900 dark:text-zinc-100 px-2 min-w-[130px] text-center">{currentWeek}</span>
+                  <button 
+                    onClick={() => showToast("Navegando para a próxima semana.")}
+                    className="p-1 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+                  >
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
               </div>
             </div>
 
-            {/* Matrix */}
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm">
+            {/* Matrix Table em Largura 100% com Rolagem Suave */}
+            <div className="overflow-x-auto w-full">
+              <table className="w-full text-left text-sm border-collapse">
                 <thead>
-                  <tr className="border-b border-outline-variant/30">
-                    <th className="p-4 text-sm uppercase font-bold text-on-surface-variant tracking-widest min-w-[200px]">Profissional</th>
-                    {WEEK_DAYS.map(day => (
-                      <th key={day} className="p-4 text-sm uppercase font-bold text-on-surface-variant tracking-widest text-center min-w-[100px] border-l border-outline-variant/10">
-                        {day}
+                  <tr className="border-b-2 border-zinc-200 dark:border-zinc-800 bg-zinc-100/50 dark:bg-zinc-950/60">
+                    <th className="p-4 text-xs uppercase font-extrabold text-zinc-600 dark:text-zinc-300 tracking-wider min-w-[220px]">
+                      Profissional / Cargo
+                    </th>
+                    {WEEK_DAYS.map((day, idx) => (
+                      <th key={day} className="p-3.5 text-xs uppercase font-bold text-zinc-600 dark:text-zinc-400 tracking-wider text-center min-w-[130px] border-l border-zinc-200 dark:border-zinc-800">
+                        <div className="flex flex-col items-center gap-0.5">
+                          <span>{day}</span>
+                          <span className="text-[10px] font-mono font-normal text-zinc-400">Dia {12 + idx}/10</span>
+                        </div>
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-outline-variant/10">
-                  {MOCK_PROFISSIONAIS.map(prof => (
-                    <tr key={prof.id} className="hover:bg-surface-container/20 transition-colors">
+                <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800/80">
+                  {filteredProfissionais.map(prof => (
+                    <tr key={prof.id} className="hover:bg-zinc-50/50 dark:hover:bg-zinc-800/20 transition-colors group">
                       <td className="p-4">
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold font-heading shrink-0",
-                            theme === 'dark' ? "bg-zinc-800 text-zinc-300" : "bg-zinc-200 text-zinc-600"
+                            "w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold font-heading shrink-0 shadow-sm",
+                            prof.categoria === "MEDICO" ? "bg-rd-cyan/20 text-rd-cyan border border-rd-cyan/30" : "bg-purple-500/20 text-purple-400 border border-purple-500/30"
                           )}>
                             {prof.avatar}
                           </div>
                           <div>
-                            <p className="font-bold text-on-surface">{prof.name}</p>
-                            <p className="text-sm text-on-surface-variant">{prof.role}</p>
+                            <p className="font-bold text-zinc-900 dark:text-zinc-100 text-sm leading-tight flex items-center gap-1.5">
+                              {prof.name}
+                              {prof.categoria === "MEDICO" && <Stethoscope size={12} className="text-rd-cyan shrink-0" />}
+                            </p>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{prof.role}</p>
+                            <span className="text-[10px] text-zinc-400 font-medium">{prof.setor}</span>
                           </div>
                         </div>
                       </td>
-                      {/* Dias (Mock) */}
+
+                      {/* 7 Dias da Semana (Slots Interativos) */}
                       {WEEK_DAYS.map((day, idx) => {
-                        // Logica mock basica
-                        const isWorking = (prof.id + idx) % 3 !== 0;
-                        const isNight = idx === 4 && prof.id === 3;
+                        const slot = shifts.find(s => s.profId === prof.id && s.dayIndex === idx) || {
+                          id: `s-${prof.id}-${idx}`,
+                          profId: prof.id,
+                          dayIndex: idx,
+                          tipo: "FOLGA" as const,
+                          horario: "-",
+                          setor: prof.setor,
+                          status: "FOLGA" as const
+                        };
+
+                        const isNight = slot.tipo === "NOTURNO";
+                        const is24h = slot.tipo === "24H";
+                        const isSobreaviso = slot.tipo === "SOBREAVISO";
+                        const isFolga = slot.tipo === "FOLGA";
+
                         return (
-                          <td key={day} className="p-2 border-l border-outline-variant/10 align-middle">
-                            {isWorking ? (
-                              <div className={cn(
-                                "rounded-lg p-2 text-center text-[11px] font-medium border",
-                                isNight 
-                                  ? "bg-indigo-500/10 text-indigo-500 border-indigo-500/20" 
-                                  : "bg-rd-cyan/10 text-rd-cyan border-rd-cyan/20"
-                              )}>
-                                {isNight ? "19:00 - 07:00" : "08:00 - 18:00"}
+                          <td key={day} className="p-2 border-l border-zinc-200 dark:border-zinc-800/80 align-middle">
+                            <button
+                              onClick={() => setEditingShift({ slot, prof })}
+                              className={cn(
+                                "w-full rounded-xl p-2.5 text-center transition-all cursor-pointer group/cell relative border flex flex-col items-center justify-center gap-1 hover:scale-[1.02] shadow-sm",
+                                isFolga && "bg-zinc-100/50 dark:bg-zinc-950/40 border-dashed border-zinc-300 dark:border-zinc-800 text-zinc-400 hover:border-rd-cyan/50 hover:text-rd-cyan",
+                                !isFolga && isNight && "bg-indigo-500/15 border-indigo-500/30 text-indigo-400 hover:border-indigo-400",
+                                !isFolga && is24h && "bg-purple-500/15 border-purple-500/30 text-purple-400 hover:border-purple-400",
+                                !isFolga && isSobreaviso && "bg-amber-500/15 border-amber-500/30 text-amber-400 hover:border-amber-400",
+                                !isFolga && !isNight && !is24h && !isSobreaviso && "bg-rd-cyan/15 border-rd-cyan/30 text-rd-cyan hover:border-rd-cyan"
+                              )}
+                              title="Clique para editar horário, trocar data ou conceder folga"
+                            >
+                              <div className="flex items-center gap-1 text-[11px] font-bold">
+                                {isFolga ? (
+                                  <span>Folga</span>
+                                ) : (
+                                  <>
+                                    {isNight ? <Moon size={11} /> : is24h ? <Clock size={11} /> : <Sun size={11} />}
+                                    <span>{slot.horario}</span>
+                                  </>
+                                )}
                               </div>
-                            ) : (
-                              <div className="text-center text-sm uppercase tracking-widest text-on-surface-variant font-bold opacity-40">
-                                Folga
-                              </div>
-                            )}
+                              <span className="text-[9px] uppercase tracking-wider font-semibold opacity-75 truncate max-w-full">
+                                {isFolga ? "Livre" : slot.setor}
+                              </span>
+                            </button>
                           </td>
                         );
                       })}
@@ -191,11 +520,15 @@ export default function RHPage() {
               </table>
             </div>
 
-            <div className="p-4 border-t border-outline-variant/30 bg-surface-container/10 flex justify-between items-center text-xs text-on-surface-variant">
-              <span>Mostrando 4 de 24 profissionais</span>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-rd-cyan"></div> Diurno</div>
-                <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-indigo-500"></div> Noturno</div>
+            {/* Footer da Matriz com Legendas e Atalhos */}
+            <div className="p-4 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-zinc-500 dark:text-zinc-400">
+              <span>Mostrando {filteredProfissionais.length} de {profissionais.length} profissionais na grade semanal</span>
+              <div className="flex items-center gap-4 flex-wrap">
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rd-cyan"></div> Diurno (12h)</div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div> Noturno (12h)</div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-purple-500"></div> Plantão 24h</div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div> Sobreaviso</div>
+                <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-zinc-400"></div> Folga</div>
               </div>
             </div>
 
@@ -203,6 +536,302 @@ export default function RHPage() {
         </div>
         
       </div>
+
+      {/* ========================================================= */}
+      {/* MODAL 1: NOVA ESCALA (TOTALMENTE FUNCIONAL) */}
+      {/* ========================================================= */}
+      {showNewEscalaModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95">
+            <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-rd-cyan/15 flex items-center justify-center text-rd-cyan">
+                  <Plus size={18} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-white">Cadastrar Nova Escala</h3>
+                  <p className="text-xs text-zinc-400">Alocação de plantão médico e assistencial</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowNewEscalaModal(false)}
+                className="p-1 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateEscala} className="space-y-4">
+              {/* Seleção do Profissional */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-300 block">Profissional de Saúde *</label>
+                <select
+                  value={newEscalaForm.profId}
+                  onChange={(e) => {
+                    const profId = e.target.value;
+                    const p = profissionais.find(item => item.id === Number(profId));
+                    setNewEscalaForm({
+                      ...newEscalaForm,
+                      profId,
+                      setor: p?.setor || "UTI Geral"
+                    });
+                  }}
+                  className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-rd-cyan cursor-pointer"
+                >
+                  {profissionais.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.name} ({p.role} • {p.setor})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Dia da Semana & Setor */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300 block">Dia da Semana *</label>
+                  <select
+                    value={newEscalaForm.dayIndex}
+                    onChange={(e) => setNewEscalaForm({ ...newEscalaForm, dayIndex: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-rd-cyan cursor-pointer"
+                  >
+                    {WEEK_DAYS.map((day, idx) => (
+                      <option key={day} value={idx}>{day}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300 block">Setor / Ala *</label>
+                  <select
+                    value={newEscalaForm.setor}
+                    onChange={(e) => setNewEscalaForm({ ...newEscalaForm, setor: e.target.value })}
+                    className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-rd-cyan cursor-pointer"
+                  >
+                    <option value="UTI Geral">UTI Geral</option>
+                    <option value="Pronto Atendimento">Pronto Atendimento</option>
+                    <option value="Bloco Cirúrgico">Bloco Cirúrgico</option>
+                    <option value="Pediatria">Pediatria</option>
+                    <option value="Centro Obstétrico">Centro Obstétrico</option>
+                    <option value="Ambulatório">Ambulatório</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Turno e Horário */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300 block">Tipo de Turno *</label>
+                  <select
+                    value={newEscalaForm.tipo}
+                    onChange={(e) => {
+                      const t = e.target.value as ShiftSlot["tipo"];
+                      const defaultHorario = 
+                        t === "DIURNO" ? "07:00 - 19:00" :
+                        t === "NOTURNO" ? "19:00 - 07:00" :
+                        t === "24H" ? "07:00 - 07:00" :
+                        t === "SOBREAVISO" ? "24h Sobreaviso" : "-";
+                      setNewEscalaForm({ ...newEscalaForm, tipo: t, horario: defaultHorario });
+                    }}
+                    className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-rd-cyan cursor-pointer"
+                  >
+                    <option value="DIURNO">Diurno 12h (07h às 19h)</option>
+                    <option value="NOTURNO">Noturno 12h (19h às 07h)</option>
+                    <option value="24H">Plantão 24 Horas</option>
+                    <option value="SOBREAVISO">Sobreaviso Hospitalar</option>
+                    <option value="FOLGA">Folga Programada</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300 block">Horário Específico</label>
+                  <input
+                    type="text"
+                    value={newEscalaForm.horario}
+                    onChange={(e) => setNewEscalaForm({ ...newEscalaForm, horario: e.target.value })}
+                    placeholder="Ex: 07:00 - 19:00"
+                    className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-rd-cyan"
+                    disabled={newEscalaForm.tipo === "FOLGA"}
+                  />
+                </div>
+              </div>
+
+              {/* Observações */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-300 block">Observações do Plantão</label>
+                <input
+                  type="text"
+                  placeholder="Ex: Cobertura presencial da UTI Covid / Ala A"
+                  value={newEscalaForm.observacoes}
+                  onChange={(e) => setNewEscalaForm({ ...newEscalaForm, observacoes: e.target.value })}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-rd-cyan"
+                />
+              </div>
+
+              <div className="pt-3 flex gap-2 justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShowNewEscalaModal(false)}
+                  className="px-4 py-2.5 rounded-xl text-zinc-400 hover:text-white border border-zinc-800 text-xs font-bold"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-xl bg-rd-cyan text-zinc-950 font-bold hover:bg-rd-cyan/90 transition-all text-xs shadow-md shadow-rd-cyan/20"
+                >
+                  Confirmar e Salvar Escala
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* MODAL 2: EDITAR / ALTERAR DATA / PLANTÃO */}
+      {/* ========================================================= */}
+      {editingShift && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95">
+            <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-purple-500/15 flex items-center justify-center text-purple-400">
+                  <Edit3 size={18} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-white">Editar Plantão</h3>
+                  <p className="text-xs text-zinc-400">{editingShift.prof.name} • {WEEK_DAYS[editingShift.slot.dayIndex]}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setEditingShift(null)}
+                className="p-1 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditShift} className="space-y-4">
+              {/* Trocar Data / Dia da Semana */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-300 block flex items-center gap-1.5">
+                  <ArrowLeftRight size={13} className="text-rd-cyan" />
+                  Trocar Data / Dia da Semana
+                </label>
+                <select
+                  value={editingShift.slot.dayIndex}
+                  onChange={(e) => setEditingShift({
+                    ...editingShift,
+                    slot: { ...editingShift.slot, dayIndex: Number(e.target.value) }
+                  })}
+                  className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-rd-cyan cursor-pointer"
+                >
+                  {WEEK_DAYS.map((day, idx) => (
+                    <option key={day} value={idx}>{day} (Dia {12 + idx}/10)</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Turno e Horário */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300 block">Tipo de Turno</label>
+                  <select
+                    value={editingShift.slot.tipo}
+                    onChange={(e) => {
+                      const t = e.target.value as ShiftSlot["tipo"];
+                      const defaultHorario = 
+                        t === "DIURNO" ? "07:00 - 19:00" :
+                        t === "NOTURNO" ? "19:00 - 07:00" :
+                        t === "24H" ? "07:00 - 07:00" :
+                        t === "SOBREAVISO" ? "24h Sobreaviso" : "-";
+                      setEditingShift({
+                        ...editingShift,
+                        slot: { ...editingShift.slot, tipo: t, horario: defaultHorario, status: t === "FOLGA" ? "FOLGA" : "CONFIRMADO" }
+                      });
+                    }}
+                    className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-rd-cyan cursor-pointer"
+                  >
+                    <option value="DIURNO">Diurno 12h</option>
+                    <option value="NOTURNO">Noturno 12h</option>
+                    <option value="24H">Plantão 24h</option>
+                    <option value="SOBREAVISO">Sobreaviso</option>
+                    <option value="FOLGA">Folga</option>
+                  </select>
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-xs font-semibold text-zinc-300 block">Horário</label>
+                  <input
+                    type="text"
+                    value={editingShift.slot.horario}
+                    onChange={(e) => setEditingShift({
+                      ...editingShift,
+                      slot: { ...editingShift.slot, horario: e.target.value }
+                    })}
+                    className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-mono focus:outline-none focus:border-rd-cyan"
+                    disabled={editingShift.slot.tipo === "FOLGA"}
+                  />
+                </div>
+              </div>
+
+              {/* Setor */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-300 block">Setor / Ala Hospitalar</label>
+                <select
+                  value={editingShift.slot.setor}
+                  onChange={(e) => setEditingShift({
+                    ...editingShift,
+                    slot: { ...editingShift.slot, setor: e.target.value }
+                  })}
+                  className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-rd-cyan cursor-pointer"
+                >
+                  <option value="UTI Geral">UTI Geral</option>
+                  <option value="Pronto Atendimento">Pronto Atendimento</option>
+                  <option value="Bloco Cirúrgico">Bloco Cirúrgico</option>
+                  <option value="Pediatria">Pediatria</option>
+                  <option value="Centro Obstétrico">Centro Obstétrico</option>
+                </select>
+              </div>
+
+              {/* Ações Rápidas: Alternar Folga ou Salvar */}
+              <div className="pt-2 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleToggleFolga(editingShift.slot, editingShift.prof)}
+                  className="w-full py-2.5 px-3 rounded-xl border border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
+                >
+                  {editingShift.slot.tipo === "FOLGA" ? (
+                    <>
+                      <Sun size={14} className="text-amber-400" />
+                      Mudar para Plantão Ativo (07h-19h)
+                    </>
+                  ) : (
+                    <>
+                      <Moon size={14} className="text-indigo-400" />
+                      Conceder Folga Neste Dia
+                    </>
+                  )}
+                </button>
+
+                <div className="flex gap-2 justify-end pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingShift(null)}
+                    className="px-4 py-2.5 rounded-xl text-zinc-400 hover:text-white border border-zinc-800 text-xs font-bold"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-xl bg-rd-cyan text-zinc-950 font-bold hover:bg-rd-cyan/90 transition-all text-xs shadow-md shadow-rd-cyan/20"
+                  >
+                    Salvar Alterações
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

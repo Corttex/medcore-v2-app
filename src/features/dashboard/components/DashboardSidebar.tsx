@@ -48,7 +48,8 @@ import {
   UserCheck,
   CalendarDays,
   GraduationCap,
-  Award
+  Award,
+  Globe
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -77,6 +78,7 @@ const moduleIdMap: Record<string, string> = {
   // Relacionamento & CRM
   "/dashboard/pacotes": "enterprise",
   "/dashboard/marketing": "enterprise",
+  "/dashboard/webstudio": "enterprise",
   "/dashboard/nps": "dashboard",
   "/dashboard/mensagens": "dashboard",
   
@@ -341,6 +343,7 @@ const menuBlocks = [
     items: [
       { icon: Package, label: "Pacotes & Vendas", href: "/dashboard/pacotes", requiredPlan: "BASIC" as PlanLevel },
       { icon: Megaphone, label: "Marketing", href: "/dashboard/marketing", requiredPlan: "PRO" as PlanLevel },
+      { icon: Globe, label: "WebStudio (Site)", href: "/dashboard/webstudio", requiredPlan: "PRO" as PlanLevel },
       { icon: Smile, label: "Pesquisa NPS", href: "/dashboard/nps", requiredPlan: "BASIC" as PlanLevel },
       { icon: MessageSquare, label: "Inbox", href: "/dashboard/mensagens", requiredPlan: "BASIC" as PlanLevel },
     ]
@@ -408,7 +411,7 @@ const menuBlocks = [
       { icon: UserCheck, label: "Ponto & Frequência", href: "/dashboard/ponto", requiredPlan: "PRO" as PlanLevel },
       { icon: FileSpreadsheet, label: "Folha & Benefícios", href: "/dashboard/folha", requiredPlan: "PRO" as PlanLevel },
       { icon: Briefcase, label: "Recrutamento (ATS)", href: "/dashboard/recrutamento", requiredPlan: "PRO" as PlanLevel },
-      { icon: GraduationCap, label: "Treinamentos", href: "/dashboard/treinamentos", requiredPlan: "PRO" as PlanLevel },
+      { icon: GraduationCap, label: "Educacional", href: "/dashboard/treinamentos", requiredPlan: "PRO" as PlanLevel },
       { icon: Award, label: "Avaliação de Desempenho", href: "/dashboard/desempenho", requiredPlan: "PRO" as PlanLevel },
       { icon: Users, label: "Gerenciar Equipe", href: "/dashboard/equipe", requiredPlan: "BASIC" as PlanLevel },
     ]

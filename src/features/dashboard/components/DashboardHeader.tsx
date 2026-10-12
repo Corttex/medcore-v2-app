@@ -108,11 +108,25 @@ export function DashboardHeader() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
 
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data = await res.json();
+        setNotifications(data.notifications || []);
+      }
+    } catch {}
+  };
+
   useEffect(() => {
     setIsMounted(true);
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000); // Polling leve a cada 10s
+
     const handleClickOutside = (event: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
         setShowNotifications(false);
@@ -122,7 +136,10 @@ export function DashboardHeader() {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      clearInterval(interval);
+    };
   }, []);
 
   return (
@@ -213,37 +230,65 @@ export function DashboardHeader() {
               )}
             >
               <Bell size={18} />
-              <span className={cn(
-                "absolute top-2 right-2 w-2 h-2 bg-rd-cyan rounded-full shadow-[0_0_8px_var(--color-rd-cyan)]",
-                !showNotifications && "animate-pulse"
-              )}></span>
+              {notifications.some(n => !n.read) && (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rd-cyan rounded-full shadow-[0_0_8px_var(--color-rd-cyan)] animate-pulse" />
+              )}
             </button>
 
             {showNotifications && (
-              <div className="absolute right-0 mt-3 w-80 max-h-[85vh] overflow-y-auto bg-surface border border-outline-variant/60 rounded-2xl shadow-xl p-4 animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
+              <div className="absolute right-0 mt-3 w-84 max-h-[85vh] overflow-y-auto bg-surface border border-outline-variant/60 rounded-2xl shadow-xl p-4 animate-in fade-in slide-in-from-top-2 origin-top-right z-50">
                 <div className="flex justify-between items-center mb-4 px-2">
                   <h3 className="text-[11px] font-heading font-semibold text-on-surface uppercase tracking-widest">Central de Alertas</h3>
-                  <span className="text-[10px] font-heading bg-rd-cyan/10 text-rd-cyan px-2 py-0.5 rounded-full font-bold uppercase tracking-widest border border-rd-cyan/20">2 Novas</span>
+                  <span className="text-[10px] font-heading bg-rd-cyan/10 text-rd-cyan px-2 py-0.5 rounded-full font-bold uppercase tracking-widest border border-rd-cyan/20">
+                    {notifications.filter(n => !n.read).length} Novas
+                  </span>
                 </div>
                 <div className="space-y-2">
-                  <div className="p-3 rounded-xl bg-surface-container border border-outline-variant/40 hover:bg-surface-container-high transition-colors flex gap-3 group cursor-pointer">
-                    <div className="w-8 h-8 rounded-full bg-error/10 flex items-center justify-center shrink-0 border border-error/20">
-                      <AlertTriangle size={14} className="text-error" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-sans font-semibold text-on-surface">Sobrecarga no CTI (Setor Alpha)</p>
-                      <p className="text-xs font-sans text-on-surface-variant mt-1 line-clamp-1">A capacidade de admissão superou 92%. Ação diretiva requerida.</p>
-                    </div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-rd-cyan/5 border border-rd-cyan/20 hover:bg-rd-cyan/10 transition-colors flex gap-3 group cursor-pointer">
-                    <div className="w-8 h-8 rounded-full bg-rd-cyan/15 flex items-center justify-center shrink-0 border border-rd-cyan/30">
-                      <TrendingUp size={14} className="text-rd-cyan" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-sans font-semibold text-rd-cyan">Relatório Estratégico Pronto</p>
-                      <p className="text-xs font-sans text-on-surface-variant mt-1 line-clamp-1">Análise de eficiência cirúrgica semanal gerada pela IA Core.</p>
-                    </div>
-                  </div>
+                  {notifications.length === 0 ? (
+                    <p className="text-xs text-on-surface-variant text-center py-4">Nenhuma notificação no momento.</p>
+                  ) : (
+                    notifications.map((item) => (
+                      <div 
+                        key={item.id} 
+                        onClick={async () => {
+                          try {
+                            await fetch("/api/notifications", {
+                              method: "PATCH",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ id: item.id })
+                            });
+                            setNotifications(prev => prev.map(n => n.id === item.id ? { ...n, read: true } : n));
+                          } catch (e) {
+                            console.error(e);
+                          }
+                        }}
+                        className={cn(
+                          "p-3 rounded-xl border transition-colors flex gap-3 group cursor-pointer",
+                          item.read 
+                            ? "bg-surface-container/50 border-outline-variant/20 opacity-75" 
+                            : item.type === "CRITICO" 
+                              ? "bg-error/10 border-error/30" 
+                              : "bg-rd-cyan/5 border-rd-cyan/20 hover:bg-rd-cyan/10"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-8 h-8 rounded-full flex items-center justify-center shrink-0 border",
+                          item.type === "CRITICO" 
+                            ? "bg-error/20 border-error/30 text-error" 
+                            : "bg-rd-cyan/15 border-rd-cyan/30 text-rd-cyan"
+                        )}>
+                          {item.type === "CRITICO" ? <AlertTriangle size={14} /> : <TrendingUp size={14} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-sans font-semibold text-on-surface truncate">{item.title}</p>
+                          <p className="text-[11px] font-sans text-on-surface-variant mt-0.5 line-clamp-2">{item.message}</p>
+                          <span className="text-[9px] text-zinc-400 mt-1 block">
+                            {new Date(item.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             )}
