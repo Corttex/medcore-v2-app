@@ -59,6 +59,7 @@ import { useDashboardContext } from "@/features/dashboard/context/DashboardConte
 import { useTheme } from "@/context/ThemeContext";
 import { usePlan, PlanLevel } from "@/context/PlanContext";
 import { useModules } from "@/context/ModuleContext";
+import { useUser } from "@/context/UserContext";
 import { MaintenanceModal } from "@/components/ui/MaintenanceModal";
 
 function cn(...inputs: ClassValue[]) {
@@ -130,6 +131,202 @@ const moduleIdMap: Record<string, string> = {
   "/dashboard/auditoria": "dashboard",
   "/dashboard/relatorios": "enterprise",
 };
+
+// Matriz de Controle de Acesso Baseada em Papel (RBAC Hospitalar)
+const ROLE_PERMISSIONS: Record<string, string[]> = {
+  // Diretoria, Gestão Executiva e Administradores (Acesso Total)
+  DIRETOR_GERAL: ["*"],
+  DIRETOR_CLINICO: ["*"],
+  GESTOR_UNIDADE: ["*"],
+  admin: ["*"],
+  super_admin: ["*"],
+  owner: ["*"],
+
+  // Atendimento & Recepção
+  SECRETARIA_RECEPCAO: [
+    "/dashboard",
+    "/dashboard/agenda",
+    "/dashboard/agendamento-online",
+    "/dashboard/painel-tv",
+    "/dashboard/telemedicina",
+    "/dashboard/pacientes",
+    "/dashboard/mensagens",
+    "/dashboard/lembretes",
+    "/dashboard/cadastros"
+  ],
+  OPERADOR_AGENDAMENTO: [
+    "/dashboard",
+    "/dashboard/agenda",
+    "/dashboard/agendamento-online",
+    "/dashboard/pacientes",
+    "/dashboard/mensagens",
+    "/dashboard/lembretes"
+  ],
+  CONCIERGE_ESPERA: [
+    "/dashboard",
+    "/dashboard/painel-tv",
+    "/dashboard/agenda",
+    "/dashboard/lembretes"
+  ],
+
+  // Corpo Clínico & Médicos
+  MEDICO_ESPECIALISTA: [
+    "/dashboard",
+    "/dashboard/ia-executiva",
+    "/dashboard/agenda",
+    "/dashboard/pacientes",
+    "/dashboard/laudos",
+    "/dashboard/telemedicina",
+    "/dashboard/demandas",
+    "/dashboard/lembretes"
+  ],
+  MEDICO_PLANTONISTA: [
+    "/dashboard",
+    "/dashboard/ia-executiva",
+    "/dashboard/pacientes",
+    "/dashboard/laudos",
+    "/dashboard/demandas",
+    "/dashboard/lembretes"
+  ],
+  MEDICO_AUDITOR: [
+    "/dashboard",
+    "/dashboard/pacientes",
+    "/dashboard/laudos",
+    "/dashboard/tiss",
+    "/dashboard/auditoria",
+    "/dashboard/relatorios"
+  ],
+  ODONTOLOGO: [
+    "/dashboard",
+    "/dashboard/agenda",
+    "/dashboard/pacientes",
+    "/dashboard/laudos",
+    "/dashboard/lembretes"
+  ],
+  VETERINARIO: [
+    "/dashboard",
+    "/dashboard/agenda",
+    "/dashboard/pacientes",
+    "/dashboard/laudos",
+    "/dashboard/vacinas",
+    "/dashboard/lembretes"
+  ],
+
+  // Enfermagem & Assistencial
+  ENFERMEIRA_CHEFE: [
+    "/dashboard",
+    "/dashboard/pacientes",
+    "/dashboard/agenda",
+    "/dashboard/escalas",
+    "/dashboard/ponto",
+    "/dashboard/estoque",
+    "/dashboard/vacinas",
+    "/dashboard/demandas",
+    "/dashboard/treinamentos"
+  ],
+  ENFERMEIRO_ASSISTENCIAL: [
+    "/dashboard",
+    "/dashboard/pacientes",
+    "/dashboard/agenda",
+    "/dashboard/estoque",
+    "/dashboard/vacinas",
+    "/dashboard/ponto",
+    "/dashboard/escalas"
+  ],
+  TECNICO_ENFERMAGEM: [
+    "/dashboard",
+    "/dashboard/pacientes",
+    "/dashboard/estoque",
+    "/dashboard/vacinas",
+    "/dashboard/ponto"
+  ],
+  FARMACEUTICO_BIOMEDICO: [
+    "/dashboard",
+    "/dashboard/estoque",
+    "/dashboard/compras",
+    "/dashboard/vacinas",
+    "/dashboard/laudos",
+    "/dashboard/ponto"
+  ],
+  FISIOTERAPEUTA_MULTI: [
+    "/dashboard",
+    "/dashboard/agenda",
+    "/dashboard/pacientes",
+    "/dashboard/demandas",
+    "/dashboard/ponto"
+  ],
+
+  // Faturamento, Financeiro & Patrimônio
+  ANALISTA_TISS: [
+    "/dashboard",
+    "/dashboard/tiss",
+    "/dashboard/contas-a-receber",
+    "/dashboard/repasses",
+    "/dashboard/notas-fiscais",
+    "/dashboard/relatorios-financeiros"
+  ],
+  ANALISTA_FINANCEIRO: [
+    "/dashboard",
+    "/dashboard/contas",
+    "/dashboard/contas-a-receber",
+    "/dashboard/contas-a-pagar",
+    "/dashboard/notas-fiscais",
+    "/dashboard/relatorios-financeiros"
+  ],
+  GERENTE_FINANCEIRO: [
+    "/dashboard",
+    "/dashboard/contas",
+    "/dashboard/contas-a-receber",
+    "/dashboard/contas-a-pagar",
+    "/dashboard/tiss",
+    "/dashboard/repasses",
+    "/dashboard/notas-fiscais",
+    "/dashboard/relatorios-financeiros",
+    "/dashboard/relatorios"
+  ],
+  GESTOR_PATRIMONIO_ESTOQUE: [
+    "/dashboard",
+    "/dashboard/estoque",
+    "/dashboard/compras",
+    "/dashboard/patrimonio",
+    "/dashboard/os"
+  ],
+
+  // Jurídico & Compliance
+  JURIDICO: [
+    "/dashboard",
+    "/dashboard/juridico",
+    "/dashboard/arquivos",
+    "/dashboard/auditoria",
+    "/dashboard/relatorios"
+  ],
+
+  // RH & Departamento Pessoal
+  ANALISTA_RH_PONTO: [
+    "/dashboard",
+    "/dashboard/equipe",
+    "/dashboard/escalas",
+    "/dashboard/ponto",
+    "/dashboard/folha",
+    "/dashboard/recrutamento",
+    "/dashboard/treinamentos",
+    "/dashboard/desempenho"
+  ],
+
+  // Usuário de Consulta
+  USUARIO_CONSULTA: [
+    "/dashboard",
+    "/dashboard/relatorios"
+  ]
+};
+
+function isRouteAllowedForRole(role: string | undefined, href: string): boolean {
+  if (!role) return true; // Se o perfil ainda não estiver carregado na sessão, mantém visível
+  const allowed = ROLE_PERMISSIONS[role];
+  if (!allowed) return true; // Papel não restrito tem acesso padrão
+  if (allowed.includes("*")) return true; // Acesso total
+  return allowed.includes(href);
+}
 
 const menuBlocks = [
   {
@@ -237,6 +434,7 @@ export function DashboardSidebar() {
   const { theme } = useTheme();
   const { hasAccess } = usePlan();
   const { isModuleEnabled, isModuleInMaintenance, getModuleMaintenanceMessage } = useModules();
+  const { user } = useUser();
 
   const [maintenanceModule, setMaintenanceModule] = React.useState<{ name: string; message: string } | null>(null);
   const [selectedEspecialidade, setSelectedEspecialidade] = React.useState("Dermatologia");
@@ -345,16 +543,23 @@ export function DashboardSidebar() {
 
         {/* Main Nav (Block Layout) */}
         <nav className="flex-1 overflow-y-auto px-4 pb-4 space-y-6 relative z-10 custom-scrollbar">
-          {menuBlocks.map((block) => (
-            <div key={block.title} className="space-y-2.5">
-              <h3 className="px-2 text-[11px] font-heading font-semibold text-rd-cyan uppercase tracking-[0.2em] opacity-90">
-                {block.title}
-              </h3>
-              <div className={cn(
-                "border-2 rounded-2xl p-1.5 flex flex-col gap-1 transition-colors shadow-sm",
-                theme === 'dark' ? "bg-zinc-900/60 border-zinc-800/80" : "bg-zinc-100/70 border-zinc-300"
-              )}>
-                {block.items.filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard")).map((item) => {
+          {menuBlocks.map((block) => {
+            const visibleItems = block.items
+              .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
+              .filter(item => isRouteAllowedForRole(user?.role, item.href));
+
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={block.title} className="space-y-2.5">
+                <h3 className="px-2 text-[11px] font-heading font-semibold text-rd-cyan uppercase tracking-[0.2em] opacity-90">
+                  {block.title}
+                </h3>
+                <div className={cn(
+                  "border-2 rounded-2xl p-1.5 flex flex-col gap-1 transition-colors shadow-sm",
+                  theme === 'dark' ? "bg-zinc-900/60 border-zinc-800/80" : "bg-zinc-100/70 border-zinc-300"
+                )}>
+                  {visibleItems.map((item) => {
                   const isActive = pathname === item.href;
                   const authorized = hasAccess(item.requiredPlan);
                   const moduleId = moduleIdMap[item.href] || "dashboard";
@@ -444,7 +649,8 @@ export function DashboardSidebar() {
                 })}
               </div>
             </div>
-          ))}
+          );
+        })}
         </nav>
 
         {/* Footer */}
@@ -507,15 +713,22 @@ export function DashboardSidebar() {
 
         {/* Navegação Categorizada por Blocos (Inteligência, Operacional, Financeiro, Gestão) */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-          {menuBlocks.map((block) => (
-            <div key={block.title} className="space-y-2.5">
-              <h3 className="px-2 text-[11px] font-heading font-semibold text-rd-cyan uppercase tracking-[0.2em] flex items-center gap-2 opacity-90">
-                <span className="w-1.5 h-3.5 bg-rd-cyan rounded-full shadow-[0_0_8px_#a78bfa]"></span>
-                {block.title}
-              </h3>
+          {menuBlocks.map((block) => {
+            const visibleItems = block.items
+              .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
+              .filter(item => isRouteAllowedForRole(user?.role, item.href));
 
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-                {block.items.filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard")).map((item) => {
+            if (visibleItems.length === 0) return null;
+
+            return (
+              <div key={block.title} className="space-y-2.5">
+                <h3 className="px-2 text-[11px] font-heading font-semibold text-rd-cyan uppercase tracking-[0.2em] flex items-center gap-2 opacity-90">
+                  <span className="w-1.5 h-3.5 bg-rd-cyan rounded-full shadow-[0_0_8px_#a78bfa]"></span>
+                  {block.title}
+                </h3>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+                  {visibleItems.map((item) => {
                   const isActive = pathname === item.href;
                   const authorized = hasAccess(item.requiredPlan);
                   const isHighlighted = item.highlight;
@@ -550,7 +763,8 @@ export function DashboardSidebar() {
                 })}
               </div>
             </div>
-          ))}
+          );
+        })}
         </nav>
 
         {/* Mobile / Tablet IA CTA */}
