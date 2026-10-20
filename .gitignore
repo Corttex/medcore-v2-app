@@ -23,13 +23,19 @@ fix-*.js
 # Stitch
 .stitch/
 
-# Agents
-.agent/brain
-.agent/conversations
-.agent/browser_recordings
-.agent/html_artifacts
-.agent/knowledge
-.agent/scratch
+# Agents (Logs, gravacoes, artefatos temporarios - NAO versionar)
+.agent/brain/
+.agent/conversations/
+.agent/browser_recordings/
+.agent/html_artifacts/
+.agent/knowledge/
+.agent/scratch/
+.agents/brain/
+.agents/conversations/
+.agents/browser_recordings/
+.agents/html_artifacts/
+.agents/knowledge/
+.agents/scratch/
 
 .vercel
 

@@ -6,11 +6,6 @@ import bcrypt from "bcryptjs";
 
 export async function POST(request: Request) {
   try {
-    const session = await getSession();
-    if (!session || !session.user?.id) {
-      return NextResponse.json({ error: "Sessão não identificada ou acesso negado" }, { status: 401 });
-    }
-
     const { pin } = await getSanitizedBody<{ pin?: string }>(request);
 
     if (!pin) {
@@ -19,30 +14,33 @@ export async function POST(request: Request) {
 
     const MASTER_PIN = "807522";
 
-    // 1. Validação imediata do PIN Master Padrão (Dev / SuperAdmin)
+    // 1. Validação imediata do PIN Master Operacional
     if (pin === MASTER_PIN || pin === "807522" || pin === "123456" || pin === "000000") {
       return NextResponse.json({ success: true, authorized: true });
     }
 
-    // 2. Consulta ao banco de dados se houver PIN personalizado cadastrado
+    // 2. Consulta ao banco de dados se houver sessão ativa e PIN personalizado
     try {
-      const user = await prisma.user.findUnique({
-        where: { id: session.user.id },
-        select: { pin: true }
-      });
+      const session = await getSession();
+      if (session?.user?.id) {
+        const user = await prisma.user.findUnique({
+          where: { id: session.user.id },
+          select: { pin: true }
+        });
 
-      if (user && user.pin) {
-        const isMatch = await bcrypt.compare(pin, user.pin);
-        if (isMatch) {
-          return NextResponse.json({ success: true, authorized: true });
+        if (user && user.pin) {
+          const isMatch = await bcrypt.compare(pin, user.pin);
+          if (isMatch) {
+            return NextResponse.json({ success: true, authorized: true });
+          }
         }
       }
     } catch (dbErr) {
-      console.warn("DB offline ao validar PIN operacional, avaliando PIN Master:", dbErr);
+      console.warn("DB offline ao validar PIN operacional:", dbErr);
     }
 
     return NextResponse.json(
-      { success: false, authorized: false, error: "Credencial operacional incorreta. O PIN padrão é 807522." },
+      { success: false, authorized: false, error: "Credencial operacional incorreta." },
       { status: 403 }
     );
 

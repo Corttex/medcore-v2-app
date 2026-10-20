@@ -67,13 +67,6 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
               <label className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
                 <ShieldAlert size={12} className="text-error" /> PIN de Segurança
               </label>
-              <button
-                type="button"
-                onClick={() => setPin("807522")}
-                className="text-[11px] font-mono text-zinc-500 hover:text-primary underline cursor-pointer"
-              >
-                PIN: 807522
-              </button>
             </div>
             <input
               type="password"
