@@ -22,7 +22,11 @@ import {
   Building2,
   Trash2,
   UserCheck,
-  Check
+  Check,
+  Share2,
+  ExternalLink,
+  Link2,
+  Copy
 } from "lucide-react";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
@@ -95,6 +99,11 @@ export default function EscalasPage() {
     slot: ShiftSlot;
     prof: ProfissionalEscala;
   } | null>(null);
+
+  // Modal: Compartilhar Link Público Sem Senha
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [sharePlantaoId, setSharePlantaoId] = useState("uti-geral");
+  const [shareLinkCopied, setShareLinkCopied] = useState(false);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -264,6 +273,16 @@ export default function EscalasPage() {
             <option value="MEDICO">Corpo Clínico (Médicos)</option>
             <option value="ENFERMAGEM">Enfermagem & UTI</option>
           </select>
+
+          <button 
+            type="button"
+            onClick={() => setShowShareModal(true)}
+            className="flex items-center gap-2 px-3.5 py-2 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 rounded-xl text-xs font-bold hover:bg-emerald-500/25 transition-all cursor-pointer active:scale-95"
+            title="Visualizar ou compartilhar painel público sem senha"
+          >
+            <Share2 size={15} />
+            Link Público (Sem Senha)
+          </button>
 
           <button 
             onClick={() => setShowNewEscalaModal(true)}
@@ -823,6 +842,117 @@ export default function EscalasPage() {
                 </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* MODAL 3: COMPARTILHAR ESCALA PÚBLICA (SEM SENHA) */}
+      {/* ========================================================= */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="w-full max-w-lg bg-zinc-950 border border-zinc-800 rounded-3xl p-6 shadow-2xl space-y-5 animate-in zoom-in-95">
+            <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center text-emerald-400">
+                  <Share2 size={18} />
+                </div>
+                <div>
+                  <h3 className="font-heading font-bold text-base text-white">Painel Público de Escala</h3>
+                  <p className="text-xs text-zinc-400">Link direto para visualização sem senha</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowShareModal(false)}
+                className="p-1 rounded-xl text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="p-3.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 flex items-start gap-2.5">
+                <ShieldCheck size={18} className="text-emerald-400 shrink-0 mt-0.5" />
+                <p>
+                  Este link pode ser enviado para médicos, enfermagem ou projetado em TVs no posto hospitalar. Ele carrega a escala em tempo real <strong>sem exigir login nem senha</strong>.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-300 block">Identificador da Conta (Unidade)</label>
+                <input
+                  type="text"
+                  readOnly
+                  value={activeUnit?.id || "medcore-matriz"}
+                  className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-400 text-xs font-mono select-all"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-300 block">Plantão / Setor em Destaque</label>
+                <select
+                  value={sharePlantaoId}
+                  onChange={(e) => setSharePlantaoId(e.target.value)}
+                  className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-white text-xs font-medium focus:outline-none focus:border-emerald-500 cursor-pointer"
+                >
+                  <option value="uti-geral">UTI Geral - Ala A</option>
+                  <option value="pronto-socorro">Pronto Socorro Adulto</option>
+                  <option value="bloco-cirurgico">Bloco Cirúrgico</option>
+                  <option value="pediatria">UTI Neonatal / Pediatria</option>
+                  <option value="plantao-geral">Todos os Plantões (Geral)</option>
+                  {profissionais.map(p => (
+                    <option key={p.id} value={`prof-${p.id}`}>{p.name} ({p.role})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-semibold text-zinc-300 block">Link de Acesso Público Gerado</label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    value={`${typeof window !== "undefined" ? window.location.origin : ""}/escala/${activeUnit?.id || "medcore-matriz"}/${sharePlantaoId}`}
+                    className="w-full px-3 py-2.5 bg-zinc-900 border border-zinc-800 rounded-xl text-emerald-400 text-xs font-mono select-all focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        const link = `${window.location.origin}/escala/${activeUnit?.id || "medcore-matriz"}/${sharePlantaoId}`;
+                        navigator.clipboard.writeText(link);
+                        setShareLinkCopied(true);
+                        setTimeout(() => setShareLinkCopied(false), 2500);
+                        showToast("Link público copiado para a área de transferência!");
+                      }
+                    }}
+                    className="px-3.5 py-2.5 bg-emerald-500 text-zinc-950 font-bold rounded-xl text-xs hover:bg-emerald-400 transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
+                  >
+                    {shareLinkCopied ? <Check size={14} /> : <Copy size={14} />}
+                    {shareLinkCopied ? "Copiado!" : "Copiar"}
+                  </button>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setShowShareModal(false)}
+                  className="px-4 py-2 rounded-xl text-zinc-400 hover:text-white border border-zinc-800 text-xs font-bold"
+                >
+                  Fechar
+                </button>
+                <a
+                  href={`/escala/${activeUnit?.id || "medcore-matriz"}/${sharePlantaoId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white font-bold text-xs flex items-center gap-1.5 transition-colors"
+                >
+                  <ExternalLink size={14} />
+                  Abrir Painel Público
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       )}
