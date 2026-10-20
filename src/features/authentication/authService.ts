@@ -69,7 +69,9 @@ export const authService = {
     });
 
     const data = await res.json();
-    if (!res.ok && res.status !== 403) throw new Error(data.error || "Erro na validação de segurança");
+    if (!res.ok || data.authorized === false) {
+      throw new Error(data.error || "PIN operacional incorreto.");
+    }
     return data;
   },
 

@@ -27,9 +27,10 @@ export const moduleService = {
    */
   subscribeToChanges(callback: (payload: any) => void) {
     const interval = setInterval(async () => {
+      if (typeof document !== "undefined" && document.hidden) return;
       const data = await this.getModules();
       callback(data);
-    }, 15000); // Polling a cada 15 segundos
+    }, 30000); // Polling a cada 30 segundos
     
     return {
       unsubscribe: () => clearInterval(interval)

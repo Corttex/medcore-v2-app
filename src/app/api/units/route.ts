@@ -2,8 +2,23 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 
-// Armazenamento em memória para modo de desenvolvimento local (caso o banco remoto esteja inacessível)
-let devUnitsMemory: any[] = [];
+declare global {
+  var __medcoreUnitsDatabase: any[] | undefined;
+}
+
+if (!globalThis.__medcoreUnitsDatabase) {
+  globalThis.__medcoreUnitsDatabase = [
+    {
+      id: "unit-01",
+      name: "Hospital Central MedCore",
+      type: "Hospital Geral",
+      active: true,
+      country: "BR",
+      taxRegime: "SIMPLES_NACIONAL",
+      role: "owner"
+    }
+  ];
+}
 
 export async function GET() {
   const session = await getSession();
@@ -42,17 +57,19 @@ export async function GET() {
   } catch (error) {
     console.error("Erro ao buscar units:", error);
     if (process.env.NODE_ENV !== "production") {
-      const fallback = devUnitsMemory.length > 0 ? devUnitsMemory : [
-        {
-          id: "dev-unit-default",
-          name: "Hospital Central MedCore",
-          type: "Hospital",
-          active: true,
-          country: "BR",
-          taxRegime: "SIMPLES_NACIONAL",
-          role: "owner"
-        }
-      ];
+      const fallback = (globalThis.__medcoreUnitsDatabase && globalThis.__medcoreUnitsDatabase.length > 0)
+        ? globalThis.__medcoreUnitsDatabase
+        : [
+            {
+              id: "unit-01",
+              name: "Hospital Central MedCore",
+              type: "Hospital Geral",
+              active: true,
+              country: "BR",
+              taxRegime: "SIMPLES_NACIONAL",
+              role: "owner"
+            }
+          ];
       return NextResponse.json({
         units: fallback,
         primaryUnitId: fallback[0]?.id
@@ -150,7 +167,10 @@ export async function POST(req: Request) {
         active: true,
         role: "owner"
       };
-      devUnitsMemory.push(devUnit);
+      if (!globalThis.__medcoreUnitsDatabase) {
+        globalThis.__medcoreUnitsDatabase = [];
+      }
+      globalThis.__medcoreUnitsDatabase.push(devUnit);
       return NextResponse.json({ unit: devUnit, isPrimary: true });
     }
     return NextResponse.json({ error: "Erro interno" }, { status: 500 });
@@ -202,21 +222,23 @@ export async function PUT(req: Request) {
       }
 
       // Atualiza na memória de desenvolvimento
-      const idx = devUnitsMemory.findIndex(u => u.id === targetId);
-      if (idx !== -1) {
-        devUnitsMemory[idx] = {
-          ...devUnitsMemory[idx],
-          ...(name && { name }),
-          ...(type && { type }),
-          ...(address !== undefined && { address }),
-          ...(phone !== undefined && { phone }),
-          ...(email !== undefined && { email }),
-          ...(cnpj !== undefined && { cnpj }),
-          ...(responsible !== undefined && { responsible }),
-          ...(color !== undefined && { color }),
-          ...(country !== undefined && { country }),
-          ...(taxRegime !== undefined && { taxRegime }),
-        };
+      if (globalThis.__medcoreUnitsDatabase) {
+        const idx = globalThis.__medcoreUnitsDatabase.findIndex((u: any) => u.id === targetId);
+        if (idx !== -1) {
+          globalThis.__medcoreUnitsDatabase[idx] = {
+            ...globalThis.__medcoreUnitsDatabase[idx],
+            ...(name && { name }),
+            ...(type && { type }),
+            ...(address !== undefined && { address }),
+            ...(phone !== undefined && { phone }),
+            ...(email !== undefined && { email }),
+            ...(cnpj !== undefined && { cnpj }),
+            ...(responsible !== undefined && { responsible }),
+            ...(color !== undefined && { color }),
+            ...(country !== undefined && { country }),
+            ...(taxRegime !== undefined && { taxRegime }),
+          };
+        }
       }
     }
     

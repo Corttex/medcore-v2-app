@@ -91,21 +91,21 @@ const StatCard = ({ title, value, trend, description, icon: Icon, color, chartDa
   const { theme } = useTheme();
   return (
     <div className={cn(
-      "no-line-card !p-5 flex flex-col gap-3 group transition-all duration-500 hover:border-rd-cyan/30 h-full",
+      "no-line-card !p-4 flex flex-col gap-2 group transition-all duration-300 hover:border-rd-cyan/30 h-full",
       theme === 'dark' ? "bg-zinc-900/40" : "bg-white border-zinc-200"
     )}>
       <div className="flex items-center justify-between">
         <div className={cn(
-          "w-12 h-12 rounded-2xl flex items-center justify-center transition-all shadow-sm border border-transparent shrink-0",
+          "w-9 h-9 rounded-xl flex items-center justify-center transition-all shadow-xs border border-transparent shrink-0",
           color === 'emerald' ? "bg-emerald-500/10 text-emerald-500 group-hover:bg-emerald-500/20 group-hover:border-emerald-500/20" : 
           color === 'amber' ? "bg-amber-500/10 text-amber-500 group-hover:bg-amber-500/20 group-hover:border-amber-500/20" : 
           color === 'red' ? "bg-red-500/10 text-red-500 group-hover:bg-red-500/20 group-hover:border-red-500/20" :
           "bg-rd-cyan/10 text-rd-cyan group-hover:bg-rd-cyan/20 group-hover:border-rd-cyan/20"
         )}>
-          <Icon size={24} />
+          <Icon size={18} />
         </div>
         <div className={cn(
-          "text-sm font-semibold px-2.5 py-1 rounded-full border tracking-widest flex items-center gap-1",
+          "text-xs font-semibold px-2 py-0.5 rounded-full border tracking-wider flex items-center gap-1",
           trend.startsWith('+') && trend !== '+0%' && trend !== '+0' ? "text-emerald-500 border-emerald-500/20 bg-emerald-500/5" : 
           trend.startsWith('-') ? "text-red-500 border-red-500/20 bg-red-500/5" :
           "text-zinc-500 border-zinc-500/20 bg-zinc-500/5"
@@ -116,22 +116,22 @@ const StatCard = ({ title, value, trend, description, icon: Icon, color, chartDa
       </div>
       
       <div className="flex-1">
-        <h3 className={cn("text-[11px] font-heading font-semibold uppercase tracking-[0.2em] leading-none mb-2 opacity-90", theme === 'dark' ? "text-white/95" : "text-black/95")}>{title}</h3>
+        <h3 className={cn("text-[10px] font-heading font-semibold uppercase tracking-[0.16em] leading-none mb-1 opacity-80", theme === 'dark' ? "text-white/95" : "text-black/95")}>{title}</h3>
         <div className="flex items-baseline gap-2">
           <p className={cn(
-            "text-4xl font-heading font-bold leading-tight tracking-tighter",
+            "text-2xl lg:text-3xl font-heading font-bold leading-tight tracking-tight",
             theme === 'dark' ? "text-white/95" : "text-black/95"
           )}>{value}</p>
         </div>
         <p className={cn(
-          "text-xs font-sans font-medium uppercase tracking-wide mt-1",
-          theme === 'dark' ? "text-white/95" : "text-black/95"
+          "text-[11px] font-sans font-medium uppercase tracking-wide mt-0.5 text-zinc-400",
+          theme === 'dark' ? "text-zinc-400" : "text-zinc-500"
         )}>{description}</p>
       </div>
 
-      {chartData && (
+      {chartData && chartData.length > 0 && (
         <div className={cn(
-          "mt-2 pt-2 border-t transition-colors",
+          "mt-1 pt-1.5 border-t transition-colors",
           theme === 'dark' ? "border-zinc-800/30" : "border-zinc-100"
         )}>
           <SparklineChart data={chartData} color={color === 'emerald' ? 'emerald' : 'brand'} />

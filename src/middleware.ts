@@ -22,6 +22,7 @@ export async function middleware(request: NextRequest) {
     pathname.endsWith(".ico") ||
     pathname.endsWith(".svg") ||
     pathname.endsWith(".png") ||
+    pathname === "/sw.js" ||
     pathname === "/login" ||
     pathname === "/"
   ) {
@@ -59,7 +60,22 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+
+  // Cabeçalhos de Segurança Estritos (HSTS, Anti-Sniffing, Anti-Clickjacking)
+  response.headers.set(
+    "Strict-Transport-Security",
+    "max-age=63072000; includeSubDomains; preload"
+  );
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(self), microphone=(self), geolocation=()"
+  );
+
+  return response;
 }
 
 export const config = {
@@ -69,4 +85,5 @@ export const config = {
     "/admin/:path*",
   ],
 };
+
 

@@ -16,8 +16,10 @@ import {
   Database,
   Sparkles,
   RefreshCw,
-  ExternalLink
+  ExternalLink,
+  Trash2
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AuditLog {
   id: string;
@@ -34,12 +36,16 @@ export default function AuditoriaPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAction, setSelectedAction] = useState<string>("TODOS");
   const [exporting, setExporting] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [isDbConnected, setIsDbConnected] = useState<boolean | null>(null);
 
   const fetchLogs = async () => {
     setLoading(true);
     try {
       const res = await fetch("/api/audit-logs");
       if (res.ok) {
+        const connectedHeader = res.headers.get("x-db-connected");
+        setIsDbConnected(connectedHeader === "true");
         const data = await res.json();
         setLogs(data);
       }
@@ -47,6 +53,23 @@ export default function AuditoriaPage() {
       console.error(e);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleClearLogs = async () => {
+    if (!window.confirm("Deseja realmente limpar a trilha de dados da Auditoria & LGPD para iniciar novos registros?")) {
+      return;
+    }
+    setClearing(true);
+    try {
+      const res = await fetch("/api/audit-logs", { method: "DELETE" });
+      if (res.ok) {
+        setLogs([]);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setClearing(false);
     }
   };
 
@@ -188,9 +211,19 @@ export default function AuditoriaPage() {
           </button>
 
           <button 
+            onClick={handleClearLogs}
+            disabled={clearing || logs.length === 0}
+            className="px-3 py-2 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-500 hover:bg-rose-500/20 font-bold transition-all flex items-center gap-1.5 text-xs disabled:opacity-40"
+            title="Limpar todos os dados e preparar banco para novos registros"
+          >
+            <Trash2 size={13} />
+            <span>{clearing ? "Limpando..." : "Limpar Dados"}</span>
+          </button>
+
+          <button 
             onClick={fetchLogs}
             className="p-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:border-zinc-400 transition-colors"
-            title="Recarregar Logs"
+            title="Recarregar Logs e Testar Banco"
           >
             <RefreshCw size={14} className={loading ? "animate-spin" : ""} />
           </button>
@@ -228,9 +261,19 @@ export default function AuditoriaPage() {
             <Database size={20} />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">Auditoria Médica CFM</h4>
+            <div className="flex items-center gap-2">
+              <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">Banco & Auditoria CFM</h4>
+              <span className={cn(
+                "text-[9px] font-bold px-1.5 py-0.2 rounded uppercase tracking-wider",
+                isDbConnected 
+                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30" 
+                  : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+              )}>
+                {isDbConnected ? "PostgreSQL Ativo" : "Buffer Seguro Ativo"}
+              </span>
+            </div>
             <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Rastreamento de acessos a prontuários (PEP) e receitas digitais ICP-Brasil.
+              Tabela <code className="text-rd-cyan font-mono text-[11px]">AuditLog</code> configurada com RLS e rastreamento de IP de origem.
             </p>
           </div>
         </div>

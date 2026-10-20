@@ -24,6 +24,7 @@ import {
   Share2,
   HeartPulse
 } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 
 // Base de Dados de Vagas Públicas para Resolução Instantânea
 const PUBLIC_JOBS_MOCK: Record<string, {
@@ -125,8 +126,8 @@ export default function PublicJobLandingPage() {
   const router = useRouter();
   const rawId = Array.isArray(params?.id) ? params.id[0] : params?.id || "vaga-01";
   
-  // Resolve vaga ou usa genérica
-  const job = PUBLIC_JOBS_MOCK[rawId] || {
+  // Resolve vaga base do mock ou genérica
+  const defaultJob = PUBLIC_JOBS_MOCK[rawId] || {
     id: rawId,
     protocolo: `MED-REC-${rawId.toUpperCase()}`,
     titulo: "Profissional de Saúde Especialista",
@@ -150,9 +151,26 @@ export default function PublicJobLandingPage() {
     clinica: "Rede Hospitalar MedCore Health Care"
   };
 
+  const [job, setJob] = useState(defaultJob);
+
+  // Sincroniza em tempo real se o gestor tiver editado esta vaga no painel ATS
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem(`medcore_job_${rawId}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          setJob(prev => ({ ...prev, ...parsed }));
+        }
+      } catch (err) {
+        console.error("Erro ao carregar dados salvos da vaga:", err);
+      }
+    }
+  }, [rawId]);
+
   // Countdown timer em tempo real (dias, horas, minutos, segundos)
   const [timeLeft, setTimeLeft] = useState({
-    days: job.prazoDias,
+    days: defaultJob.prazoDias,
     hours: 14,
     minutes: 32,
     seconds: 45
@@ -220,48 +238,45 @@ export default function PublicJobLandingPage() {
       <header className="border-b border-zinc-800 bg-zinc-900/90 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-rd-cyan to-indigo-600 flex items-center justify-center text-zinc-950 font-black shadow-md shadow-rd-cyan/20">
-              <HeartPulse size={22} />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-heading font-extrabold text-lg tracking-tight text-white">MedCore</span>
-                <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-rd-cyan/20 text-rd-cyan border border-rd-cyan/30">
-                  Jobs
-                </span>
-              </div>
-              <p className="text-[10px] text-zinc-400">Portal Público de Carreiras em Saúde</p>
+            <Logo width={140} height={38} />
+            <div className="hidden sm:block border-l border-zinc-700/80 pl-3">
+              <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded-full bg-rd-cyan/20 text-rd-cyan border border-rd-cyan/30">
+                Jobs
+              </span>
+              <p className="text-[10px] text-zinc-400">Portal de Carreiras em Saúde</p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-400 font-semibold bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
               <ShieldCheck size={14} /> Vaga Verificada & Auditada
             </span>
-            <Link
-              href="/dashboard/recrutamento"
-              className="text-xs text-zinc-400 hover:text-white px-3 py-1.5 rounded-lg border border-zinc-700 hover:border-zinc-500 transition-colors"
-            >
-              Acesso Gestor
-            </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero da Vaga com Countdown Timer */}
-      <section className="bg-gradient-to-b from-zinc-900 via-zinc-900/80 to-zinc-950 border-b border-zinc-800/80 py-10 sm:py-14">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-5">
+      {/* Hero da Vaga com Fundo Escuro Médico & Countdown Timer */}
+      <section className="relative overflow-hidden bg-zinc-950 border-b border-zinc-800/80 py-12 sm:py-16">
+        {/* Background Médico Escuro com Overlay Translúcido */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 pointer-events-none scale-105"
+          style={{ backgroundImage: `url('/bg-hospital.jpg')` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/85 via-zinc-950/95 to-zinc-950 pointer-events-none" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-48 bg-rd-cyan/10 blur-[120px] pointer-events-none" />
+
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-5">
           
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-800 border border-zinc-700 text-xs font-mono text-zinc-300">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900/90 border border-zinc-750 text-xs font-mono text-zinc-300 shadow-md">
             <span>Protocolo de Seleção:</span>
             <strong className="text-rd-cyan">{job.protocolo}</strong>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-white leading-tight tracking-tight max-w-3xl mx-auto">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-heading font-extrabold text-white leading-tight tracking-tight max-w-3xl mx-auto drop-shadow-md">
             {job.titulo}
           </h1>
 
-          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto">
+          <p className="text-sm sm:text-base text-zinc-300 max-w-2xl mx-auto font-medium">
             {job.clinica} • {job.unidade}
           </p>
 

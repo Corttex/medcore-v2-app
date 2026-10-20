@@ -32,3 +32,8 @@ fix-*.js
 .agent/scratch
 
 .vercel
+
+# Documentação e Referências Internas (Não enviar ao GitHub)
+ref/
+*.md
+!README.md

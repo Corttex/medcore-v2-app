@@ -12,15 +12,15 @@ export function GlobalBackground() {
         />
       </div>
 
-      {/* Mesh Gradient Animado */}
+      {/* Mesh Gradient Animado Otimizado por GPU */}
       {/* Esfera 1: Cyan (Azul Clínico) */}
-      <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] bg-[var(--color-rd-cyan)] rounded-full blur-[120px] opacity-15 dark:opacity-20 animate-float"></div>
+      <div className="absolute -top-[20%] -left-[10%] w-[50vw] h-[50vw] bg-[var(--color-rd-cyan)] rounded-full blur-[80px] opacity-15 dark:opacity-20 animate-float will-change-transform"></div>
       
       {/* Esfera 2: Mint (Azul Médico) */}
-      <div className="absolute top-[40%] -right-[10%] w-[60vw] h-[60vw] bg-[#D0E9FD] dark:bg-[var(--color-rd-mint)] rounded-full blur-[150px] opacity-40 dark:opacity-40 animate-float-delayed"></div>
+      <div className="absolute top-[40%] -right-[10%] w-[60vw] h-[60vw] bg-[#D0E9FD] dark:bg-[var(--color-rd-mint)] rounded-full blur-[90px] opacity-35 dark:opacity-35 animate-float-delayed will-change-transform"></div>
       
       {/* Esfera 3: Navy Sutil */}
-      <div className="absolute -bottom-[20%] left-[20%] w-[40vw] h-[40vw] bg-[var(--color-rd-navy)] rounded-full blur-[100px] opacity-[0.06] dark:opacity-5 animate-float" style={{ animationDelay: '2s' }}></div>
+      <div className="absolute -bottom-[20%] left-[20%] w-[40vw] h-[40vw] bg-[var(--color-rd-navy)] rounded-full blur-[70px] opacity-[0.06] dark:opacity-5 animate-float will-change-transform" style={{ animationDelay: '2s' }}></div>
     </div>
   );
 }

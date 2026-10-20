@@ -52,70 +52,9 @@ interface ShiftSlot {
 
 const WEEK_DAYS = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
 
-const INITIAL_PROFISSIONAIS: ProfissionalEscala[] = [
-  { id: 1, name: "Dr. Felipe Azevedo", role: "Cirurgião Geral", setor: "Bloco Cirúrgico", categoria: "MEDICO", status: "Em Plantão", time: "07:00 - 19:00", avatar: "FA" },
-  { id: 2, name: "Dra. Beatriz Albuquerque", role: "Cardiologista", setor: "UTI Geral", categoria: "MEDICO", status: "Em Plantão", time: "07:00 - 19:00", avatar: "BA" },
-  { id: 3, name: "Dr. Carlos Mendes", role: "Clínico Geral", setor: "Pronto Atendimento", categoria: "MEDICO", status: "Folga", time: "-", avatar: "CM" },
-  { id: 4, name: "Mariana Costa", role: "Enfermeira Chefe UTI", setor: "UTI Geral", categoria: "ENFERMAGEM", status: "Em Plantão", time: "07:00 - 19:00", avatar: "MC" },
-  { id: 5, name: "Juliana Santos", role: "Técnica de Enfermagem", setor: "Pronto Atendimento", categoria: "ENFERMAGEM", status: "Ausente", time: "08:00 - 17:00", avatar: "JS", alert: "Atestado Médico" },
-  { id: 6, name: "Dr. Roberto Camargo", role: "Anestesiologista", setor: "Bloco Cirúrgico", categoria: "MEDICO", status: "Sobreaviso", time: "24h Sobreaviso", avatar: "RC" },
-];
+const INITIAL_PROFISSIONAIS: ProfissionalEscala[] = [];
 
-const INITIAL_SHIFTS: ShiftSlot[] = [
-  // Dr. Felipe Azevedo
-  { id: "s-1-0", profId: 1, dayIndex: 0, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-  { id: "s-1-1", profId: 1, dayIndex: 1, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
-  { id: "s-1-2", profId: 1, dayIndex: 2, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-  { id: "s-1-3", profId: 1, dayIndex: 3, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
-  { id: "s-1-4", profId: 1, dayIndex: 4, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-  { id: "s-1-5", profId: 1, dayIndex: 5, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
-  { id: "s-1-6", profId: 1, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
-
-  // Dra. Beatriz Albuquerque
-  { id: "s-2-0", profId: 2, dayIndex: 0, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
-  { id: "s-2-1", profId: 2, dayIndex: 1, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
-  { id: "s-2-2", profId: 2, dayIndex: 2, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
-  { id: "s-2-3", profId: 2, dayIndex: 3, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
-  { id: "s-2-4", profId: 2, dayIndex: 4, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
-  { id: "s-2-5", profId: 2, dayIndex: 5, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "UTI Geral", status: "CONFIRMADO" },
-  { id: "s-2-6", profId: 2, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
-
-  // Dr. Carlos Mendes
-  { id: "s-3-0", profId: 3, dayIndex: 0, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-  { id: "s-3-1", profId: 3, dayIndex: 1, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
-  { id: "s-3-2", profId: 3, dayIndex: 2, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-  { id: "s-3-3", profId: 3, dayIndex: 3, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
-  { id: "s-3-4", profId: 3, dayIndex: 4, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-  { id: "s-3-5", profId: 3, dayIndex: 5, tipo: "24H", horario: "07:00 - 07:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
-  { id: "s-3-6", profId: 3, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-
-  // Mariana Costa
-  { id: "s-4-0", profId: 4, dayIndex: 0, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
-  { id: "s-4-1", profId: 4, dayIndex: 1, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
-  { id: "s-4-2", profId: 4, dayIndex: 2, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
-  { id: "s-4-3", profId: 4, dayIndex: 3, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
-  { id: "s-4-4", profId: 4, dayIndex: 4, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "UTI Geral", status: "CONFIRMADO" },
-  { id: "s-4-5", profId: 4, dayIndex: 5, tipo: "FOLGA", horario: "-", setor: "UTI Geral", status: "FOLGA" },
-  { id: "s-4-6", profId: 4, dayIndex: 6, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "UTI Geral", status: "CONFIRMADO" },
-
-  // Juliana Santos
-  { id: "s-5-0", profId: 5, dayIndex: 0, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-  { id: "s-5-1", profId: 5, dayIndex: 1, tipo: "DIURNO", horario: "08:00 - 17:00", setor: "Pronto Atendimento", status: "PENDENTE" },
-  { id: "s-5-2", profId: 5, dayIndex: 2, tipo: "DIURNO", horario: "08:00 - 17:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
-  { id: "s-5-3", profId: 5, dayIndex: 3, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-  { id: "s-5-4", profId: 5, dayIndex: 4, tipo: "DIURNO", horario: "08:00 - 17:00", setor: "Pronto Atendimento", status: "CONFIRMADO" },
-  { id: "s-5-5", profId: 5, dayIndex: 5, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-  { id: "s-5-6", profId: 5, dayIndex: 6, tipo: "FOLGA", horario: "-", setor: "Pronto Atendimento", status: "FOLGA" },
-
-  // Dr. Roberto Camargo
-  { id: "s-6-0", profId: 6, dayIndex: 0, tipo: "SOBREAVISO", horario: "24h Sobreaviso", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-  { id: "s-6-1", profId: 6, dayIndex: 1, tipo: "SOBREAVISO", horario: "24h Sobreaviso", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-  { id: "s-6-2", profId: 6, dayIndex: 2, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
-  { id: "s-6-3", profId: 6, dayIndex: 3, tipo: "SOBREAVISO", horario: "24h Sobreaviso", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-  { id: "s-6-4", profId: 6, dayIndex: 4, tipo: "FOLGA", horario: "-", setor: "Bloco Cirúrgico", status: "FOLGA" },
-  { id: "s-6-5", profId: 6, dayIndex: 5, tipo: "DIURNO", horario: "07:00 - 19:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-  { id: "s-6-6", profId: 6, dayIndex: 6, tipo: "NOTURNO", horario: "19:00 - 07:00", setor: "Bloco Cirúrgico", status: "CONFIRMADO" },
-];
+const INITIAL_SHIFTS: ShiftSlot[] = [];
 
 export default function EscalasPage() {
   const { theme } = useTheme();
@@ -256,6 +195,30 @@ export default function EscalasPage() {
   // Contadores
   const ativosHoje = profissionais.filter(p => p.status === "Em Plantão").length;
 
+  // Métricas do Mês (Zera quando não houver modo demo ativo ou sem escalas)
+  const metricasMes = useMemo(() => {
+    if (!isDemoMode && shifts.length === 0) {
+      return {
+        horasAlocadas: "0h",
+        horasExtras: "0h",
+        trocas: "0 pendentes",
+        faltas: "0 ocorrências"
+      };
+    }
+    const totalHoras = shifts.reduce((acc, s) => {
+      if (s.tipo === "24H") return acc + 24;
+      if (s.tipo === "DIURNO" || s.tipo === "NOTURNO") return acc + 12;
+      return acc;
+    }, 0);
+    const trocasCount = shifts.filter(s => s.status === "TROCA_SOLICITADA").length;
+    return {
+      horasAlocadas: isDemoMode ? "1.480h" : `${totalHoras}h`,
+      horasExtras: isDemoMode ? "42h" : "0h",
+      trocas: isDemoMode ? "4 pendentes" : `${trocasCount} pendentes`,
+      faltas: isDemoMode ? "1 ocorrência" : "0 ocorrências"
+    };
+  }, [isDemoMode, shifts]);
+
   return (
     <div className="w-full space-y-6 animate-in fade-in duration-500 pb-20 pt-2 px-2 sm:px-4">
       {/* Toast Feedback */}
@@ -324,38 +287,46 @@ export default function EscalasPage() {
             </div>
             
             <div className="space-y-3 relative z-10">
-              {profissionais.slice(0, 5).map(prof => (
-                <div key={prof.id} className="flex items-center justify-between p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/60 dark:bg-zinc-950/40 hover:border-rd-cyan/40 transition-all">
-                  <div className="flex items-center gap-3">
-                    <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold font-heading shrink-0 shadow-sm",
-                      prof.status === "Em Plantão" ? "bg-rd-cyan text-zinc-950" : 
-                      prof.status === "Ausente" ? "bg-red-500 text-white" : 
-                      prof.status === "Sobreaviso" ? "bg-amber-500 text-zinc-950" :
-                      "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                    )}>
-                      {prof.avatar}
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{prof.name}</h4>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{prof.role}</p>
-                      <span className="text-[10px] text-zinc-400 font-medium">{prof.setor}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <span className={cn(
-                      "text-[10px] px-2 py-0.5 rounded-full font-bold block",
-                      prof.status === "Em Plantão" ? "bg-emerald-500/10 text-emerald-500" :
-                      prof.status === "Ausente" ? "bg-rose-500/10 text-rose-500" :
-                      prof.status === "Sobreaviso" ? "bg-amber-500/10 text-amber-500" :
-                      "bg-zinc-500/10 text-zinc-400"
-                    )}>
-                      {prof.status}
-                    </span>
-                    <span className="text-[10px] font-mono text-zinc-400 mt-1 block">{prof.time}</span>
-                  </div>
+              {profissionais.length === 0 ? (
+                <div className="py-6 text-center text-zinc-400 dark:text-zinc-500 text-xs">
+                  <UserCheck size={28} className="mx-auto mb-2 opacity-40 text-zinc-400" />
+                  <p className="font-semibold text-zinc-500">Nenhum plantonista em plantão hoje</p>
+                  <p className="text-[11px] opacity-75 mt-0.5">Ative "Dados Demo: Sim" ou crie uma nova escala.</p>
                 </div>
-              ))}
+              ) : (
+                profissionais.slice(0, 5).map(prof => (
+                  <div key={prof.id} className="flex items-center justify-between p-3 rounded-xl border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/60 dark:bg-zinc-950/40 hover:border-rd-cyan/40 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold font-heading shrink-0 shadow-sm",
+                        prof.status === "Em Plantão" ? "bg-rd-cyan text-zinc-950" : 
+                        prof.status === "Ausente" ? "bg-red-500 text-white" : 
+                        prof.status === "Sobreaviso" ? "bg-amber-500 text-zinc-950" :
+                        "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                      )}>
+                        {prof.avatar}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{prof.name}</h4>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">{prof.role}</p>
+                        <span className="text-[10px] text-zinc-400 font-medium">{prof.setor}</span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <span className={cn(
+                        "text-[10px] px-2 py-0.5 rounded-full font-bold block",
+                        prof.status === "Em Plantão" ? "bg-emerald-500/10 text-emerald-500" :
+                        prof.status === "Ausente" ? "bg-rose-500/10 text-rose-500" :
+                        prof.status === "Sobreaviso" ? "bg-amber-500/10 text-amber-500" :
+                        "bg-zinc-500/10 text-zinc-400"
+                      )}>
+                        {prof.status}
+                      </span>
+                      <span className="text-[10px] font-mono text-zinc-400 mt-1 block">{prof.time}</span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
             
             <button 
@@ -372,19 +343,19 @@ export default function EscalasPage() {
             <div className="space-y-3.5">
               <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
                 <span className="text-zinc-600 dark:text-zinc-400 font-medium">Horas de Plantão Alocadas</span>
-                <span className="font-bold text-emerald-500">1.480h</span>
+                <span className="font-bold text-emerald-500">{metricasMes.horasAlocadas}</span>
               </div>
               <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
                 <span className="text-zinc-600 dark:text-zinc-400 font-medium">Horas Extras Acumuladas</span>
-                <span className="font-bold text-amber-500">42h</span>
+                <span className="font-bold text-amber-500">{metricasMes.horasExtras}</span>
               </div>
               <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
                 <span className="text-zinc-600 dark:text-zinc-400 font-medium">Trocas Solicitadas</span>
-                <span className="font-bold text-rd-cyan">4 pendentes</span>
+                <span className="font-bold text-rd-cyan">{metricasMes.trocas}</span>
               </div>
               <div className="flex justify-between items-center text-sm p-2 rounded-xl bg-zinc-50 dark:bg-zinc-950/30">
                 <span className="text-zinc-600 dark:text-zinc-400 font-medium">Faltas / Atestados</span>
-                <span className="font-bold text-rose-500">1 ocorrência</span>
+                <span className="font-bold text-rose-500">{metricasMes.faltas}</span>
               </div>
             </div>
           </div>

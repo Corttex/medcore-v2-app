@@ -168,20 +168,20 @@
     animation: pulse-slow 4s infinite ease-in-out;
   }
 
-  /* Float Animation for Animated Mesh Gradient */
+  /* Float Animation for Animated Mesh Gradient (Hardware Accelerated) */
   @keyframes float {
-    0%, 100% { transform: translateY(0) scale(1) translateX(0); }
-    33% { transform: translateY(-5%) scale(1.05) translateX(3%); }
-    66% { transform: translateY(5%) scale(0.95) translateX(-3%); }
+    0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+    33% { transform: translate3d(2%, -4%, 0) scale(1.03); }
+    66% { transform: translate3d(-2%, 4%, 0) scale(0.97); }
   }
 
   .animate-float {
-    animation: float 15s ease-in-out infinite;
+    animation: float 20s ease-in-out infinite;
   }
   
   .animate-float-delayed {
-    animation: float 18s ease-in-out infinite;
-    animation-delay: -5s;
+    animation: float 24s ease-in-out infinite;
+    animation-delay: -6s;
   }
 
   /* Sem backdrop-blur pesado — apenas borda + sombra leve */

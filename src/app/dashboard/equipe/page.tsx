@@ -286,7 +286,7 @@ const DEMO_TEAM_MEMBERS: TeamMember[] = [
 
 export default function EquipePage() {
   const { activePlan, setActivePlan } = usePlan();
-  const { isDemoMode } = useDashboardContext();
+  const { isDemoMode, units, activeUnit } = useDashboardContext();
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -329,6 +329,8 @@ export default function EquipePage() {
   const isQuotaReached = displayTeam.length >= currentLimit.max;
   const quotaPercent = Math.min(100, Math.round((displayTeam.length / currentLimit.max) * 100));
 
+  const defaultUnitName = activeUnit?.name || units[0]?.name || "Hospital Central MedCore";
+
   // Formulário de Cadastro
   const [createForm, setCreateForm] = useState({
     fullName: "",
@@ -338,7 +340,7 @@ export default function EquipePage() {
     cargo: "",
     departamento: "Corpo Clínico",
     registroProfissional: "",
-    unidade: "Unidade Central Alphaville",
+    unidade: defaultUnitName,
     password: "",
     role: "MEDICO_ESPECIALISTA"
   });
@@ -353,10 +355,23 @@ export default function EquipePage() {
     cargo: "",
     departamento: "Corpo Clínico",
     registroProfissional: "",
-    unidade: "Unidade Central Alphaville",
+    unidade: defaultUnitName,
     password: "",
     role: "MEDICO_ESPECIALISTA"
   });
+
+  // Sincroniza unidade padrão se carregar depois
+  useEffect(() => {
+    if (units.length > 0) {
+      const preferred = activeUnit?.name || units[0]?.name;
+      if (preferred) {
+        setCreateForm(prev => ({
+          ...prev,
+          unidade: prev.unidade === "Unidade Central Alphaville" || !prev.unidade ? preferred : prev.unidade
+        }));
+      }
+    }
+  }, [units, activeUnit]);
 
   const fetchTeam = async () => {
     try {
@@ -450,7 +465,7 @@ export default function EquipePage() {
         cargo: "",
         departamento: "Corpo Clínico",
         registroProfissional: "",
-        unidade: "Unidade Central Alphaville",
+        unidade: defaultUnitName,
         password: "",
         role: "MEDICO_ESPECIALISTA"
       });
@@ -1082,10 +1097,15 @@ export default function EquipePage() {
                     onChange={e => setCreateForm({...createForm, unidade: e.target.value})}
                     className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
                   >
-                    <option value="Unidade Central Alphaville">Unidade Central Alphaville</option>
-                    <option value="Hospital Geral Morumbi">Hospital Geral Morumbi</option>
-                    <option value="Clínica Diagnóstica Zona Sul">Clínica Diagnóstica Zona Sul</option>
-                    <option value="Sede Corporativa & Backoffice">Sede Corporativa & Backoffice</option>
+                    {units.length > 0 ? (
+                      units.map(u => (
+                        <option key={u.id} value={u.name}>
+                          {u.name} {u.type ? `(${u.type})` : ''}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="Hospital Central MedCore">Hospital Central MedCore</option>
+                    )}
                     <option value="Todas as Unidades (Multilocal)">Todas as Unidades (Multilocal)</option>
                   </select>
                 </div>
@@ -1394,10 +1414,15 @@ export default function EquipePage() {
                     onChange={e => setEditForm({...editForm, unidade: e.target.value})}
                     className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2.5 text-sm text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
                   >
-                    <option value="Unidade Central Alphaville">Unidade Central Alphaville</option>
-                    <option value="Hospital Geral Morumbi">Hospital Geral Morumbi</option>
-                    <option value="Clínica Diagnóstica Zona Sul">Clínica Diagnóstica Zona Sul</option>
-                    <option value="Sede Corporativa & Backoffice">Sede Corporativa & Backoffice</option>
+                    {units.length > 0 ? (
+                      units.map(u => (
+                        <option key={u.id} value={u.name}>
+                          {u.name} {u.type ? `(${u.type})` : ''}
+                        </option>
+                      ))
+                    ) : (
+                      <option value="Hospital Central MedCore">Hospital Central MedCore</option>
+                    )}
                     <option value="Todas as Unidades (Multilocal)">Todas as Unidades (Multilocal)</option>
                   </select>
                 </div>

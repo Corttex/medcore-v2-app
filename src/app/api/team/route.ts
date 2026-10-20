@@ -21,117 +21,10 @@ declare global {
   var __medcoreTeamDatabase: TeamMemberRecord[] | undefined;
 }
 
-// Lista em memória com representantes de toda a cadeia de saúde
-const INITIAL_TEAM_MEMBERS: TeamMemberRecord[] = [
-  {
-    id: "usr-01",
-    fullName: "Dr. Felipe Azevedo",
-    email: "felipe.azevedo@medcore.com.br",
-    role: "DIRETOR_CLINICO",
-    cargo: "Diretor Clínico & Cirurgião Geral",
-    departamento: "Diretoria Médica",
-    telefone: "(11) 98765-4321",
-    cpf: "123.456.789-01",
-    registroProfissional: "CRM-SP 124.890",
-    unidade: "Unidade Central Alphaville",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 120).toISOString()
-  },
-  {
-    id: "usr-02",
-    fullName: "Dra. Beatriz Albuquerque",
-    email: "beatriz.albuquerque@medcore.com.br",
-    role: "MEDICO_ESPECIALISTA",
-    cargo: "Cardiologista & Ecocardiografia",
-    departamento: "Corpo Clínico",
-    telefone: "(11) 97654-3210",
-    cpf: "234.567.890-12",
-    registroProfissional: "CRM-SP 98.452",
-    unidade: "Unidade Central Alphaville",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 90).toISOString()
-  },
-  {
-    id: "usr-03",
-    fullName: "Mariana Santos",
-    email: "mariana.santos@medcore.com.br",
-    role: "ENFERMEIRA_CHEFE",
-    cargo: "Enfermeira Chefe da UTI & Supervisora",
-    departamento: "Enfermagem Assistencial",
-    telefone: "(11) 96543-2109",
-    cpf: "345.678.901-23",
-    registroProfissional: "COREN-SP 45.109",
-    unidade: "Hospital Geral Morumbi",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 60).toISOString()
-  },
-  {
-    id: "usr-04",
-    fullName: "Lucas Andrade",
-    email: "lucas.andrade@medcore.com.br",
-    role: "TECNICO_ENFERMAGEM",
-    cargo: "Técnico de Enfermagem - Medicação & Triagem",
-    departamento: "Enfermagem Assistencial",
-    telefone: "(11) 96123-4567",
-    cpf: "456.789.012-34",
-    registroProfissional: "COREN-SP 89.321-TE",
-    unidade: "Hospital Geral Morumbi",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 45).toISOString()
-  },
-  {
-    id: "usr-05",
-    fullName: "Carlos Eduardo Mendes",
-    email: "carlos.mendes@medcore.com.br",
-    role: "SECRETARIA_RECEPCAO",
-    cargo: "Recepcionista Líder & Check-in",
-    departamento: "Atendimento & Recepção",
-    telefone: "(11) 95432-1098",
-    cpf: "567.890.123-45",
-    registroProfissional: "MAT-2023-04",
-    unidade: "Unidade Central Alphaville",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30).toISOString()
-  },
-  {
-    id: "usr-06",
-    fullName: "Roberta Camargo",
-    email: "roberta.camargo@medcore.com.br",
-    role: "ANALISTA_TISS",
-    cargo: "Analista de Faturamento TISS & Glosas",
-    departamento: "Faturamento & Convênios",
-    telefone: "(11) 94321-0987",
-    cpf: "678.901.234-56",
-    registroProfissional: "MAT-2023-09",
-    unidade: "Sede Corporativa",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 20).toISOString()
-  },
-  {
-    id: "usr-07",
-    fullName: "Guilherme Siqueira",
-    email: "guilherme.siqueira@medcore.com.br",
-    role: "GESTOR_PATRIMONIO_ESTOQUE",
-    cargo: "Gestor de Patrimônio, Almoxarifado & CAF",
-    departamento: "Patrimônio & Farmácia",
-    telefone: "(11) 93210-9876",
-    cpf: "789.012.345-67",
-    registroProfissional: "CRF-SP 33.201",
-    unidade: "Complexo Hospitalar",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 15).toISOString()
-  },
-  {
-    id: "usr-08",
-    fullName: "Amanda Cristina Rocha",
-    email: "amanda.rocha@medcore.com.br",
-    role: "GESTOR_UNIDADE",
-    cargo: "Gerente Geral de Operações",
-    departamento: "Gestão & Operações",
-    telefone: "(11) 92109-8765",
-    cpf: "890.123.456-78",
-    registroProfissional: "CRA-SP 18.990",
-    unidade: "Unidade Zona Sul",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString()
-  }
-];
+// Lista em memória inicial limpa pronta para produção
+const INITIAL_TEAM_MEMBERS: TeamMemberRecord[] = [];
 
-if (!globalThis.__medcoreTeamDatabase) {
-  globalThis.__medcoreTeamDatabase = [...INITIAL_TEAM_MEMBERS];
-}
+globalThis.__medcoreTeamDatabase = [];
 
 export async function GET() {
   try {
@@ -208,6 +101,7 @@ export async function POST(request: Request) {
       inviteToken = `inv-${Math.random().toString(36).substring(2, 10)}-${Date.now().toString(36)}`;
       inviteUrl = `/ativar-conta?token=${inviteToken}`;
       
+      const fallbackUnit = (globalThis.__medcoreUnitsDatabase && globalThis.__medcoreUnitsDatabase[0]?.name) || 'Hospital Central MedCore';
       if (!globalThis.__medcoreInviteTokens) {
         globalThis.__medcoreInviteTokens = {};
       }
@@ -216,11 +110,12 @@ export async function POST(request: Request) {
         fullName,
         cargo: cargo || 'Profissional de Saúde',
         role: role || 'MEDICO_ESPECIALISTA',
-        unidade: unidade || 'Unidade Central Alphaville',
+        unidade: unidade || fallbackUnit,
         createdAt: new Date().toISOString()
       };
     }
 
+    const fallbackUnit = (globalThis.__medcoreUnitsDatabase && globalThis.__medcoreUnitsDatabase[0]?.name) || 'Hospital Central MedCore';
     const newRecord: TeamMemberRecord & { status?: string; inviteToken?: string } = {
       id: `usr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       fullName,
@@ -231,7 +126,7 @@ export async function POST(request: Request) {
       telefone: telefone || '',
       cpf: cpf || '',
       registroProfissional: registroProfissional || '',
-      unidade: unidade || 'Unidade Central Alphaville',
+      unidade: unidade || fallbackUnit,
       status: inviteMode ? 'PENDENTE_ATIVACAO' : 'ATIVO',
       inviteToken: inviteToken,
       createdAt: new Date().toISOString()

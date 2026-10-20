@@ -38,44 +38,7 @@ interface ColaboradorTotem {
   fotoUrl?: string;
 }
 
-const COLABORADORES_HOMOLOGADOS: ColaboradorTotem[] = [
-  {
-    id: "colab-1",
-    nome: "Dr. Felipe Azevedo",
-    cargo: "Diretor Clínico & Cirurgião Geral",
-    departamento: "Corpo Clínico",
-    matricula: "CRM-SP 124.890",
-    cpf: "284.912.438-02",
-    dataNascimento: "15/04/1986",
-  },
-  {
-    id: "colab-2",
-    nome: "Dra. Beatriz Albuquerque",
-    cargo: "Cardiologista & Ecocardiografia",
-    departamento: "Ambulatório",
-    matricula: "CRM-SP 98.452",
-    cpf: "192.441.768-15",
-    dataNascimento: "03/11/1989",
-  },
-  {
-    id: "colab-3",
-    nome: "Mariana Santos",
-    cargo: "Enfermeira Chefe da UTI",
-    departamento: "Enfermagem",
-    matricula: "COREN-SP 45.109",
-    cpf: "349.882.115-44",
-    dataNascimento: "22/08/1993",
-  },
-  {
-    id: "colab-4",
-    nome: "Carlos Eduardo Mendes",
-    cargo: "Recepcionista Pleno",
-    departamento: "Atendimento & Recepção",
-    matricula: "MAT-2023-04",
-    cpf: "411.238.990-87",
-    dataNascimento: "10/01/1997",
-  }
-];
+const COLABORADORES_HOMOLOGADOS: ColaboradorTotem[] = [];
 
 export default function PontoEletronicoPage() {
   const { selectedUnitId, isDemoMode } = useDashboardContext();
@@ -85,6 +48,13 @@ export default function PontoEletronicoPage() {
   const [historico, setHistorico] = useState<any[]>([]);
   const [locationStatus, setLocationStatus] = useState<"pending" | "ok" | "error">("pending");
   const [locationData, setLocationData] = useState<GeolocationCoordinates | null>(null);
+
+  // Toast in-app
+  const [pontoToast, setPontoToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
+  const showPontoToast = (message: string, type: "success" | "error" = "success") => {
+    setPontoToast({ message, type });
+    setTimeout(() => setPontoToast(null), 4500);
+  };
 
   // Estados do Modo Totem Facial
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -98,7 +68,7 @@ export default function PontoEletronicoPage() {
 
   // Sincroniza com o Modo Demonstrativo do Administrador
   useEffect(() => {
-    if (isDemoMode) {
+    if (isDemoMode && COLABORADORES_HOMOLOGADOS.length > 0) {
       setDetectedColab(COLABORADORES_HOMOLOGADOS[0]);
       setScanStatus("matched");
     } else {
@@ -116,10 +86,10 @@ export default function PontoEletronicoPage() {
   // Busca histórico inicial
   const fetchHistorico = async () => {
     try {
-      const res = await fetch(`/api/ponto?unitId=${selectedUnitId}`);
+      const res = await fetch(`/api/ponto?unitId=${selectedUnitId || "unit-demo-id"}`);
       const data = await res.json();
       if (data.success) {
-        setHistorico(data.data);
+        setHistorico(data.data || []);
       }
     } catch (err) {
       console.error("Erro ao buscar histórico", err);
@@ -132,7 +102,7 @@ export default function PontoEletronicoPage() {
 
   // Capturar Localização (GPS)
   useEffect(() => {
-    if (navigator.geolocation) {
+    if (navigator?.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setLocationData(position.coords);
@@ -153,26 +123,45 @@ export default function PontoEletronicoPage() {
   const startCamera = async () => {
     try {
       setCameraError(null);
+      if (!navigator?.mediaDevices?.getUserMedia) {
+        setCameraError("Acesso à câmera não suportado neste navegador.");
+        return;
+      }
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } }
       });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        videoRef.current.play();
-        setCameraActive(true);
+        try {
+          await videoRef.current.play();
+          setCameraActive(true);
+        } catch (playErr: any) {
+          if (playErr.name !== "AbortError") {
+            console.warn("Erro ao iniciar reprodução da câmera:", playErr);
+          }
+        }
       }
     } catch (err: any) {
       console.warn("Webcam não disponível ou permissão negada:", err);
-      setCameraError("Permissão de câmera não concedida. Usando modo de simulação facial de alta fidelidade.");
+      setCameraError("Permissão de câmera não concedida. Totem pronto para validação biométrica.");
       setCameraActive(false);
     }
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      stream.getTracks().forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
+    if (videoRef.current) {
+      try {
+        videoRef.current.pause();
+      } catch (_) {}
+      if (videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach((track) => {
+          try {
+            track.stop();
+          } catch (_) {}
+        });
+        videoRef.current.srcObject = null;
+      }
     }
     setCameraActive(false);
   };
@@ -183,7 +172,9 @@ export default function PontoEletronicoPage() {
     } else {
       stopCamera();
     }
-    return () => stopCamera();
+    return () => {
+      stopCamera();
+    };
   }, [viewMode]);
 
   // Captura foto instantânea da câmera (ou gera avatar fallback)
@@ -232,7 +223,7 @@ export default function PontoEletronicoPage() {
         latitude: locationData?.latitude,
         longitude: locationData?.longitude,
         precisao: locationData?.accuracy,
-        unitId: selectedUnitId,
+        unitId: selectedUnitId || "unit-demo-id",
         fotoUrl: snapshotFoto,
         userId: colab ? colab.id : undefined
       };
@@ -250,28 +241,45 @@ export default function PontoEletronicoPage() {
           horario: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
           colaborador: colab ? colab.nome : "Colaborador Autenticado",
           matricula: colab ? colab.matricula : "MAT-2023",
-          protocolo: `MTE-REP-${Math.floor(100000 + Math.random() * 900000)}`
+          protocolo: data.data?.id ? `MTE-REP-${data.data.id.slice(0, 8).toUpperCase()}` : `MTE-REP-${Math.floor(100000 + Math.random() * 900000)}`
         };
         setLastPunchProof(proof);
         setScanStatus("success");
+        showPontoToast(`Ponto registrado com sucesso! (${tipo.replace('_', ' ')})`, "success");
         fetchHistorico();
 
         setTimeout(() => {
           setScanStatus("matched");
-          setLastPunchProof(null);
-        }, 4000);
+        }, 5000);
       } else {
-        alert(`Erro: ${data.error}`);
+        showPontoToast(`Erro: ${data.error || "Falha ao registrar ponto"}`, "error");
       }
     } catch (error) {
-      alert("Erro de comunicação com o servidor.");
+      showPontoToast("Erro de comunicação com o servidor.", "error");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full space-y-6 animate-in fade-in duration-500 pb-20 pt-2">
+    <div className="w-full space-y-6 animate-in fade-in duration-500 pb-20 pt-2 relative">
+      {/* Toast flutuante */}
+      {pontoToast && (
+        <div
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl backdrop-blur-xl border transition-all animate-in slide-in-from-bottom-5 ${
+            pontoToast.type === "success"
+              ? "bg-emerald-950/95 border-emerald-500/50 text-emerald-200"
+              : "bg-rose-950/95 border-rose-500/50 text-rose-200"
+          }`}
+        >
+          {pontoToast.type === "success" ? (
+            <CheckCircle2 size={18} className="text-emerald-400 shrink-0" />
+          ) : (
+            <AlertCircle size={18} className="text-rose-400 shrink-0" />
+          )}
+          <span className="text-sm font-medium">{pontoToast.message}</span>
+        </div>
+      )}
       {/* Action Bar Compacta & Seletor de Modo Responsiva */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white dark:bg-zinc-900/90 border-2 border-zinc-200 dark:border-zinc-700/80 px-4 sm:px-5 py-3.5 rounded-2xl shadow-sm backdrop-blur-md">
         <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
@@ -593,7 +601,20 @@ export default function PontoEletronicoPage() {
         /* MODO INDIVIDUAL TRADICIONAL */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Relógio e Ações */}
-          <div className="bg-white dark:bg-zinc-900/85 border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl p-8 shadow-md flex flex-col items-center justify-center text-center backdrop-blur-xl">
+          <div className="bg-white dark:bg-zinc-900/85 border-2 border-zinc-200 dark:border-zinc-700/80 rounded-3xl p-8 shadow-md flex flex-col items-center justify-center text-center backdrop-blur-xl relative overflow-hidden">
+            {lastPunchProof && (
+              <div className="w-full mb-6 p-4 rounded-2xl bg-emerald-500/10 border-2 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-left animate-in fade-in duration-300">
+                <div className="flex items-center gap-2 font-bold text-sm mb-1">
+                  <CheckCircle2 size={18} className="text-emerald-500" />
+                  <span>Comprovante Emitido ({lastPunchProof.tipo.replace('_', ' ')})</span>
+                </div>
+                <div className="text-xs font-mono opacity-90 space-y-0.5">
+                  <p>Horário: {lastPunchProof.horario} • Protocolo: {lastPunchProof.protocolo}</p>
+                  <p>Assinatura Digital: Portaria MTP 671/2021</p>
+                </div>
+              </div>
+            )}
+
             <div className="w-20 h-20 rounded-full bg-rd-cyan/10 flex items-center justify-center text-rd-cyan mb-6 ring-4 ring-rd-cyan/20">
               <Clock size={36} />
             </div>

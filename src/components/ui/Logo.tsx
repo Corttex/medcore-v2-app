@@ -14,12 +14,14 @@ interface LogoProps {
   showSubtitle?: boolean;
   width?: number;
   height?: number;
+  customLogoUrl?: string;
 }
 
 export function Logo({ 
   className, 
   width = 200,
-  height = 60
+  height = 60,
+  customLogoUrl
 }: LogoProps) {
   // Tentamos ler o tema, mas como o Logo pode ser renderizado em lugares sem o Context
   // (ex: fora do onBoarding), fazemos fallback suave.
@@ -29,6 +31,38 @@ export function Logo({
     if (context) theme = context.theme;
   } catch (e) {
     // silently fallback to dark
+  }
+
+  // Verifica se a empresa subiu uma logo personalizada nas configurações da conta
+  const [activeCustomLogo, setActiveCustomLogo] = React.useState<string | null>(customLogoUrl || null);
+
+  React.useEffect(() => {
+    if (customLogoUrl) {
+      setActiveCustomLogo(customLogoUrl);
+      return;
+    }
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("medcore_custom_company_logo") || localStorage.getItem("medcore_account_logo");
+      if (stored) {
+        setActiveCustomLogo(stored);
+      }
+    }
+  }, [customLogoUrl]);
+
+  // Se houver logo customizada da empresa, renderiza ela com classe e proporção adequada
+  if (activeCustomLogo) {
+    return (
+      <div className={cn("inline-flex items-center group", className)}>
+        <div className="relative group-hover:drop-shadow-[0_0_20px_rgba(58,223,250,0.3)] transition-all duration-500">
+          <img 
+            src={activeCustomLogo} 
+            alt="Logo da Empresa" 
+            style={{ maxHeight: height, maxWidth: width }}
+            className="object-contain rounded-lg"
+          />
+        </div>
+      </div>
+    );
   }
 
   // MedCore Branco (Dark backgrounds), MedCore Escuro (Light backgrounds).

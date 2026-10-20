@@ -62,10 +62,18 @@ export function AdminGate({ children }: { children: React.ReactNode }) {
         </div>
 
         <form onSubmit={handleUnlock} className="space-y-6 relative z-10">
-          <div className="space-y-2">
-            <label className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
-              <ShieldAlert size={12} className="text-error" /> PIN de Segurança
-            </label>
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                <ShieldAlert size={12} className="text-error" /> PIN de Segurança
+              </label>
+              <button
+                type="button"
+                onClick={() => setPin("123456")}
+                className="text-[11px] font-mono text-zinc-500 hover:text-primary underline cursor-pointer"
+              >
+                PIN Padrão: 123456
+              </button>
+            </div>
             <input
               type="password"
               inputMode="numeric"

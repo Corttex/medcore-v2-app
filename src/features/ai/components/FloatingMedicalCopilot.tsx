@@ -59,10 +59,13 @@ export function FloatingMedicalCopilot() {
   const [isMobileDockOpen, setIsMobileDockOpen] = useState(false);
   const [waitingPatientsCount, setWaitingPatientsCount] = useState(0);
 
-  // Monitorar sala de espera de telemedicina em tempo real
+  // Monitorar sala de espera de telemedicina de forma eficiente
   useEffect(() => {
     let isMounted = true;
     async function checkWaitingRoom() {
+      // Se a aba do navegador estiver em segundo plano, não gasta CPU/rede
+      if (typeof document !== "undefined" && document.hidden) return;
+
       try {
         const res = await fetch("/api/telemedicina?status=sala_espera");
         if (res.ok) {
@@ -77,7 +80,7 @@ export function FloatingMedicalCopilot() {
     }
 
     checkWaitingRoom();
-    const interval = setInterval(checkWaitingRoom, 15000);
+    const interval = setInterval(checkWaitingRoom, 30000);
     return () => {
       isMounted = false;
       clearInterval(interval);
@@ -283,7 +286,7 @@ export function FloatingMedicalCopilot() {
       {/* ======================================================== */}
       {/* 1. DOCK LATERAL RETRÁTIL PARA MOBILE (SAI DA DIREITA P/ ESQUERDA) */}
       {/* ======================================================== */}
-      <div className="fixed right-0 bottom-24 z-50 lg:hidden flex items-center">
+      <div className="fixed right-0 bottom-24 z-50 lg:hidden flex items-center print:hidden">
         {!isMobileDockOpen ? (
           /* Aba / Pílula Recolhida na Margem Direita */
           <button
@@ -377,92 +380,66 @@ export function FloatingMedicalCopilot() {
       </div>
 
       {/* ======================================================== */}
-      {/* 2. BOTÕES FLUTUANTES NO DESKTOP (STACK VERTICAL NO CANTO) */}
+      {/* 2. BOTÕES FLUTUANTES NO DESKTOP (STACK COMPACTA DE ÍCONES) */}
       {/* ======================================================== */}
-      <div className="hidden lg:flex fixed bottom-6 right-6 z-50 flex-col items-end gap-3 pointer-events-none">
+      <div className="hidden lg:flex fixed bottom-6 right-6 z-50 flex-col items-center gap-2.5 pointer-events-none print:hidden">
         
-        {/* Botão Telemedicina Desktop */}
+        {/* Botão Telemedicina Desktop (Ícone Compacto) */}
         <button
           onClick={() => router.push("/dashboard/telemedicina")}
           className={cn(
-            "pointer-events-auto flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-bold shadow-lg transition-all border backdrop-blur-md group animate-in slide-in-from-bottom-2 duration-300",
+            "pointer-events-auto relative w-11 h-11 rounded-2xl flex items-center justify-center shadow-lg transition-all duration-300 border backdrop-blur-md group hover:scale-110 active:scale-95",
             waitingPatientsCount > 0
-              ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white border-emerald-400/50 shadow-[0_4px_25px_rgba(16,185,129,0.5)] animate-pulse hover:scale-105"
-              : "bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border-zinc-700/80 hover:border-rd-cyan/50"
+              ? "bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white border-emerald-400/50 shadow-[0_4px_20px_rgba(16,185,129,0.5)] animate-pulse"
+              : "bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border-zinc-750 hover:border-rd-cyan/50 shadow-md"
           )}
-          title="Abrir Hub de Telemedicina"
+          title={waitingPatientsCount > 0 ? `${waitingPatientsCount} Paciente(s) na Sala de Espera de Telemedicina` : "Telemedicina"}
         >
           {waitingPatientsCount > 0 ? (
             <>
-              <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
+              <span className="absolute -top-1 -right-1 flex h-4 w-4">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-4 w-4 bg-emerald-500 text-[10px] text-white font-bold items-center justify-center">
+                  {waitingPatientsCount}
+                </span>
               </span>
-              <Video size={16} className="text-emerald-200 animate-bounce" />
-              <span>{waitingPatientsCount === 1 ? "1 Paciente na Sala de Espera!" : `${waitingPatientsCount} Pacientes na Espera!`}</span>
+              <Video size={18} className="text-white animate-bounce" />
             </>
           ) : (
-            <>
-              <Video size={15} className="text-rd-cyan group-hover:rotate-6 transition-transform" />
-              <span>Telemedicina</span>
-            </>
+            <Video size={18} className="text-rd-cyan group-hover:rotate-6 transition-transform" />
           )}
         </button>
 
-        {/* Botão Consulta / Atendimento com IA */}
+        {/* Botão Consulta / Atendimento com IA (Ícone Compacto) */}
         <button
           onClick={() => setIsLiveConsultationOpen(true)}
-          className="pointer-events-auto flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white text-xs font-bold shadow-[0_4px_25px_rgba(16,185,129,0.45)] hover:shadow-[0_6px_30px_rgba(16,185,129,0.7)] hover:scale-105 active:scale-95 transition-all border border-emerald-400/40 backdrop-blur-md group animate-in slide-in-from-bottom-2 duration-300"
-          title="Iniciar Atendimento / Consulta com IA em Tempo Real (Live Scribe)"
+          className="pointer-events-auto relative w-11 h-11 rounded-2xl flex items-center justify-center bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-[0_4px_20px_rgba(16,185,129,0.4)] hover:shadow-[0_6px_25px_rgba(16,185,129,0.65)] hover:scale-110 active:scale-95 transition-all duration-300 border border-emerald-400/40 backdrop-blur-md group"
+          title="Iniciar Consulta com IA em Tempo Real (Live Scribe)"
         >
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400"></span>
-          </span>
-          <div className="flex items-center gap-1.5">
-            <Mic className="w-4 h-4 text-emerald-200 group-hover:rotate-12 transition-transform" />
-            <span className="tracking-wide">Iniciar Consulta</span>
-          </div>
-          <span className="hidden sm:inline-block text-[10px] font-semibold bg-emerald-950/60 text-emerald-300 px-1.5 py-0.5 rounded border border-emerald-500/30">
-            IA Live
-          </span>
+          <Mic className="w-5 h-5 text-emerald-100 group-hover:rotate-12 transition-transform" />
+          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse border-2 border-zinc-950" />
         </button>
 
-        {/* Linha Inferior: Botão Dra. Conte (Copilot Chat) */}
-        <div className="pointer-events-auto flex items-center gap-3">
-          {!isOpen && (
-            <button
-              onClick={() => setIsOpen(true)}
-              className="hidden sm:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-surface border border-outline-variant/60 shadow-lg text-xs font-semibold text-on-surface hover:border-rd-cyan/60 hover:text-rd-cyan transition-all group backdrop-blur-md"
-            >
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-              <span>Dra. Conte • Copilot</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-container font-mono text-on-surface-variant group-hover:text-rd-cyan">
-                Alt+A
-              </span>
-            </button>
-          )}
-
-          {/* Botão Principal Dra. Conte */}
+        {/* Botão Dra. Conte (Copilot Chat) */}
+        <div className="pointer-events-auto">
           <button
             onClick={() => setIsOpen((prev) => !prev)}
             className={cn(
-              "relative w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-2xl active:scale-95 group",
+              "relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 shadow-xl active:scale-95 group hover:scale-105",
               isOpen
                 ? "bg-zinc-800 text-white rotate-90 border border-zinc-700"
-                : "bg-gradient-to-tr from-rd-navy to-rd-cyan text-white shadow-[0_0_30px_rgba(0,169,255,0.45)] hover:shadow-[0_0_40px_rgba(0,169,255,0.7)] hover:scale-105 border-2 border-rd-cyan/40"
+                : "bg-gradient-to-tr from-rd-navy to-rd-cyan text-white shadow-[0_0_25px_rgba(0,169,255,0.4)] hover:shadow-[0_0_35px_rgba(0,169,255,0.6)] border-2 border-rd-cyan/40"
             )}
             title="Dra. Conte • Copilot Clínico MEDCore (Alt + A)"
           >
             {isOpen ? (
-              <X size={24} />
+              <X size={20} />
             ) : (
               <>
                 <div className="relative">
-                  <Stethoscope size={24} className="text-white group-hover:rotate-12 transition-transform duration-300" />
-                  <Sparkles size={12} className="absolute -top-1 -right-1 text-rd-cyan animate-pulse" />
+                  <Stethoscope size={20} className="text-white group-hover:rotate-12 transition-transform duration-300" />
+                  <Sparkles size={11} className="absolute -top-1 -right-1 text-rd-cyan animate-pulse" />
                 </div>
-                <span className="absolute inset-0 rounded-2xl border-2 border-rd-cyan/30 animate-ping pointer-events-none" />
               </>
             )}
           </button>

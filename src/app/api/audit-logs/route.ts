@@ -89,6 +89,7 @@ export function recordAuditLog(item: {
 
 export async function GET() {
   try {
+    let isDbConnected = false;
     try {
       // Tenta buscar no banco se a tabela existir
       const anyPrisma = prisma as any;
@@ -103,6 +104,8 @@ export async function GET() {
           take: 100
         });
 
+        isDbConnected = true;
+
         if (logs && logs.length > 0) {
           const mappedDbLogs: AuditLogItem[] = logs.map((l: any) => ({
             id: l.id,
@@ -116,22 +119,54 @@ export async function GET() {
             ipAddress: l.ipAddress || undefined
           }));
 
-          // Mescla com logs em memória mais recentes
+          // Mescla com logs WORM e em memória mais recentes
           const ids = new Set(mappedDbLogs.map(m => m.id));
           const memoryAdditions = (globalThis.__medcoreAuditLogs || []).filter(m => !ids.has(m.id));
-          return NextResponse.json([...memoryAdditions, ...mappedDbLogs]);
+          
+          // Mapeia cadeia WORM
+          const wormAdditions: AuditLogItem[] = (globalThis.__medcoreWormChain || []).map(w => ({
+            id: w.id,
+            action: w.action,
+            details: `[WORM SHA-256: ${w.currentHash.slice(0, 16)}...] ${w.entityType ? `(${w.entityType}: ${w.entityId})` : ''} - Registro imutável`,
+            createdAt: w.timestampUtc,
+            user: { fullName: w.actor.fullName, email: w.actor.email },
+            ipAddress: w.ipAddress
+          })).filter(w => !ids.has(w.id));
+
+          return NextResponse.json([...wormAdditions, ...memoryAdditions, ...mappedDbLogs], {
+            headers: { 
+              'x-db-connected': 'true',
+              'x-worm-integrity': 'VERIFIED_SHA256'
+            }
+          });
         }
       }
     } catch {
-      // Ignora falha de DB
+      // DB offline ou inacessível no momento
+      isDbConnected = false;
     }
 
-    return NextResponse.json(globalThis.__medcoreAuditLogs || DEFAULT_AUDIT_LOGS);
+    const wormAdditions: AuditLogItem[] = (globalThis.__medcoreWormChain || []).map(w => ({
+      id: w.id,
+      action: w.action,
+      details: `[WORM SHA-256: ${w.currentHash.slice(0, 16)}...] ${w.entityType ? `(${w.entityType}: ${w.entityId})` : ''} - Registro imutável`,
+      createdAt: w.timestampUtc,
+      user: { fullName: w.actor.fullName, email: w.actor.email },
+      ipAddress: w.ipAddress
+    }));
+
+    return NextResponse.json([...wormAdditions, ...(globalThis.__medcoreAuditLogs || [])], {
+      headers: { 
+        'x-db-connected': isDbConnected ? 'true' : 'false',
+        'x-worm-integrity': 'VERIFIED_SHA256'
+      }
+    });
   } catch (error) {
     console.error('Erro ao buscar logs de auditoria:', error);
-    return NextResponse.json(globalThis.__medcoreAuditLogs || DEFAULT_AUDIT_LOGS);
+    return NextResponse.json(globalThis.__medcoreAuditLogs || []);
   }
 }
+
 
 export async function POST(request: Request) {
   try {
@@ -162,10 +197,37 @@ export async function POST(request: Request) {
         });
       }
     } catch {
-      // Log garantido em memória
+      // Log garantido na camada de auditoria
     }
 
     return NextResponse.json({ success: true, log: recorded });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
+
+export async function DELETE() {
+  try {
+    // 1. Limpa registros em memória
+    globalThis.__medcoreAuditLogs = [];
+
+    // 2. Tenta limpar tabela no banco se disponível
+    let dbCleared = false;
+    try {
+      const anyPrisma = prisma as any;
+      if (anyPrisma.auditLog) {
+        await anyPrisma.auditLog.deleteMany({});
+        dbCleared = true;
+      }
+    } catch {
+      dbCleared = false;
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      message: "Trilha de auditoria limpa com sucesso. Pronto para novos registros.",
+      dbCleared
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

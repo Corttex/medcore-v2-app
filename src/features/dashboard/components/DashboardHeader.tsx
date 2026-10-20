@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Search, Bell, ShieldCheck, Menu, User, TrendingUp, AlertTriangle, Settings, LifeBuoy, Sun, Moon, HelpCircle, X, BookOpen, Building2, Sparkles, FlaskConical, CheckCircle2, Database } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
 import { Logo } from "@/components/ui/Logo";
@@ -479,9 +480,9 @@ export function DashboardHeader() {
       </div>
     </div>
 
-    {/* Toast Flutuante de Feedback do Modo Demonstrativo */}
-    {demoToast?.show && (
-      <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-zinc-950/95 dark:bg-zinc-900/95 text-white border border-rd-cyan/40 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 max-w-md">
+    {/* Toast Flutuante de Feedback do Modo Demonstrativo via Portal (Evita corte por backdrop-blur do header) */}
+    {demoToast?.show && isMounted && typeof document !== "undefined" && createPortal(
+      <div className="fixed top-20 right-6 z-[9999] flex items-center gap-3.5 px-4 py-3 rounded-2xl bg-zinc-950/95 dark:bg-zinc-900/95 text-white border border-rd-cyan/40 shadow-2xl backdrop-blur-2xl animate-in slide-in-from-top-4 fade-in duration-300 max-w-md">
         <div className={cn(
           "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
           demoToast.type === "demo" 
@@ -501,11 +502,12 @@ export function DashboardHeader() {
         </div>
         <button 
           onClick={() => setDemoToast(null)}
-          className="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors ml-1 shrink-0"
+          className="p-1 text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800 transition-colors ml-1 shrink-0 cursor-pointer"
         >
           <X size={15} />
         </button>
-      </div>
+      </div>,
+      document.body
     )}
   </header>
   );

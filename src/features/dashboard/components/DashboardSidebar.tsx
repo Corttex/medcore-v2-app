@@ -49,7 +49,9 @@ import {
   CalendarDays,
   GraduationCap,
   Award,
-  Globe
+  Globe,
+  LogOut,
+  ChevronRight
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -437,11 +439,41 @@ export function DashboardSidebar() {
   const { theme } = useTheme();
   const { hasAccess } = usePlan();
   const { isModuleEnabled, isModuleInMaintenance, getModuleMaintenanceMessage } = useModules();
-  const { user } = useUser();
+  const { user, logout } = useUser();
 
   const [maintenanceModule, setMaintenanceModule] = React.useState<{ name: string; message: string } | null>(null);
   const [selectedEspecialidade, setSelectedEspecialidade] = React.useState("Dermatologia");
   const [showEspecialidadeMenu, setShowEspecialidadeMenu] = React.useState(false);
+
+  // Armazena quais blocos estão abertos na cascata
+  const [openSections, setOpenSections] = React.useState<Record<string, boolean>>(() => {
+    // Abre por padrão o bloco que contém a rota atual
+    const initial: Record<string, boolean> = {};
+    menuBlocks.forEach((block) => {
+      const containsActive = block.items.some(item => item.href === pathname);
+      // Se tiver ativo abre; ou abre os 2 primeiros blocos por conveniência
+      if (containsActive || block.title === "Inteligência Clínica" || block.title === "Operacional & Clínico") {
+        initial[block.title] = true;
+      }
+    });
+    return initial;
+  });
+
+  // Atualiza abertura se a rota mudar para uma seção fechada
+  useEffect(() => {
+    menuBlocks.forEach((block) => {
+      if (block.items.some(item => item.href === pathname)) {
+        setOpenSections(prev => ({ ...prev, [block.title]: true }));
+      }
+    });
+  }, [pathname]);
+
+  const toggleSection = (title: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [title]: !prev[title]
+    }));
+  };
 
   const ESPECIALIDADES = [
     "Clínica Geral",
@@ -459,19 +491,35 @@ export function DashboardSidebar() {
     "Medicina Diagnóstica"
   ];
 
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [pathname, setMobileMenuOpen]);
 
+  // Avatar / Iniciais do Usuário (resolvido após montagem para evitar hydration mismatch)
+  const userName = isMounted ? (user?.full_name || "Usuário MedCore") : "Usuário MedCore";
+  const userInitials = userName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map(p => p[0].toUpperCase())
+    .join("") || "MC";
+  const userRoleDisplay = isMounted ? (user?.cargo || user?.role || "Corpo Clínico") : "Corpo Clínico";
+
   return (
     <>
-      {/* ═══════ DESKTOP SIDEBAR ═══════ */}
+      {/* ═══════ DESKTOP SIDEBAR (CASCATA PLAZAHUB STYLE) ═══════ */}
       <aside 
         className={cn(
-          "h-screen w-[260px] flex flex-col py-4 fixed top-0 left-0 z-50 transition-all duration-300 ease-in-out hidden lg:flex backdrop-blur-3xl border-r-2",
+          "h-screen w-64 flex flex-col pt-3.5 fixed top-0 left-0 z-50 transition-all duration-300 ease-in-out hidden lg:flex backdrop-blur-3xl border-r-2",
           theme === 'dark' 
-            ? "bg-zinc-950/80 border-zinc-800/80 shadow-[4px_0_24px_rgba(0,0,0,0.4)]" 
-            : "bg-white/95 border-zinc-300 shadow-[4px_0_24px_rgba(0,0,0,0.08)]"
+            ? "bg-zinc-950/90 border-zinc-800/80 shadow-[4px_0_24px_rgba(0,0,0,0.4)]" 
+            : "bg-white/95 border-zinc-300 shadow-[4px_0_24px_rgba(0,0,0,0.06)]"
         )}
       >
         <div className={cn(
@@ -480,37 +528,36 @@ export function DashboardSidebar() {
         )}></div>
 
         {/* Logo */}
-        <div className="flex items-center px-5 mb-6 relative z-10">
+        <div className="flex items-center px-5 mb-4 relative z-10">
           <Logo className="scale-95 origin-left" />
         </div>
 
         {/* Especialidade Selector (Desktop) */}
-        <div className="px-4 mb-5 relative z-50">
+        <div className="px-3.5 mb-3 relative z-50">
           <button 
             onClick={() => setShowEspecialidadeMenu(!showEspecialidadeMenu)}
             className={cn(
-              "w-full flex items-center gap-3 px-3.5 py-3 rounded-xl border-2 transition-all group text-left shadow-sm",
-              theme === 'dark' ? "bg-zinc-900/90 border-zinc-750 hover:border-rd-cyan/60" : "bg-zinc-50 border-zinc-300 hover:border-rd-cyan/60 hover:bg-white"
+              "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border-2 transition-all group text-left shadow-xs",
+              theme === 'dark' ? "bg-zinc-900/90 border-zinc-800 hover:border-rd-cyan/60" : "bg-zinc-50 border-zinc-200 hover:border-rd-cyan/60 hover:bg-white"
             )}
           >
-            <div className="w-8 h-8 rounded-lg bg-rd-cyan/15 border border-rd-cyan/30 flex items-center justify-center text-rd-cyan shrink-0 transition-transform group-hover:scale-110">
-              <Box size={16} strokeWidth={2} />
+            <div className="w-7 h-7 rounded-lg bg-rd-cyan/15 border border-rd-cyan/30 flex items-center justify-center text-rd-cyan shrink-0 transition-transform group-hover:scale-105">
+              <Box size={14} strokeWidth={2} />
             </div>
             <div className="text-left flex-1 min-w-0">
+              <p className="text-[9px] font-heading font-semibold uppercase tracking-widest leading-none text-zinc-400">
+                Especialidade
+              </p>
               <p className={cn(
-                "text-[10px] font-heading font-semibold uppercase tracking-widest leading-none",
-                theme === 'dark' ? "text-zinc-500" : "text-zinc-500"
-              )}>Especialidade</p>
-              <p className={cn(
-                "text-sm font-sans font-semibold truncate mt-1 tracking-tight transition-colors",
+                "text-xs font-sans font-semibold truncate mt-0.5 tracking-tight transition-colors",
                 theme === 'dark' ? "text-white group-hover:text-rd-cyan" : "text-zinc-900 group-hover:text-rd-cyan"
               )}>
                 {selectedEspecialidade}
               </p>
             </div>
             <div className={cn(
-              "shrink-0 transition-all",
-              showEspecialidadeMenu ? "rotate-180" : "group-hover:translate-y-0.5",
+              "shrink-0 transition-transform duration-200",
+              showEspecialidadeMenu ? "rotate-180" : "",
               theme === 'dark' ? "text-zinc-400 group-hover:text-rd-cyan" : "text-zinc-500 group-hover:text-rd-cyan"
             )}>
               <ChevronDown size={14} strokeWidth={2} />
@@ -520,7 +567,7 @@ export function DashboardSidebar() {
           {/* Dropdown Menu */}
           {showEspecialidadeMenu && (
             <div className={cn(
-              "absolute top-full left-4 right-4 mt-2 py-2 rounded-xl border z-50 shadow-xl backdrop-blur-xl max-h-60 overflow-y-auto custom-scrollbar",
+              "absolute top-full left-3.5 right-3.5 mt-1.5 py-1.5 rounded-xl border z-50 shadow-xl backdrop-blur-xl max-h-56 overflow-y-auto custom-scrollbar",
               theme === 'dark' ? "bg-zinc-900/95 border-zinc-800" : "bg-white/95 border-zinc-200"
             )}>
               {ESPECIALIDADES.map((esp) => (
@@ -531,7 +578,7 @@ export function DashboardSidebar() {
                     setShowEspecialidadeMenu(false);
                   }}
                   className={cn(
-                    "w-full text-left px-4 py-2 text-sm transition-colors",
+                    "w-full text-left px-3.5 py-1.5 text-xs transition-colors",
                     selectedEspecialidade === esp 
                       ? (theme === 'dark' ? "bg-rd-cyan/20 text-rd-cyan font-bold" : "bg-rd-cyan/10 text-rd-cyan font-bold")
                       : (theme === 'dark' ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900")
@@ -544,8 +591,8 @@ export function DashboardSidebar() {
           )}
         </div>
 
-        {/* Main Nav (Block Layout) */}
-        <nav className="flex-1 overflow-y-auto px-4 pb-4 space-y-6 relative z-10 custom-scrollbar">
+        {/* Main Nav (Cascading Accordion Style) */}
+        <nav className="flex-1 overflow-y-auto px-3 pb-3 space-y-2 relative z-10 custom-scrollbar">
           {menuBlocks.map((block) => {
             const visibleItems = block.items
               .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
@@ -553,121 +600,223 @@ export function DashboardSidebar() {
 
             if (visibleItems.length === 0) return null;
 
-            return (
-              <div key={block.title} className="space-y-2.5">
-                <h3 className="px-2 text-[11px] font-heading font-semibold text-rd-cyan uppercase tracking-[0.2em] opacity-90">
-                  {block.title}
-                </h3>
-                <div className={cn(
-                  "border-2 rounded-2xl p-1.5 flex flex-col gap-1 transition-colors shadow-sm",
-                  theme === 'dark' ? "bg-zinc-900/60 border-zinc-800/80" : "bg-zinc-100/70 border-zinc-300"
-                )}>
-                  {visibleItems.map((item) => {
-                  const isActive = pathname === item.href;
-                  const authorized = hasAccess(item.requiredPlan);
-                  const moduleId = moduleIdMap[item.href] || "dashboard";
-                  const inMaintenance = isModuleInMaintenance(moduleId);
-                  
-                  const ItemWrapper = (authorized && !inMaintenance) ? Link : "div";
-                  const isHighlighted = item.highlight;
-                  
-                  return (
-                    <ItemWrapper
-                      key={item.href}
-                      href={item.href}
-                      onClick={inMaintenance ? () => setMaintenanceModule({ 
-                        name: item.label, 
-                        message: getModuleMaintenanceMessage(moduleId) 
-                      }) : undefined}
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-300 font-sans text-sm font-medium group relative overflow-hidden cursor-pointer border border-transparent",
-                        (!authorized || inMaintenance) && "opacity-60 cursor-not-allowed",
-                        inMaintenance && "border-rd-cyan/30 bg-rd-cyan/10",
-                        
-                        /* Default Hover and Active States */
-                        authorized && !inMaintenance && isActive && !isHighlighted && (
-                          theme === 'dark'
-                            ? "bg-rd-cyan/15 border-rd-cyan/40 text-rd-cyan shadow-sm"
-                            : "bg-rd-cyan/10 border-rd-cyan/30 text-rd-cyan shadow-sm"
-                        ),
-                        authorized && !inMaintenance && !isActive && !isHighlighted && (
-                          theme === 'dark' 
-                            ? "text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 hover:border-zinc-700/60" 
-                            : "text-zinc-600 hover:text-zinc-950 hover:bg-white hover:border-zinc-300 shadow-2xs"
-                        ),
-                        
-                        /* HIGHLIGHTED (IA Executiva) Styles */
-                        isHighlighted && !inMaintenance && (
-                          theme === 'dark'
-                            ? "bg-zinc-950 border border-rd-cyan text-white shadow-[0_0_15px_rgba(0,169,255,0.2)]"
-                            : "bg-white border border-rd-cyan text-zinc-950 shadow-[0_0_15px_rgba(0,169,255,0.2)]"
-                        ),
-                        isHighlighted && !inMaintenance && isActive && "ring-2 ring-rd-cyan"
-                      )}
-                    >
-                      {/* Animated Shine for MEGA button */}
-                      {isHighlighted && (
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shine pointer-events-none" />
-                      )}
+            const isOpen = !!openSections[block.title];
+            const hasActiveItem = visibleItems.some(i => i.href === pathname);
 
-                      <item.icon 
-                        size={isHighlighted ? 20 : 16} 
-                        strokeWidth={2}
-                        className={cn(
-                          "transition-transform duration-300 shrink-0",
-                          isActive && authorized && !isHighlighted ? "text-rd-cyan" : "",
-                          isHighlighted 
-                            ? theme === 'dark' ? "text-rd-cyan animate-pulse-slow" : "text-zinc-950 animate-pulse-slow" 
-                            : "text-zinc-400",
-                          authorized && !isActive && !isHighlighted && (
-                            theme === 'dark' ? "group-hover:text-zinc-200" : "group-hover:text-zinc-900"
-                          ),
-                          isHighlighted && "group-hover:scale-125"
-                        )} 
-                      />
+            return (
+              <div 
+                key={block.title} 
+                className={cn(
+                  "rounded-2xl transition-all duration-200 border",
+                  isOpen 
+                    ? theme === 'dark'
+                      ? "bg-zinc-900/50 border-zinc-800/80 shadow-xs"
+                      : "bg-zinc-50/80 border-zinc-200/90 shadow-2xs"
+                    : theme === 'dark'
+                      ? "border-transparent hover:border-zinc-850 hover:bg-zinc-900/30"
+                      : "border-transparent hover:border-zinc-200/60 hover:bg-zinc-100/40"
+                )}
+              >
+                {/* Header da Cascata / Acordeom */}
+                <button
+                  type="button"
+                  onClick={() => toggleSection(block.title)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2.5 text-left rounded-xl transition-colors select-none group",
+                    isOpen
+                      ? "text-rd-cyan font-bold"
+                      : hasActiveItem
+                        ? "text-rd-cyan font-bold"
+                        : theme === 'dark' ? "text-zinc-400 hover:text-zinc-200" : "text-zinc-600 hover:text-zinc-900"
+                  )}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className={cn(
+                      "w-1.5 h-1.5 rounded-full transition-all shrink-0",
+                      isOpen ? "bg-rd-cyan scale-125" : hasActiveItem ? "bg-rd-cyan" : "bg-zinc-400 group-hover:bg-zinc-300"
+                    )} />
+                    <span className="text-[11px] font-heading uppercase tracking-[0.14em] truncate">
+                      {block.title}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    <span className={cn(
+                      "text-[10px] px-1.5 py-0.2 rounded-full font-sans transition-colors",
+                      isOpen 
+                        ? "bg-rd-cyan/15 text-rd-cyan"
+                        : theme === 'dark' ? "bg-zinc-800/80 text-zinc-500" : "bg-zinc-200/80 text-zinc-500"
+                    )}>
+                      {visibleItems.length}
+                    </span>
+                    <ChevronDown 
+                      size={14} 
+                      strokeWidth={2.2} 
+                      className={cn(
+                        "transition-transform duration-200",
+                        isOpen ? "rotate-180 text-rd-cyan" : "text-zinc-400 group-hover:text-zinc-300"
+                      )} 
+                    />
+                  </div>
+                </button>
+
+                {/* Sub-itens em Cascata */}
+                {isOpen && (
+                  <div className="px-1.5 pb-2 pt-0.5 space-y-1 animate-in fade-in slide-in-from-top-1 duration-150">
+                    {visibleItems.map((item) => {
+                      const isActive = pathname === item.href;
+                      const authorized = hasAccess(item.requiredPlan);
+                      const moduleId = moduleIdMap[item.href] || "dashboard";
+                      const inMaintenance = isModuleInMaintenance(moduleId);
                       
-                      <span className="flex-1 flex items-center justify-between z-10">
-                        <span className={cn(isHighlighted && "font-bold text-inherit")}>{item.label}</span>
-                        {!authorized && !inMaintenance && (
-                          <span className={cn(
-                            "flex items-center gap-1 border-2 px-1.5 py-0.5 rounded-md text-[10px] font-heading font-bold tracking-widest uppercase shadow-inner shrink-0 ml-2",
-                            theme === 'dark' ? "bg-zinc-950 border-zinc-700 text-zinc-400" : "bg-white border-zinc-300 text-zinc-600"
-                          )}>
-                            <Lock size={10} strokeWidth={2} />
-                            {item.requiredPlan}
+                      const ItemWrapper = (authorized && !inMaintenance) ? Link : "div";
+                      const isHighlighted = item.highlight;
+                      
+                      return (
+                        <ItemWrapper
+                          key={item.href}
+                          href={item.href}
+                          onClick={inMaintenance ? () => setMaintenanceModule({ 
+                            name: item.label, 
+                            message: getModuleMaintenanceMessage(moduleId) 
+                          }) : undefined}
+                          className={cn(
+                            "flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 font-sans text-xs font-medium group relative overflow-hidden cursor-pointer border",
+                            (!authorized || inMaintenance) && "opacity-60 cursor-not-allowed",
+                            inMaintenance && "border-rd-cyan/30 bg-rd-cyan/10",
+                            
+                            /* Default Hover and Active States */
+                            authorized && !inMaintenance && isActive && !isHighlighted && (
+                              theme === 'dark'
+                                ? "bg-rd-cyan/15 border-rd-cyan/40 text-rd-cyan shadow-xs font-semibold"
+                                : "bg-rd-cyan/10 border-rd-cyan/30 text-rd-cyan shadow-2xs font-semibold"
+                            ),
+                            authorized && !inMaintenance && !isActive && !isHighlighted && (
+                              theme === 'dark' 
+                                ? "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/70 hover:border-zinc-700/50" 
+                                : "border-transparent text-zinc-600 hover:text-zinc-950 hover:bg-white hover:border-zinc-200/80 shadow-2xs"
+                            ),
+                            
+                            /* HIGHLIGHTED (IA Executiva) Styles */
+                            isHighlighted && !inMaintenance && (
+                              theme === 'dark'
+                                ? "bg-zinc-950 border-rd-cyan/80 text-white shadow-[0_0_12px_rgba(0,169,255,0.2)] font-semibold"
+                                : "bg-white border-rd-cyan/80 text-zinc-950 shadow-[0_0_12px_rgba(0,169,255,0.15)] font-semibold"
+                            ),
+                            isHighlighted && !inMaintenance && isActive && "ring-2 ring-rd-cyan"
+                          )}
+                        >
+                          {/* Animated Shine for MEGA button */}
+                          {isHighlighted && (
+                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shine pointer-events-none" />
+                          )}
+
+                          <item.icon 
+                            size={16} 
+                            strokeWidth={2}
+                            className={cn(
+                              "transition-transform duration-200 shrink-0",
+                              isActive && authorized && !isHighlighted ? "text-rd-cyan scale-110" : "",
+                              isHighlighted 
+                                ? theme === 'dark' ? "text-rd-cyan animate-pulse-slow" : "text-zinc-950 animate-pulse-slow" 
+                                : "text-zinc-400",
+                              authorized && !isActive && !isHighlighted && (
+                                theme === 'dark' ? "group-hover:text-zinc-200" : "group-hover:text-zinc-900"
+                              ),
+                              isHighlighted && "group-hover:scale-120"
+                            )} 
+                          />
+                          
+                          <span className="flex-1 flex items-center justify-between z-10 min-w-0">
+                            <span className={cn(
+                              "truncate",
+                              isHighlighted && "font-bold text-inherit"
+                            )}>
+                              {item.label}
+                            </span>
+
+                            {!authorized && !inMaintenance && (
+                              <span className={cn(
+                                "flex items-center gap-1 border px-1.5 py-0.2 rounded text-[9px] font-heading font-bold tracking-widest uppercase shrink-0 ml-1.5",
+                                theme === 'dark' ? "bg-zinc-950 border-zinc-800 text-zinc-400" : "bg-white border-zinc-200 text-zinc-600"
+                              )}>
+                                <Lock size={9} strokeWidth={2} />
+                                {item.requiredPlan}
+                              </span>
+                            )}
+                            {inMaintenance && (
+                              <span className="flex items-center gap-1 bg-rd-cyan/20 border border-rd-cyan/40 px-1.5 py-0.2 rounded text-[9px] font-heading text-rd-cyan font-bold tracking-widest uppercase shadow-inner animate-pulse shrink-0 ml-1.5">
+                                <Wrench size={9} strokeWidth={2} />
+                                MANU
+                              </span>
+                            )}
+                            {isHighlighted && authorized && !inMaintenance && (
+                              <Sparkles size={13} strokeWidth={2} className={cn(theme === 'dark' ? "text-rd-cyan" : "text-zinc-950", "animate-pulse shrink-0 ml-1.5")} />
+                            )}
                           </span>
-                        )}
-                        {inMaintenance && (
-                          <span className="flex items-center gap-1 bg-rd-cyan/20 border border-rd-cyan/40 px-1.5 py-0.5 rounded-md text-[10px] font-heading text-rd-cyan font-bold tracking-widest uppercase shadow-inner animate-pulse shrink-0 ml-2">
-                            <Wrench size={10} strokeWidth={2} />
-                            MANU
-                          </span>
-                        )}
-                        {isHighlighted && authorized && !inMaintenance && (
-                          <Sparkles size={14} strokeWidth={2} className={cn(theme === 'dark' ? "text-rd-cyan" : "text-zinc-950", "animate-pulse")} />
-                        )}
-                      </span>
-                    </ItemWrapper>
-                  );
-                })}
+                        </ItemWrapper>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </nav>
 
-        {/* Footer */}
+        {/* PlazaHUB Style User Profile & Logout Bottom Card */}
         <div className={cn(
-          "mt-auto px-4 py-4 border-t-2",
-          theme === 'dark' ? "border-zinc-800/80" : "border-zinc-300"
+          "mt-auto p-3 border-t-2 relative z-20 space-y-2",
+          theme === 'dark' ? "border-zinc-800/80 bg-zinc-950/70" : "border-zinc-200 bg-zinc-50/90"
         )}>
-          <div className="flex items-center gap-3 px-2">
-            <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_var(--color-emerald-500)]"></div>
-            <span className={cn(
-              "text-[10px] font-heading font-semibold uppercase tracking-widest",
-              theme === 'dark' ? "text-zinc-500" : "text-zinc-500"
-            )}>Kernel Engine: v2.4.0</span>
+          {/* Card Usuário */}
+          <div className={cn(
+            "flex items-center gap-2.5 p-2 rounded-xl border transition-colors",
+            theme === 'dark' ? "bg-zinc-900/80 border-zinc-800" : "bg-white border-zinc-200 shadow-2xs"
+          )}>
+            <div className="relative shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-rd-cyan/15 border border-rd-cyan/30 flex items-center justify-center font-heading font-bold text-xs text-rd-cyan">
+                {userInitials}
+              </div>
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-surface shadow-[0_0_6px_var(--color-emerald-500)]" />
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <p className={cn(
+                "text-xs font-semibold truncate leading-tight",
+                theme === 'dark' ? "text-zinc-100" : "text-zinc-900"
+              )}>
+                {userName}
+              </p>
+              <p className="text-[10px] text-zinc-400 truncate leading-tight capitalize mt-0.5">
+                {userRoleDisplay}
+              </p>
+            </div>
+
+            <div className="shrink-0">
+              <span className="text-[9px] font-heading font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-rd-cyan/10 text-rd-cyan border border-rd-cyan/30">
+                Acesso
+              </span>
+            </div>
           </div>
+
+          {/* Botão Sair da Conta */}
+          <button
+            type="button"
+            onClick={logout}
+            className={cn(
+              "w-full flex items-center justify-between px-3 py-2 rounded-xl border text-xs font-sans font-medium transition-all group",
+              theme === 'dark'
+                ? "bg-zinc-900/60 border-zinc-800 text-zinc-400 hover:text-rose-400 hover:border-rose-500/40 hover:bg-rose-500/10"
+                : "bg-white border-zinc-200 text-zinc-600 hover:text-rose-600 hover:border-rose-400 hover:bg-rose-50/50 shadow-2xs"
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <LogOut size={14} strokeWidth={2} className="transition-transform group-hover:-translate-x-0.5" />
+              <span>Sair da Conta</span>
+            </div>
+            <ChevronRight size={13} className="text-zinc-400 group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </aside>
 

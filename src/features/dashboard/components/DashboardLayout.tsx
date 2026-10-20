@@ -18,8 +18,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         <DashboardHeader />
         
         {/* Scrollable Page Content */}
-        <main className="ml-72 pt-20 flex-1 h-screen overflow-y-auto custom-scrollbar">
-          <div className="p-8 lg:p-12 max-w-[1600px] mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <main className="ml-64 pt-20 flex-1 h-screen overflow-y-auto custom-scrollbar">
+          <div className="p-5 lg:p-7 max-w-[1720px] mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
             {children}
           </div>
         </main>

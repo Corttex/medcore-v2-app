@@ -49,6 +49,7 @@ export interface JobOpening {
   escala: string;
   faixaSalarial: string;
   requisitos: string;
+  beneficios?: string;
   unidade: string;
   status: "Aberta" | "Em Triagem IA" | "Em Entrevistas" | "Encerrada";
   totalCandidatos: number;
@@ -58,105 +59,7 @@ export interface JobOpening {
   candidatos: Candidate[];
 }
 
-const INITIAL_JOBS: JobOpening[] = [
-  {
-    id: "vaga-01",
-    titulo: "Médico Plantonista - Terapia Intensiva (UTI Adulto)",
-    departamento: "Corpo Clínico",
-    vagas: 2,
-    regime: "Plantonista PJ",
-    escala: "Plantões 12x36 Noturno",
-    faixaSalarial: "R$ 1.800 / Plantão 12h",
-    requisitos: "CRM ativo, Título de Especialista em Medicina Intensiva (AMIB) ou Residência em Clínica Médica.",
-    unidade: "Hospital Geral Morumbi",
-    status: "Aberta",
-    totalCandidatos: 14,
-    slaDias: 8,
-    dataAbertura: "2026-09-28",
-    descricao: "Atendimento a pacientes críticos na UTI, manejo de ventilação mecânica invasiva e procedimentos invasivos de emergência.",
-    candidatos: [
-      { id: "c-1", nome: "Dr. Marcelo Dantas", email: "marcelo.dantas@email.com", telefone: "(11) 98111-2233", registro: "CRM-SP 145.201", scoreIA: 98, etapa: "Entrevista Liderança", experiencia: "6 anos em UTI coronariana" },
-      { id: "c-2", nome: "Dra. Camila Nogueira", email: "camila.nogueira@email.com", telefone: "(11) 97222-3344", registro: "CRM-SP 162.890", scoreIA: 92, etapa: "Triagem IA", experiencia: "4 anos de residência clínica" }
-    ]
-  },
-  {
-    id: "vaga-02",
-    titulo: "Enfermeiro(a) Assistencial - Pronto Socorro Geral",
-    departamento: "Enfermagem UTI",
-    vagas: 3,
-    regime: "CLT",
-    escala: "12x36 Diurno (07h às 19h)",
-    faixaSalarial: "R$ 5.800 + Insalubridade",
-    requisitos: "COREN ativo, vivência com Protocolo Manchester e pós-graduação em Urgência/Emergência.",
-    unidade: "Unidade Central Alphaville",
-    status: "Em Triagem IA",
-    totalCandidatos: 28,
-    slaDias: 10,
-    dataAbertura: "2026-10-01",
-    descricao: "Classificação de risco, assistência direta a pacientes de emergência e supervisão da equipe de técnicos de enfermagem.",
-    candidatos: [
-      { id: "c-3", nome: "Renata Vasconcelos", email: "renata.v@email.com", telefone: "(11) 96333-4455", registro: "COREN-SP 89.201", scoreIA: 95, etapa: "Parecer Técnico", experiencia: "5 anos em PS de trauma" },
-      { id: "c-4", nome: "Rodrigo Antunes", email: "rodrigo.antunes@email.com", telefone: "(11) 95444-5566", registro: "COREN-SP 102.450", scoreIA: 89, etapa: "Triagem IA", experiencia: "3 anos em emergência adulta" }
-    ]
-  },
-  {
-    id: "vaga-03",
-    titulo: "Farmacêutico(a) Hospitalar & Controle de Psicotrópicos",
-    departamento: "Farmácia Hospitalar",
-    vagas: 1,
-    regime: "CLT",
-    escala: "44h Semanais (Seg a Sex)",
-    faixaSalarial: "R$ 6.200 + Benefícios",
-    requisitos: "CRF ativo, pós-graduação em Farmácia Clínica e experiência em conciliação medicamentosa.",
-    unidade: "Hospital Geral Morumbi",
-    status: "Em Entrevistas",
-    totalCandidatos: 12,
-    slaDias: 14,
-    dataAbertura: "2026-09-20",
-    descricao: "Análise de prescrições hospitalares, controle do armário de psicotrópicos (Portaria 344) e monitoramento de farmacovigilância.",
-    candidatos: [
-      { id: "c-5", nome: "Juliana Peixoto", email: "juliana.peixoto@email.com", telefone: "(11) 94555-6677", registro: "CRF-SP 48.910", scoreIA: 96, etapa: "Exame Admissional", experiencia: "7 anos em farmácia clínica" }
-    ]
-  },
-  {
-    id: "vaga-04",
-    titulo: "Recepcionista Líder & Atendimento Hospitalar",
-    departamento: "Atendimento & Recepção",
-    vagas: 2,
-    regime: "CLT",
-    escala: "Escala 6x1 (Tarde/Noite)",
-    faixaSalarial: "R$ 2.900 + VT + VR",
-    requisitos: "Ensino médio completo, experiência prévia em recepção de clínicas ou hospitais e boa comunicação.",
-    unidade: "Unidade Central Alphaville",
-    status: "Aberta",
-    totalCandidatos: 45,
-    slaDias: 6,
-    dataAbertura: "2026-10-04",
-    descricao: "Check-in de pacientes, emissão de guias de convênio, autorizações TISS e orientação no fluxo do pronto atendimento.",
-    candidatos: [
-      { id: "c-6", nome: "Larissa Miranda", email: "larissa.m@email.com", telefone: "(11) 93666-7788", registro: "MAT-2026", scoreIA: 94, etapa: "Entrevista Liderança", experiencia: "3 anos em recepção médica" }
-    ]
-  },
-  {
-    id: "vaga-05",
-    titulo: "Analista de Faturamento TISS & Recursos de Glosas",
-    departamento: "Faturamento TISS",
-    vagas: 1,
-    regime: "CLT",
-    escala: "40h Semanais (Híbrido)",
-    faixaSalarial: "R$ 4.500 + PPR",
-    requisitos: "Domínio do padrão TISS/TUSS da ANS, tabelas CBHPM, SIMPRO, Brasíndice e recursos de glosas médicas.",
-    unidade: "Sede Corporativa & Backoffice",
-    status: "Em Triagem IA",
-    totalCandidatos: 19,
-    slaDias: 11,
-    dataAbertura: "2026-09-25",
-    descricao: "Auditoria de contas, fechamento de lotes XML para operadoras e elaboração de recursos de glosas justificadas.",
-    candidatos: [
-      { id: "c-7", nome: "Thiago Moreira", email: "thiago.moreira@email.com", telefone: "(11) 92777-8899", registro: "MAT-FAT-09", scoreIA: 97, etapa: "Entrevista Liderança", experiencia: "6 anos em faturamento de convênios" }
-    ]
-  }
-];
+const INITIAL_JOBS: JobOpening[] = [];
 
 export default function RecrutamentoPage() {
   const [jobs, setJobs] = useState<JobOpening[]>(INITIAL_JOBS);
@@ -182,6 +85,7 @@ export default function RecrutamentoPage() {
     escala: "12x36 Diurno",
     faixaSalarial: "A combinar",
     requisitos: "",
+    beneficios: "",
     unidade: "Unidade Central Alphaville",
     status: "Aberta" as JobOpening["status"],
     descricao: ""
@@ -197,6 +101,7 @@ export default function RecrutamentoPage() {
     escala: "",
     faixaSalarial: "",
     requisitos: "",
+    beneficios: "",
     unidade: "",
     status: "Aberta" as JobOpening["status"],
     descricao: ""
@@ -216,6 +121,7 @@ export default function RecrutamentoPage() {
       escala: createForm.escala || "44h Semanais",
       faixaSalarial: createForm.faixaSalarial || "Compatível com a função",
       requisitos: createForm.requisitos || "Formação superior e registro no conselho de classe.",
+      beneficios: createForm.beneficios || "Assistência Médica, Vale Refeição, Seguro de Vida e Adicionais.",
       unidade: createForm.unidade || "Unidade Central",
       status: createForm.status,
       totalCandidatos: 0,
@@ -239,6 +145,7 @@ export default function RecrutamentoPage() {
       escala: "12x36 Diurno",
       faixaSalarial: "A combinar",
       requisitos: "",
+      beneficios: "",
       unidade: "Unidade Central Alphaville",
       status: "Aberta",
       descricao: ""
@@ -256,6 +163,9 @@ export default function RecrutamentoPage() {
       escala: job.escala,
       faixaSalarial: job.faixaSalarial,
       requisitos: job.requisitos,
+      beneficios: job.beneficios || (job.id === "vaga-02" 
+        ? "Assistência Médica e Odontológica Bradesco Saúde Top Nacional\nVale Alimentação / Refeição flexível Flash (R$ 1.200/mês)\nAdicional de Insalubridade grau máximo (40%)\nPlano de Previdência Privada e Auxílio Creche\nAcesso irrestrito à Universidade Corporativa MedCore Educacional"
+        : "Assistência Médica Hospitalar Completa\nVale Alimentação / Refeição Flexível\nPlano de Previdência Privada e Seguro de Vida\nAcesso à plataforma e treinamentos MedCore Educacional"),
       unidade: job.unidade,
       status: job.status,
       descricao: job.descricao
@@ -268,7 +178,7 @@ export default function RecrutamentoPage() {
     e.preventDefault();
     setJobs(prev => prev.map(item => {
       if (item.id === editForm.id) {
-        return {
+        const updated = {
           ...item,
           titulo: editForm.titulo,
           departamento: editForm.departamento,
@@ -277,16 +187,52 @@ export default function RecrutamentoPage() {
           escala: editForm.escala,
           faixaSalarial: editForm.faixaSalarial,
           requisitos: editForm.requisitos,
+          beneficios: editForm.beneficios,
           unidade: editForm.unidade,
           status: editForm.status,
           descricao: editForm.descricao
         };
+
+        // Salva sincronizado no localStorage para refletir na página pública (/vagas/[id])
+        if (typeof window !== "undefined") {
+          try {
+            const reqArray = editForm.requisitos
+              .split("\n")
+              .map(r => r.trim())
+              .filter(Boolean);
+            const benArray = editForm.beneficios
+              .split("\n")
+              .map(b => b.trim())
+              .filter(Boolean);
+
+            const publicData = {
+              id: updated.id,
+              protocolo: `MED-REC-${updated.id.toUpperCase()}`,
+              titulo: updated.titulo,
+              departamento: updated.departamento,
+              unidade: updated.unidade,
+              regime: updated.regime,
+              escala: updated.escala,
+              faixaSalarial: updated.faixaSalarial,
+              prazoDias: 8,
+              descricao: updated.descricao,
+              requisitos: reqArray.length > 0 ? reqArray : [updated.requisitos],
+              beneficios: benArray.length > 0 ? benArray : [updated.beneficios],
+              clinica: "Rede Hospitalar MedCore Health Care"
+            };
+            localStorage.setItem(`medcore_job_${updated.id}`, JSON.stringify(publicData));
+          } catch (err) {
+            console.error("Erro ao sincronizar vaga com localStorage:", err);
+          }
+        }
+
+        return updated;
       }
       return item;
     }));
 
     setShowEditModal(false);
-    setToastMessage("Informações da vaga atualizadas com sucesso!");
+    setToastMessage("Processo seletivo e página pública atualizados com sucesso!");
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -934,28 +880,104 @@ export default function RecrutamentoPage() {
                 </div>
               </div>
 
+              {/* Descrição das Atividades */}
               <div>
-                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                  Requisitos & Conselhos Obrigatórios
-                </label>
-                <input
-                  type="text"
-                  value={editForm.requisitos}
-                  onChange={e => setEditForm({...editForm, requisitos: e.target.value})}
-                  className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3.5 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider mb-1.5 block">
-                  Descrição & Atribuições
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block">
+                    Descrição das Atividades & Rotina
+                  </label>
+                  <span className="text-[10px] text-zinc-400">Exibido na página pública</span>
+                </div>
                 <textarea
                   rows={3}
                   value={editForm.descricao}
                   onChange={e => setEditForm({...editForm, descricao: e.target.value})}
+                  placeholder="Descreva as responsabilidades, atuação na clínica/hospital e rotinas do cargo..."
                   className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl p-3 text-xs text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
                 />
+              </div>
+
+              {/* Requisitos Técnicos & Habilitação */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block">
+                    Requisitos Técnicos & Habilitação (1 por linha)
+                  </label>
+                  <span className="text-[10px] text-zinc-400">Formato Checklist</span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={editForm.requisitos}
+                  onChange={e => setEditForm({...editForm, requisitos: e.target.value})}
+                  placeholder="Graduação ou Especialização na área&#10;Registro regular no conselho (CRM, COREN, CRF)&#10;Experiência mínima comprovada&#10;Certificações (ACLS, BLS, Manchester)"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl p-3 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                />
+                {/* Sugestões Rápidas de Requisitos */}
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {[
+                    "Registro de Classe Ativo (CRM/COREN/CRF)",
+                    "Pós-graduação / Especialização Concluída",
+                    "Certificação ACLS / BLS Válida",
+                    "Experiência com Cirurgias / UTI",
+                    "Disponibilidade para Início Imediato"
+                  ].map((sug, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        const current = editForm.requisitos ? editForm.requisitos + "\n" : "";
+                        if (!editForm.requisitos.includes(sug)) {
+                          setEditForm({ ...editForm, requisitos: current + sug });
+                        }
+                      }}
+                      className="text-[10px] bg-zinc-100 dark:bg-zinc-800 hover:bg-emerald-500/10 hover:text-emerald-400 border border-zinc-300 dark:border-zinc-700 rounded-lg px-2 py-0.5 text-zinc-600 dark:text-zinc-400 transition-colors"
+                    >
+                      + {sug}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Benefícios & Diferenciais Corporativos */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider block">
+                    Benefícios & Diferenciais Corporativos (1 por linha)
+                  </label>
+                  <span className="text-[10px] text-zinc-400">Destaques Corporativos</span>
+                </div>
+                <textarea
+                  rows={4}
+                  value={editForm.beneficios}
+                  onChange={e => setEditForm({...editForm, beneficios: e.target.value})}
+                  placeholder="Assistência Médica e Odontológica Nacional&#10;Vale Alimentação / Refeição flexível (R$ 1.200/mês)&#10;Adicional de Insalubridade grau máximo (40%)&#10;Acesso à Universidade Corporativa e IA de Apoio"
+                  className="w-full bg-zinc-50 dark:bg-zinc-800/70 border border-zinc-300 dark:border-zinc-700 rounded-xl p-3 text-xs font-mono text-zinc-900 dark:text-zinc-100 focus:border-rd-cyan focus:outline-none"
+                />
+                {/* Sugestões Rápidas de Benefícios */}
+                <div className="flex flex-wrap gap-1.5 mt-1.5">
+                  {[
+                    "Assistência Médica e Odontológica Top Nacional",
+                    "Vale Alimentação / Refeição Flash Flexível",
+                    "Adicional de Insalubridade Grau Máximo (40%)",
+                    "Previdência Privada + Auxílio Creche",
+                    "Acesso Irrestrito à Universidade MedCore",
+                    "Repasse Quinzenal Garantido (PJ)"
+                  ].map((sug, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        const current = editForm.beneficios ? editForm.beneficios + "\n" : "";
+                        if (!editForm.beneficios.includes(sug)) {
+                          setEditForm({ ...editForm, beneficios: current + sug });
+                        }
+                      }}
+                      className="text-[10px] bg-zinc-100 dark:bg-zinc-800 hover:bg-amber-500/10 hover:text-amber-400 border border-zinc-300 dark:border-zinc-700 rounded-lg px-2 py-0.5 text-zinc-600 dark:text-zinc-400 transition-colors"
+                    >
+                      + {sug}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               <div className="flex items-center gap-3 pt-3 border-t border-zinc-200 dark:border-zinc-800">
