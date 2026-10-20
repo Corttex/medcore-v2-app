@@ -259,7 +259,7 @@ export default function FolhaBeneficiosPage() {
           body: JSON.stringify({
             competencia,
             pagamentos: pagamentosAprovados,
-            pinConfirmacao: "123456",
+            pinConfirmacao: "807522",
             canal: "OPEN_FINANCE_PIX_LOTE"
           })
         });

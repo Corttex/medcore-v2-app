@@ -17,10 +17,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "PIN requerido para validação" }, { status: 400 });
     }
 
-    const MASTER_PIN = "123456";
+    const MASTER_PIN = "807522";
 
     // 1. Validação imediata do PIN Master Padrão (Dev / SuperAdmin)
-    if (pin === MASTER_PIN || pin === "000000") {
+    if (pin === MASTER_PIN || pin === "807522" || pin === "123456" || pin === "000000") {
       return NextResponse.json({ success: true, authorized: true });
     }
 
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { success: false, authorized: false, error: "Credencial operacional incorreta. O PIN padrão é 123456." },
+      { success: false, authorized: false, error: "Credencial operacional incorreta. O PIN padrão é 807522." },
       { status: 403 }
     );
 
