@@ -501,15 +501,12 @@ export function DashboardSidebar() {
     setMobileMenuOpen(false);
   }, [pathname, setMobileMenuOpen]);
 
-  // Avatar / Iniciais do Usuário (resolvido após montagem para evitar hydration mismatch)
-  const userName = isMounted ? (user?.full_name || "Usuário MedCore") : "Usuário MedCore";
-  const userInitials = userName
-    .split(" ")
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(p => p[0].toUpperCase())
-    .join("") || "MC";
-  const userRoleDisplay = isMounted ? (user?.cargo || user?.role || "Corpo Clínico") : "Corpo Clínico";
+  // Avatar / Iniciais do Usuário (unificado com DashboardHeader para sincronia de dados)
+  const userName = isMounted ? (user?.full_name || user?.email?.split("@")[0] || "Operador") : "Operador";
+  const userInitials = (user?.full_name 
+    ? user.full_name.split(" ").filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join("")
+    : (user?.email?.charAt(0).toUpperCase() || "O"));
+  const userRoleDisplay = isMounted ? (user?.cargo || user?.role || "Acesso") : "Acesso";
 
   return (
     <>
@@ -775,9 +772,17 @@ export function DashboardSidebar() {
             theme === 'dark' ? "bg-zinc-900/80 border-zinc-800" : "bg-white border-zinc-200 shadow-2xs"
           )}>
             <div className="relative shrink-0">
-              <div className="w-8 h-8 rounded-lg bg-rd-cyan/15 border border-rd-cyan/30 flex items-center justify-center font-heading font-bold text-xs text-rd-cyan">
-                {userInitials}
-              </div>
+              {user?.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={userName} 
+                  className="w-8 h-8 rounded-lg object-cover border border-rd-cyan/30"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-rd-cyan/15 border border-rd-cyan/30 flex items-center justify-center font-heading font-bold text-xs text-rd-cyan">
+                  {userInitials}
+                </div>
+              )}
               <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-surface shadow-[0_0_6px_var(--color-emerald-500)]" />
             </div>
 
