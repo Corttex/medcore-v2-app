@@ -41,9 +41,9 @@ const routeTitles: Record<string, string> = {
   "/dashboard/notas-fiscais": "Emitir NF",
   "/dashboard/relatorios-financeiros": "Relatório Financeiro",
   "/dashboard/estoque": "Estoque Central",
-  "/dashboard/vacinas": "Controle de Vacinas",
-  "/dashboard/compras": "Compras",
-  "/dashboard/hospitais": "Unidades Hospitalares",
+  "/dashboard/vacinas": "Injetáveis & Insumos Críticos",
+  "/dashboard/compras": "Compras & Suprimentos",
+  "/dashboard/hospitais": "Clínicas & Operações",
   "/dashboard/cadastros": "Cadastros Base",
   "/dashboard/os": "Central de OS",
   "/dashboard/patrimonio": "Patrimônio",
@@ -56,10 +56,11 @@ const routeTitles: Record<string, string> = {
   "/dashboard/recrutamento": "Recrutamento (ATS)",
   "/dashboard/treinamentos": "Treinamentos",
   "/dashboard/desempenho": "Avaliação de Desempenho",
+  "/dashboard/carreira": "Desenvolvimento Profissional & Carreira",
   "/dashboard/equipe": "Gerenciar Equipe",
   "/dashboard/auditoria": "Auditoria & LGPD",
   "/dashboard/relatorios": "BI & Indicadores",
-  "/dashboard/loja": "Loja de Módulos & Add-ons Extras",
+  "/dashboard/loja": "Habilidades da Dra. Conte",
   "/dashboard/ia-executiva": "Dra. Conte — Copilot Clínico & IA",
   "/dashboard/emergencia": "Gestão de Emergência",
   "/dashboard/architecture": "Arquitetura do Sistema",
@@ -272,7 +273,7 @@ export function DashboardHeader() {
           </div>
         </div>
         
-        {/* Seletor de Hospital / Unidade */}
+        {/* Seletor de Clínica / Unidade */}
         <div className="hidden lg:flex items-center h-full px-3 lg:px-4 border-l border-zinc-200 dark:border-zinc-800">
           <div className="relative group">
             <button 
@@ -284,25 +285,25 @@ export function DashboardHeader() {
             >
               <Building2 size={14} className="text-rd-cyan" />
               <span className="text-xs font-sans font-semibold truncate max-w-[140px]">
-                {units.find(u => u.id === selectedUnitId)?.name || "Selecionar Hospital"}
+                {units.find(u => u.id === selectedUnitId)?.name || "Selecionar Clínica"}
               </span>
             </button>
           </div>
         </div>
 
-        {/* Loja de Módulos Extras (Marketplace PRO) */}
+        {/* Habilidades da Dra. Conte (Skills & Add-ons) */}
         <div className="flex items-center h-full px-2.5 sm:px-3 lg:px-4 border-l border-zinc-200 dark:border-zinc-800">
           <Link
             href="/dashboard/loja"
             className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-rd-cyan/40 bg-gradient-to-r from-rd-cyan/15 to-indigo-500/10 hover:from-rd-cyan/25 hover:to-indigo-500/20 text-on-surface hover:text-rd-cyan transition-all shadow-sm group hover:scale-[1.02] active:scale-[0.98]"
-            title="Loja de Módulos Extras & Add-ons"
+            title="Habilidades da Dra. Conte & Add-ons de Inteligência"
           >
             <Sparkles size={14} className="text-rd-cyan group-hover:rotate-12 transition-transform shrink-0" />
             <span className="text-xs font-sans font-semibold hidden sm:inline">
-              Loja de Módulos
+              Habilidades Dra. Conte
             </span>
             <span className="text-[10px] font-heading font-bold uppercase px-1.5 py-0.5 bg-gradient-to-r from-rd-cyan to-indigo-600 text-white rounded-full tracking-widest shadow-sm shrink-0">
-              PRO
+              SKILLS
             </span>
           </Link>
         </div>

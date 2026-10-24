@@ -48,7 +48,104 @@ export interface TrainingCourse {
   descricao: string;
 }
 
-const INITIAL_TRAININGS: TrainingCourse[] = [];
+const INITIAL_TRAININGS: TrainingCourse[] = [
+  {
+    id: "trn-nr32",
+    titulo: "NR-32: Segurança em Serviços de Saúde & Riscos Biológicos",
+    categoria: "Segurança NR-32",
+    cargaHoraria: "8 horas",
+    modalidade: "Híbrido",
+    setorAlvo: "Corpo Clínico & Enfermagem",
+    instrutor: "Dra. Camila Vasconcellos (Infectologia)",
+    validadeReciclagem: "Anual (Obrigatório)",
+    status: "Ativo",
+    totalInscritos: 48,
+    concluidos: 42,
+    taxaAdesao: 88,
+    dataInicio: "2026-01-15",
+    descricao: "Prevenção de acidentes com perfurocortantes, uso correto de EPIs, descarte de resíduos infectantes e condutas em exposição biológica."
+  },
+  {
+    id: "trn-sepse",
+    titulo: "Protocolo Clínico de Sepse & Reconhecimento Precoce",
+    categoria: "Diretrizes Médicas & PEP",
+    cargaHoraria: "6 horas",
+    modalidade: "Online / EAD",
+    setorAlvo: "Médicos & Pronto Atendimento",
+    instrutor: "Dr. Roberto Mendonça (Terapia Intensiva)",
+    validadeReciclagem: "Anual (Obrigatório)",
+    status: "Ativo",
+    totalInscritos: 35,
+    concluidos: 31,
+    taxaAdesao: 89,
+    dataInicio: "2026-02-10",
+    descricao: "Identificação rápida de disfunção orgânica, escore qSOFA, coleta de hemoculturas e início precoce de antibioticoterapia na primeira hora (Golden Hour)."
+  },
+  {
+    id: "trn-lgpd",
+    titulo: "LGPD na Saúde: Segurança de Prontuários e Sigilo CFM",
+    categoria: "LGPD & Compliance",
+    cargaHoraria: "4 horas",
+    modalidade: "Online / EAD",
+    setorAlvo: "Recepção, TI & Médicos",
+    instrutor: "Dra. Larissa Toledo (Direito Médico)",
+    validadeReciclagem: "Bienal",
+    status: "Ativo",
+    totalInscritos: 62,
+    concluidos: 58,
+    taxaAdesao: 94,
+    dataInicio: "2026-03-01",
+    descricao: "Boas práticas de proteção de dados sensíveis de pacientes, compartilhamento de laudos, consentimento livre e esclarecido e blindagem contra vazamentos."
+  },
+  {
+    id: "trn-bls",
+    titulo: "BLS: Suporte Básico de Vida & Desfibrilação com DEA",
+    categoria: "Assistência & Enfermagem",
+    cargaHoraria: "8 horas",
+    modalidade: "Presencial / Simulação",
+    setorAlvo: "Toda a Equipe Assistencial",
+    instrutor: "Enf. Marcos Vinicius (Urgência & Emergência)",
+    validadeReciclagem: "Bienal",
+    status: "Ativo",
+    totalInscritos: 40,
+    concluidos: 36,
+    taxaAdesao: 90,
+    dataInicio: "2026-04-12",
+    descricao: "Manobras de ressuscitação cardiopulmonar (RCP) de alta qualidade em adultos e crianças, desobstrução de vias aéreas e operação prática de DEA."
+  },
+  {
+    id: "trn-atendimento",
+    titulo: "Atendimento Humanizado & Comunicação de Más Notícias (Spikes)",
+    categoria: "Atendimento & Humanização",
+    cargaHoraria: "4 horas",
+    modalidade: "Híbrido",
+    setorAlvo: "Recepção, Médicos & Psicologia",
+    instrutor: "Dra. Helena Barreto (Psicologia Médica)",
+    validadeReciclagem: "Livre / Contínuo",
+    status: "Ativo",
+    totalInscritos: 52,
+    concluidos: 49,
+    taxaAdesao: 94,
+    dataInicio: "2026-05-05",
+    descricao: "Técnicas de acolhimento na recepção, empatia assistencial, protocolo SPIKES para comunicação assertiva de notícias difíceis e redução de atritos."
+  },
+  {
+    id: "trn-infeccao",
+    titulo: "CCIH: Higiene das Mãos & Prevenção de Infecções Clínicas",
+    categoria: "Segurança NR-32",
+    cargaHoraria: "3 horas",
+    modalidade: "Online / EAD",
+    setorAlvo: "Multiprofissional",
+    instrutor: "Coordenação CCIH MedCore",
+    validadeReciclagem: "Semestral",
+    status: "Ativo",
+    totalInscritos: 75,
+    concluidos: 70,
+    taxaAdesao: 93,
+    dataInicio: "2026-06-01",
+    descricao: "Os 5 momentos para a higiene das mãos segundo a OMS, uso racional de antissépticos e controle de contaminação cruzada em consultórios e salas de exames."
+  }
+];
 
 export default function TreinamentosPage() {
   const [trainings, setTrainings] = useState<TrainingCourse[]>(INITIAL_TRAININGS);

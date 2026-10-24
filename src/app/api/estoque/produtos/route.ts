@@ -11,8 +11,8 @@ export async function GET() {
     // Calcula o status com base no estoque minimo
     const data = produtos.map(p => {
       let status = "OK";
-      if (p.estoqueAtual === 0) status = "ESGOTADO";
-      else if (p.estoqueAtual <= p.estoqueMinimo) status = "ALERTA";
+      if (p.quantidadeAtual === 0) status = "ESGOTADO";
+      else if (p.quantidadeAtual <= p.estoqueMinimo) status = "ALERTA";
 
       return {
         ...p,
@@ -31,17 +31,18 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { nome, sku, categoria, unidade, estoqueMinimo, valorUnitario } = body;
+    const { nome, sku, categoria, unidade, estoqueMinimo, valorUnitario, unitId } = body;
 
     const produto = await prisma.produto.create({
       data: {
         nome,
         sku: sku || `SKU-${Date.now()}`,
         categoria: categoria || "Insumos",
-        unidade: unidade || "UN",
-        estoqueAtual: 0,
+        unidadeMedida: unidade || "UN",
+        quantidadeAtual: 0,
         estoqueMinimo: estoqueMinimo || 10,
         valorUnitario: valorUnitario || 0,
+        unitId: unitId || "default-unit",
       }
     });
 

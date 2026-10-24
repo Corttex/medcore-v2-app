@@ -40,6 +40,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
   });
   const [formData, setFormData] = useState({
     name: "",
+    especialidade: "Dermatologia & Estética",
     country: "BR" as "BR" | "US" | "EU",
     taxRegime: "SIMPLES_NACIONAL",
     cnpj: "",
@@ -55,12 +56,15 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
     
     setIsSetting(true);
     try {
+      if (typeof window !== "undefined") {
+        localStorage.setItem("medcore_selected_especialidade", formData.especialidade);
+      }
       const res = await fetch("/api/units", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
           name: formData.name, 
-          type: "Hospital",
+          type: formData.especialidade,
           country: formData.country,
           taxRegime: formData.taxRegime,
           cnpj: formData.cnpj,
@@ -140,7 +144,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
             <div className="w-16 h-16 bg-rd-cyan/10 border border-rd-cyan/20 rounded-2xl flex items-center justify-center text-rd-cyan mx-auto mb-4">
               <Building2 size={32} />
             </div>
-            <h1 className="font-heading text-3xl font-semibold text-white">Selecione seu <span className="text-rd-cyan">Hospital</span></h1>
+            <h1 className="font-heading text-3xl font-semibold text-white">Selecione sua <span className="text-rd-cyan">Unidade de Saúde</span></h1>
             <p className="text-zinc-400 text-sm">Escolha em qual ambiente de trabalho você deseja operar agora.</p>
           </div>
 
@@ -164,7 +168,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
               </button>
             ))}
             
-            {/* Botão de Cadastrar Novo Hospital */}
+            {/* Botão de Cadastrar Nova Unidade */}
             {!isCreating ? (
               <button
                 onClick={() => setIsCreating(true)}
@@ -174,19 +178,44 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                   <div className="w-8 h-8 rounded-full border border-zinc-700 flex items-center justify-center text-zinc-400 group-hover:text-rd-cyan group-hover:border-rd-cyan transition-colors">
                     +
                   </div>
-                  <p className="text-zinc-400 group-hover:text-white font-medium transition-colors">Cadastrar Novo Hospital</p>
+                  <p className="text-zinc-400 group-hover:text-white font-medium transition-colors">Cadastrar Nova Unidade</p>
                 </div>
               </button>
             ) : (
               <form onSubmit={handleCreateUnit} className="p-5 rounded-2xl border border-zinc-800 bg-zinc-900/80 animate-in fade-in mt-2 space-y-3">
                 <input 
                   type="text" 
-                  placeholder="Nome do Hospital *"
+                  placeholder="Nome da Clínica ou Unidade de Saúde *"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
                   autoFocus
                 />
+
+                {/* Especialidade Principal do Serviço */}
+                <div>
+                  <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
+                    Especialidade Principal (Adapta os Módulos do Sistema) *
+                  </label>
+                  <select
+                    value={formData.especialidade}
+                    onChange={(e) => setFormData({ ...formData, especialidade: e.target.value })}
+                    className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2.5 text-white text-xs font-semibold focus:outline-none focus:border-rd-cyan cursor-pointer"
+                  >
+                    <option value="Dermatologia & Estética">💉 Estética & Harmonização Facial (Injetáveis, Fotos e Antes/Depois)</option>
+                    <option value="Dermatologia">🧴 Dermatologia Clínica & Cirúrgica</option>
+                    <option value="Clínica Geral">🩺 Clínica Geral & Consultórios Médicos</option>
+                    <option value="Cardiologia">❤️ Cardiologia & Métodos Gráficos</option>
+                    <option value="Ginecologia & Obstetrícia">🌸 Ginecologia & Obstetrícia</option>
+                    <option value="Ortopedia & Traumatologia">🦴 Ortopedia & Fisioterapia</option>
+                    <option value="Odontologia">🦷 Odontologia & Harmonização Orofacial</option>
+                    <option value="Nutrição & Emagrecimento">🥗 Nutrição, Metabologia & Longevidade</option>
+                    <option value="Psicologia & Psiquiatria">🧠 Psicologia & Saúde Mental</option>
+                    <option value="Medicina Diagnóstica">🔬 Centro Diagnóstico, Laudos & Imagem</option>
+                    <option value="Hospital Geral">🏥 Hospital Geral & Pronto Atendimento</option>
+                  </select>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-[11px] font-semibold text-zinc-400 block mb-1">País de Tributação *</label>
@@ -283,7 +312,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                     onClick={handleSkipUnit}
                     className="w-full py-2 text-xs text-zinc-400 hover:text-white bg-zinc-950 border border-zinc-800 rounded-xl transition-all font-medium"
                   >
-                    Registrar hospital depois (Modo Teste)
+                    Registrar unidade depois (Modo Teste)
                   </button>
                 </div>
               </form>
@@ -296,7 +325,7 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
                   onClick={handleSkipUnit}
                   className="text-xs text-zinc-500 hover:text-rd-cyan transition-colors underline underline-offset-4"
                 >
-                  Registrar hospital depois (Modo Teste)
+                  Registrar unidade depois (Modo Teste)
                 </button>
               </div>
             )}
@@ -317,10 +346,10 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
             <Building2 size={40} />
           </div>
           <h1 className="font-heading text-4xl font-semibold tracking-tighter text-white ">
-            Nenhum Hospital <span className="text-gradient-brand">Cadastrado</span>
+            Nenhuma Unidade <span className="text-gradient-brand">Cadastrada</span>
           </h1>
           <p className="text-zinc-400 font-medium leading-relaxed max-w-md mx-auto">
-            Para acessar o ecossistema MedCore, é necessário cadastrar o seu primeiro hospital.
+            Para acessar o ecossistema MedCore, é necessário cadastrar sua clínica ou unidade médica.
           </p>
         </div>
 
@@ -330,26 +359,51 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
               onClick={() => setIsCreating(true)}
               className="px-6 py-3 bg-rd-cyan text-zinc-950 font-semibold rounded-xl hover:bg-rd-cyan/90 transition-colors shadow-glow"
             >
-              Cadastrar Meu Primeiro Hospital
+              Cadastrar Minha Primeira Unidade
             </button>
             <button
               type="button"
               onClick={handleSkipUnit}
               className="text-xs text-zinc-400 hover:text-rd-cyan transition-colors underline underline-offset-4 font-medium"
             >
-              Registrar hospital depois
+              Registrar unidade depois
             </button>
           </div>
         ) : (
           <form onSubmit={handleCreateUnit} className="max-w-md mx-auto space-y-3 animate-in fade-in zoom-in-95">
             <input 
               type="text" 
-              placeholder="Nome do Hospital *"
+              placeholder="Nome da Clínica ou Unidade de Saúde *"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-rd-cyan text-sm"
               autoFocus
             />
+
+            {/* Especialidade Principal do Serviço */}
+            <div>
+              <label className="text-[11px] font-semibold text-zinc-400 block mb-1">
+                Especialidade Principal (Adapta os Módulos do Sistema) *
+              </label>
+              <select
+                value={formData.especialidade}
+                onChange={(e) => setFormData({ ...formData, especialidade: e.target.value })}
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2.5 text-white text-xs font-semibold focus:outline-none focus:border-rd-cyan cursor-pointer"
+              >
+                <option value="Dermatologia & Estética">💉 Estética & Harmonização Facial (Injetáveis, Fotos e Antes/Depois)</option>
+                <option value="Dermatologia">🧴 Dermatologia Clínica & Cirúrgica</option>
+                <option value="Clínica Geral">🩺 Clínica Geral & Consultórios Médicos</option>
+                <option value="Cardiologia">❤️ Cardiologia & Métodos Gráficos</option>
+                <option value="Ginecologia & Obstetrícia">🌸 Ginecologia & Obstetrícia</option>
+                <option value="Ortopedia & Traumatologia">🦴 Ortopedia & Fisioterapia</option>
+                <option value="Odontologia">🦷 Odontologia & Harmonização Orofacial</option>
+                <option value="Nutrição & Emagrecimento">🥗 Nutrição, Metabologia & Longevidade</option>
+                <option value="Psicologia & Psiquiatria">🧠 Psicologia & Saúde Mental</option>
+                <option value="Medicina Diagnóstica">🔬 Centro Diagnóstico, Laudos & Imagem</option>
+                <option value="Hospital Geral">🏥 Hospital Geral & Pronto Atendimento</option>
+              </select>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] font-semibold text-zinc-400 block mb-1">País de Tributação *</label>
@@ -441,14 +495,14 @@ export function UnitGate({ children }: { children: React.ReactNode }) {
               </button>
             </div>
 
-            {/* Opção solicitada pelo usuário: Registrar hospital depois */}
+            {/* Opção solicitada pelo usuário: Registrar unidade depois */}
             <div className="pt-1">
               <button
                 type="button"
                 onClick={handleSkipUnit}
                 className="w-full py-2.5 text-xs text-zinc-400 hover:text-white bg-zinc-900/60 hover:bg-zinc-800/80 border border-zinc-800 rounded-xl transition-all font-medium flex items-center justify-center gap-2 group"
               >
-                <span>Registrar hospital depois</span>
+                <span>Registrar unidade depois</span>
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-500 group-hover:text-rd-cyan border border-zinc-700/50">Modo Teste</span>
               </button>
             </div>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>MedCore Lite</title>
+  <style>
+    body {
+      width: 340px;
+      margin: 0;
+      padding: 16px;
+      background: #09090b;
+      color: #fafafa;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #27272a;
+      padding-bottom: 12px;
+    }
+    .logo-badge {
+      background: rgba(6, 182, 212, 0.15);
+      border: 1px solid rgba(6, 182, 212, 0.3);
+      color: #06b6d4;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ffffff;
+      margin: 0;
+    }
+    .subtitle {
+      font-size: 11px;
+      color: #a1a1aa;
+      margin: 2px 0 0 0;
+    }
+    .card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #71717a;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .val {
+      font-size: 13px;
+      font-weight: 600;
+      color: #f4f4f5;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      transition: all 0.2s ease;
+      border: none;
+    }
+    .btn-primary {
+      background: #06b6d4;
+      color: #09090b;
+    }
+    .btn-primary:hover {
+      background: #22d3ee;
+    }
+    .btn-secondary {
+      background: #27272a;
+      color: #f4f4f5;
+      border: 1px solid #3f3f46;
+    }
+    .btn-secondary:hover {
+      background: #3f3f46;
+    }
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #10b981;
+      font-weight: 600;
+      margin-top: 8px;
+      justify-content: center;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-badge">MedCore</div>
+    <div>
+      <h1 class="title">MedCore Lite RPA</h1>
+      <p class="subtitle">Conector de Portais Legados (SUS / SISREG)</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="label">Página Ativa Detectada</span>
+    <div class="val" id="pageTitle">Portal de Regulação / Laboratório</div>
+  </div>
+
+  <button class="btn btn-primary" id="btnExtract">
+    📥 Extrair Dados para o MedCore
+  </button>
+
+  <button class="btn btn-secondary" id="btnFill">
+    📤 Preencher Formulário com MedCore
+  </button>
+
+  <div class="status-badge">
+    <div class="dot"></div> Conectado com MedCore Cloud
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

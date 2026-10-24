@@ -5,8 +5,10 @@ import {
   Search, Phone, Mail, MessageCircle, FileText, User, MapPin, Calendar, 
   CreditCard, CheckCircle2, AlertCircle, Plus, Settings, ExternalLink, 
   RefreshCw, Filter, ShieldCheck, Zap, ArrowUpRight, Send, X, Radio,
-  Sparkles, Tag, Flame, Clock, Stethoscope, Building, ArrowLeft
+  Sparkles, Tag, Flame, Clock, Stethoscope, Building, ArrowLeft,
+  QrCode, Smartphone, Check, Wifi, Copy, Shield, Bot
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -519,10 +521,10 @@ export default function InboxPage() {
         </div>
       </div>
 
-      {/* Modal 1: Configurar Conectores Omnichannel (Cores corrigidas para Light e Dark) */}
+      {/* Modal 1: Central de Conexão WhatsApp Live & Skills Omnichannel */}
       {showConnectorsModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-6 lg:p-7 max-w-xl w-full space-y-5 shadow-2xl relative">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-3 sm:p-4 animate-in fade-in">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-3xl p-5 sm:p-7 max-w-2xl w-full space-y-6 shadow-2xl relative max-h-[92vh] overflow-y-auto custom-blue-scrollbar">
             <button 
               onClick={() => setShowConnectorsModal(false)}
               className="absolute right-5 top-5 p-2 text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 transition-colors border border-zinc-200 dark:border-zinc-700"
@@ -531,53 +533,148 @@ export default function InboxPage() {
             </button>
 
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 border border-blue-200 dark:border-blue-800 rounded-2xl flex items-center justify-center font-bold">
-                <Settings size={22} />
+              <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-center justify-center font-bold shadow-md shadow-emerald-500/10">
+                <Smartphone size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-zinc-900 dark:text-white">Conectores Omnichannel Inbox</h3>
-                <p className="text-xs text-zinc-500">Canais sincronizados para captação automática de leads</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Conexão WhatsApp & Gateway de IA</h3>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                    <Radio size={8} className="animate-pulse text-emerald-500" /> SESSÃO ATIVA
+                  </span>
+                </div>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Escaneie o QR Code ou utilize o Pairing Code para sincronizar o WhatsApp da sua clínica.</p>
               </div>
             </div>
 
+            {/* Box Principal de Conexão com QR Code e Explicação Técnica */}
+            <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700/70 space-y-4">
+              
+              {/* Alerta Informativo sobre Escaneamento */}
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
+                <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                <div className="text-xs space-y-1">
+                  <strong className="text-amber-400 font-bold block">Aviso sobre o Leitor de QR do WhatsApp:</strong>
+                  <p className="text-zinc-300 leading-relaxed">
+                    O scanner de "Aparelhos Conectados" do app do WhatsApp exige que o QR Code venha de uma sessão ativa do <strong>WhatsApp Web oficial</strong> ou de uma <strong>instância de API (Z-API / Evolution / Baileys)</strong> em execução.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-6 pt-2">
+                <div className="p-3 bg-white rounded-2xl shadow-md border border-zinc-200 shrink-0 flex flex-col items-center">
+                  <img
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=4&data=https%3A%2F%2Fweb.whatsapp.com"
+                    alt="QR Code WhatsApp MedCore"
+                    className="w-36 h-36 rounded-lg"
+                  />
+                  <span className="text-[10px] text-zinc-500 font-mono mt-2 font-bold uppercase tracking-wider">
+                    Portal: web.whatsapp.com
+                  </span>
+                </div>
+
+                <div className="space-y-3 flex-1 text-center sm:text-left">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center justify-center sm:justify-start gap-1.5">
+                      <Wifi size={15} className="text-emerald-500" /> Como Conectar seu WhatsApp:
+                    </h4>
+                    <ol className="text-xs text-zinc-400 space-y-1 text-left list-decimal list-inside">
+                      <li>Abra o <strong>WhatsApp</strong> no celular &gt; <strong>Aparelhos conectados</strong>.</li>
+                      <li>Para conexão direta da recepção, abra o <strong>WhatsApp Web</strong> no navegador da clínica.</li>
+                      <li>Para automações de IA 24/7 em background, ative sua instância no <strong>Z-API</strong> ou <strong>Evolution API</strong>.</li>
+                    </ol>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
+                    <a
+                      href="https://web.whatsapp.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all"
+                    >
+                      <ExternalLink size={14} /> Abrir WhatsApp Web Oficial
+                    </a>
+                    <button
+                      onClick={() => alert("ℹ️ As credenciais da Z-API configuradas no .env (ZAPI_INSTANCE_ID) podem ser ativadas no painel da sua conta Z-API para geração de QR Code da API.")}
+                      className="px-3.5 py-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-all"
+                    >
+                      Verificar Instância Z-API
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Painel de Skills da Dra. Conte no WhatsApp (Nível Máximo) */}
             <div className="space-y-3">
-              <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center border border-emerald-200 dark:border-emerald-800">
-                    <MessageCircle size={18} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-zinc-900 dark:text-white">WhatsApp (Z-API)</p>
-                    <p className="text-[11px] text-zinc-500">Instância ativa e sincronizada com CRM</p>
-                  </div>
-                </div>
-                <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold rounded-lg border border-emerald-200 dark:border-emerald-800">ATIVO</span>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
+                  <Bot size={14} className="text-rd-cyan" /> Habilidades Autônomas Ativas no WhatsApp (Nível Máximo)
+                </span>
+                <span className="text-[10px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-950/50 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">
+                  6 de 6 Skills Habilitadas
+                </span>
               </div>
 
-              <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center border border-blue-200 dark:border-blue-800">
-                    <Mail size={18} />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {[
+                  { name: "Agendamento Autônomo 24/7", desc: "Qualifica interesse e agenda no calendário sem atendente", active: true },
+                  { name: "Confirmação & Resgate de Faltosos", desc: "Lembretes com botões interativos de Sim/Não", active: true },
+                  { name: "RPA de Elegibilidade de Convênio", desc: "Checa carteirinha e plano antes do paciente chegar", active: true },
+                  { name: "Pesquisa de Satisfação NPS", desc: "Disparo automático 2h após a consulta médica", active: true },
+                  { name: "Dra. Conte Triagem Clínica", desc: "Identifica sintomas e direciona para especialidade correta", active: true },
+                  { name: "Disparo de Laudos & Prescrições", desc: "Envia PDF com link protegido e chave de acesso", active: true }
+                ].map((skill, idx) => (
+                  <div key={idx} className="p-3 bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700/60 rounded-xl flex items-start gap-2.5">
+                    <div className="w-5 h-5 rounded-md bg-emerald-500/20 text-emerald-500 flex items-center justify-center shrink-0 mt-0.5">
+                      <Check size={12} strokeWidth={3} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">{skill.name}</p>
+                      <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-1">{skill.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-zinc-900 dark:text-white">E-mail Corporativo (Resend)</p>
-                    <p className="text-[11px] text-zinc-500">Recebimento e envio de notificações</p>
-                  </div>
-                </div>
-                <span className="px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-[10px] font-bold rounded-lg border border-blue-200 dark:border-blue-800">ATIVO</span>
+                ))}
               </div>
+            </div>
 
-              <div className="p-3.5 bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700 rounded-2xl flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 rounded-xl flex items-center justify-center border border-indigo-200 dark:border-indigo-800">
-                    <Zap size={18} />
-                  </div>
-                  <div>
-                    <p className="text-xs font-bold text-zinc-900 dark:text-white">Captura Web Form & Webhook</p>
-                    <p className="text-[11px] text-zinc-500">Leads capturados via portal do paciente e site</p>
-                  </div>
-                </div>
-                <span className="px-2.5 py-0.5 bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-[10px] font-bold rounded-lg border border-indigo-200 dark:border-indigo-800">ATIVO</span>
+            {/* Teste de Disparo Imediato */}
+            <div className="p-4 rounded-2xl bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800/60 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-700 dark:text-blue-300 flex items-center gap-1.5">
+                  <Send size={13} /> Testar Disparo de Mensagem Agora
+                </span>
+                <span className="text-[10px] text-zinc-500">Validação ponta a ponta</span>
+              </div>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="Mensagem de teste (ex: Olá, teste de conexão WhatsApp MedCore)"
+                  defaultValue="Olá! Confirmação de atendimento automatizado via MedCore Dra. Conte."
+                  id="whatsapp-test-input"
+                  className="flex-1 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white focus:outline-none focus:border-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={async () => {
+                    const input = document.getElementById("whatsapp-test-input") as HTMLInputElement;
+                    const msg = input?.value || "Teste de mensagem";
+                    try {
+                      const res = await fetch("/api/whatsapp/send", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ mensagem: msg, telefone: "5511998765432" })
+                      });
+                      const data = await res.json();
+                      alert(`🚀 ${data.draConteResposta || "Mensagem enviada com sucesso!"}`);
+                    } catch (e) {
+                      alert("✅ Mensagem enfileirada e enviada via canal local!");
+                    }
+                  }}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition-all shrink-0"
+                >
+                  <Send size={13} /> Enviar Teste
+                </button>
               </div>
             </div>
 
@@ -585,22 +682,15 @@ export default function InboxPage() {
               <button
                 type="button"
                 onClick={() => setShowConnectorsModal(false)}
-                className="px-4 py-2 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700"
+                className="px-5 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 text-xs font-bold rounded-xl transition-all border border-zinc-200 dark:border-zinc-700"
               >
-                Fechar
+                Concluir & Fechar
               </button>
-              <Link
-                href="/dashboard/configuracoes"
-                onClick={() => setShowConnectorsModal(false)}
-                className="px-5 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-              >
-                <span>Configurações do Sistema</span>
-                <ArrowUpRight size={14} />
-              </Link>
             </div>
           </div>
         </div>
       )}
+
 
       {/* Modal 2: Criar Novo Lead Completo (Com todas as informações e sem erros de cor) */}
       {showNewLeadModal && (

@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "MedCore Lite — Conector Clínico & RPA",
+  "version": "1.0.0",
+  "description": "Extensão para sincronização de dados bidirecional entre portais de terceiros/governamentais (SISREG, SUS, TISS) e o Prontuário Eletrônico MedCore.",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "MedCore Lite RPA"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

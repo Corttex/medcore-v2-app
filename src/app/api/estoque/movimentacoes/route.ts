@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     const qtdNum = Number(quantidade);
 
     // Valida saída se não tiver estoque suficiente
-    if (tipo === "SAIDA" && produto.estoqueAtual < qtdNum) {
+    if (tipo === "SAIDA" && produto.quantidadeAtual < qtdNum) {
       return NextResponse.json({ success: false, error: "Estoque insuficiente" }, { status: 400 });
     }
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
           tipo, // ENTRADA ou SAIDA
           quantidade: qtdNum,
           motivo: motivo || "Atualização manual via Dashboard",
-          userId: "admin-demo-id" // Mock do user da sessão
+          responsavelId: undefined
         }
       });
 
@@ -41,7 +41,7 @@ export async function POST(request: Request) {
       const updatedProduto = await tx.produto.update({
         where: { id: produtoId },
         data: {
-          estoqueAtual: tipo === "ENTRADA" 
+          quantidadeAtual: tipo === "ENTRADA" 
             ? { increment: qtdNum } 
             : { decrement: qtdNum }
         }

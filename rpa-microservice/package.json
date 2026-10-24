@@ -1,0 +1,13 @@
+{
+  "name": "medcore-rpa-microservice",
+  "version": "1.0.0",
+  "description": "Microserviço autônomo de RPA (Playwright Stealth + 2Captcha) para autorização direta de guias SADT e convênios médicos sem hubs intermediários.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

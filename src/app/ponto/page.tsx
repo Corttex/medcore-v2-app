@@ -4,7 +4,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { Camera, MapPin, CheckCircle, Fingerprint, Lock, ShieldCheck, MapPinOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/ui/Logo";
-import { toast } from "sonner";
+
+const toast = {
+  error: (msg: string) => alert(`[Atenção] ${msg}`),
+  success: (msg: string) => alert(`[Sucesso] ${msg}`)
+};
 
 export default function PontoEletronicoPage() {
   const [pin, setPin] = useState("");

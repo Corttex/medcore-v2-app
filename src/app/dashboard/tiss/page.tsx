@@ -158,11 +158,11 @@ export default function FaturamentoTISSPage() {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="bg-zinc-100 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-1.5 flex gap-2 w-fit">
+      {/* Tabs com Sub-Módulos Autônomos RPA */}
+      <div className="bg-zinc-100 dark:bg-zinc-900/90 border border-zinc-200 dark:border-zinc-800 rounded-2xl p-1.5 flex flex-wrap gap-2 w-fit">
         <button 
           onClick={() => setActiveTab("LOTES")}
-          className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
             activeTab === "LOTES" ? "bg-white dark:bg-zinc-800 shadow-sm text-zinc-900 dark:text-white" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
           }`}
         >
@@ -170,12 +170,36 @@ export default function FaturamentoTISSPage() {
         </button>
         <button 
           onClick={() => setActiveTab("GUIAS")}
-          className={`px-5 py-2 rounded-xl text-xs font-semibold transition-all ${
+          className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
             activeTab === "GUIAS" ? "bg-white dark:bg-zinc-800 shadow-sm text-zinc-900 dark:text-white" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-white"
           }`}
         >
           Auditoria de Guias
         </button>
+        <a 
+          href="/dashboard/tiss/auditoria-previa"
+          className="px-4 py-2 rounded-xl text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10 border border-emerald-500/20 transition-all flex items-center gap-1.5"
+        >
+          🛡️ Auditoria Prévia (Rules Engine)
+        </a>
+        <a 
+          href="/dashboard/tiss/autorizacoes"
+          className="px-4 py-2 rounded-xl text-xs font-semibold text-rd-cyan hover:bg-rd-cyan/10 border border-rd-cyan/20 transition-all flex items-center gap-1.5"
+        >
+          🤖 Robô Autorizador RPA
+        </a>
+        <a 
+          href="/dashboard/tiss/transmissor-soap"
+          className="px-4 py-2 rounded-xl text-xs font-semibold text-purple-400 hover:bg-purple-500/10 border border-purple-500/20 transition-all flex items-center gap-1.5"
+        >
+          ⚡ Transmissor Direto SOAP
+        </a>
+        <a 
+          href="/dashboard/tiss/conciliacao-retorno"
+          className="px-4 py-2 rounded-xl text-xs font-semibold text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 transition-all flex items-center gap-1.5"
+        >
+          💰 XML Retorno & Split
+        </a>
       </div>
 
       {/* Main Content Area */}

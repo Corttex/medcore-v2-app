@@ -2,14 +2,25 @@
 
 import React, { useState } from "react";
 import { useParams } from "next/navigation";
-import { Video, Mic, StopCircle, FileText, ClipboardList, PenTool, CheckCircle, Wand2, History, AlertCircle } from "lucide-react";
+import { Video, Mic, StopCircle, FileText, ClipboardList, PenTool, CheckCircle, Wand2, History, AlertCircle, Sparkles, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FacialMapCanvas } from "@/features/prontuario/components/FacialMapCanvas";
+import { PhotoUploadCompareModal } from "@/features/prontuario/components/PhotoUploadCompareModal";
+import { AestheticAnamneseForm } from "@/features/prontuario/components/AestheticAnamneseForm";
+import { AestheticProtocolTimeline } from "@/features/prontuario/components/AestheticProtocolTimeline";
+import { PrescriptionEngine } from "@/features/prontuario/components/PrescriptionEngine";
+import { MultidisciplinaryEvolucao } from "@/features/prontuario/components/MultidisciplinaryEvolucao";
 
-const TABS = [
-  { id: "historico", label: "Histórico", icon: History },
-  { id: "anamnese", label: "Anamnese", icon: ClipboardList },
-  { id: "prescricao", label: "Prescrição", icon: PenTool },
-  { id: "arquivos", label: "Arquivos / Exames", icon: FileText },
+const ALL_TABS = [
+  { id: "historico", label: "Histórico", icon: History, forAesthetic: false },
+  { id: "anamnese", label: "Anamnese (SOAP)", icon: ClipboardList, forAesthetic: false },
+  { id: "multidisciplinar", label: "Multidisciplinar", icon: Wand2, forAesthetic: false },
+  { id: "anamnese_estetica", label: "Anamnese Facial", icon: ClipboardList, forAesthetic: true },
+  { id: "injetaveis", label: "Injetáveis & Estética", icon: Sparkles, forAesthetic: true },
+  { id: "protocolo", label: "Protocolo & Retorno 15d", icon: CheckCircle, forAesthetic: true },
+  { id: "fotos", label: "Fotos & Antes/Depois", icon: Camera, forAesthetic: true },
+  { id: "prescricao", label: "Prescrição Inteligente", icon: PenTool, forAesthetic: false },
+  { id: "arquivos", label: "Arquivos / Exames", icon: FileText, forAesthetic: false },
 ];
 
 export default function ProntuarioPage() {
@@ -18,6 +29,21 @@ export default function ProntuarioPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessingAI, setIsProcessingAI] = useState(false);
   const [isTelemedicine, setIsTelemedicine] = useState(true); // Toggle just for UI display
+
+  // Especialidade ativa (salva no cadastro da unidade ou seletor rápido)
+  const [activeSpecialty, setActiveSpecialty] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return localStorage.getItem("medcore_selected_especialidade") || "Dermatologia & Estética";
+    }
+    return "Dermatologia & Estética";
+  });
+
+  const isAestheticSpecialty = 
+    activeSpecialty.toLowerCase().includes("estética") || 
+    activeSpecialty.toLowerCase().includes("dermatologia") ||
+    activeSpecialty.toLowerCase().includes("harmonização");
+
+  const visibleTabs = ALL_TABS.filter(tab => !tab.forAesthetic || isAestheticSpecialty);
 
   // Mock Form State
   const [form, setForm] = useState({
@@ -204,7 +230,7 @@ export default function ProntuarioPage() {
 
         {/* Tabs */}
         <div className="flex border-b border-outline-variant/30 px-6">
-          {TABS.map(tab => (
+          {visibleTabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -276,14 +302,43 @@ export default function ProntuarioPage() {
             </div>
           )}
 
+          {activeTab === "anamnese_estetica" && (
+            <div className="animate-in fade-in">
+              <AestheticAnamneseForm patientName="João da Silva" patientCpf="123.456.789-00" />
+            </div>
+          )}
+
+          {activeTab === "injetaveis" && (
+            <div className="animate-in fade-in">
+              <FacialMapCanvas />
+            </div>
+          )}
+
+          {activeTab === "protocolo" && (
+            <div className="animate-in fade-in">
+              <AestheticProtocolTimeline />
+            </div>
+          )}
+
+          {activeTab === "fotos" && (
+            <div className="animate-in fade-in">
+              <PhotoUploadCompareModal patientId={typeof params?.id === "string" ? params.id : "demo"} />
+            </div>
+          )}
+
+          {activeTab === "multidisciplinar" && (
+            <div className="animate-in fade-in">
+              <MultidisciplinaryEvolucao patientName="João da Silva" patientAge={34} />
+            </div>
+          )}
+
           {activeTab === "prescricao" && (
-            <div className="flex flex-col items-center justify-center h-full text-on-surface-variant space-y-4 animate-in fade-in">
-               <PenTool size={48} className="opacity-20" />
-               <p className="font-bold">Módulo de Prescrição Digital (Memed)</p>
-               <p className="text-sm max-w-sm text-center">Nesta aba o médico irá gerar receitas digitais integradas com farmácias usando o nosso gerador nativo.</p>
-               <button className="mt-4 px-6 py-2 border border-outline-variant rounded-full text-sm font-bold text-on-surface hover:bg-surface-container">
-                 + Nova Prescrição
-               </button>
+            <div className="animate-in fade-in">
+              <PrescriptionEngine 
+                patientName="João da Silva" 
+                patientAllergies={["Penicilina", "AINE (Anti-inflamatórios Não Esteroidais)"]}
+                patientCurrentMedications={["Varfarina Sódica", "Omeprazol"]}
+              />
             </div>
           )}
 

@@ -51,7 +51,9 @@ import {
   Award,
   Globe,
   LogOut,
-  ChevronRight
+  ChevronRight,
+  Smartphone,
+  ShoppingBag
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -71,8 +73,10 @@ function cn(...inputs: ClassValue[]) {
 
 // Mapeamento de links para IDs de módulos no Banco de Dados
 const moduleIdMap: Record<string, string> = {
-  // Loja de Módulos & Add-ons
+  // Habilidades Dra. Conte & Add-ons
   "/dashboard/loja": "dashboard",
+  "/dashboard/carreira": "dashboard",
+  "/mobile": "dashboard",
   // Inteligência
   "/dashboard/ia-executiva": "ai-exec",
   "/dashboard": "dashboard",
@@ -332,20 +336,34 @@ function isRouteAllowedForRole(role: string | undefined, href: string): boolean 
   return allowed.includes(href);
 }
 
-const menuBlocks = [
+const menuBlocks: {
+  title: string;
+  pending?: boolean;
+  items: {
+    icon: any;
+    label: string;
+    href: string;
+    requiredPlan: PlanLevel;
+    highlight?: boolean;
+    pending?: boolean;
+  }[];
+}[] = [
   {
-    title: "Inteligência Clínica",
+    title: "Ecossistema Dra. Conte",
     items: [
-      { icon: BrainCircuit, label: "Dra. Conte (Copilot)", href: "/dashboard/ia-executiva", requiredPlan: "BASIC" as PlanLevel, highlight: true },
+      { icon: BrainCircuit, label: "Dra. Conte Executive AI", href: "/dashboard/ia-executiva", requiredPlan: "BASIC" as PlanLevel, highlight: true },
       { icon: LayoutGrid, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Award, label: "Carreira & Produtividade", href: "/dashboard/carreira", requiredPlan: "BASIC" as PlanLevel, pending: true },
+      { icon: ShoppingBag, label: "Habilidades Dra. Conte", href: "/dashboard/loja", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Smartphone, label: "Gestão Mobile (PWA)", href: "/mobile", requiredPlan: "BASIC" as PlanLevel, pending: true },
     ]
   },
   {
     title: "Relacionamento & CRM",
     items: [
       { icon: Package, label: "Pacotes & Vendas", href: "/dashboard/pacotes", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Megaphone, label: "Marketing", href: "/dashboard/marketing", requiredPlan: "PRO" as PlanLevel },
-      { icon: Globe, label: "WebStudio (Site)", href: "/dashboard/webstudio", requiredPlan: "PRO" as PlanLevel },
+      { icon: Megaphone, label: "Marketing", href: "/dashboard/marketing", requiredPlan: "PRO" as PlanLevel, pending: true },
+      { icon: Globe, label: "WebStudio (Site)", href: "/dashboard/webstudio", requiredPlan: "PRO" as PlanLevel, pending: true },
       { icon: Smile, label: "Pesquisa NPS", href: "/dashboard/nps", requiredPlan: "BASIC" as PlanLevel },
       { icon: MessageSquare, label: "Inbox", href: "/dashboard/mensagens", requiredPlan: "BASIC" as PlanLevel },
     ]
@@ -355,7 +373,7 @@ const menuBlocks = [
     items: [
       { icon: CalendarRange, label: "Agenda", href: "/dashboard/agenda", requiredPlan: "BASIC" as PlanLevel },
       { icon: HeartHandshake, label: "Agendamento Online", href: "/dashboard/agendamento-online", requiredPlan: "PRO" as PlanLevel },
-      { icon: Tv, label: "Painel de TV", href: "/dashboard/painel-tv", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Tv, label: "Painel de TV", href: "/dashboard/painel-tv", requiredPlan: "BASIC" as PlanLevel, pending: true },
       { icon: Video, label: "Telemedicina", href: "/dashboard/telemedicina", requiredPlan: "PRO" as PlanLevel },
     ]
   },
@@ -376,6 +394,7 @@ const menuBlocks = [
   },
   {
     title: "Financeiro & Faturamento",
+    pending: true,
     items: [
       { icon: CreditCard, label: "Contas (Caixa)", href: "/dashboard/contas", requiredPlan: "PRO" as PlanLevel },
       { icon: ArrowDownRight, label: "Contas a Receber", href: "/dashboard/contas-a-receber", requiredPlan: "PRO" as PlanLevel },
@@ -388,16 +407,18 @@ const menuBlocks = [
   },
   {
     title: "Suprimentos",
+    pending: true,
     items: [
       { icon: Box, label: "Estoque Central", href: "/dashboard/estoque", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Syringe, label: "Controle de Vacinas", href: "/dashboard/vacinas", requiredPlan: "PRO" as PlanLevel },
+      { icon: Syringe, label: "Injetáveis & Insumos Críticos", href: "/dashboard/vacinas", requiredPlan: "PRO" as PlanLevel },
       { icon: ShoppingCart, label: "Compras", href: "/dashboard/compras", requiredPlan: "BASIC" as PlanLevel },
     ]
   },
   {
-    title: "Gestão & Estrutura",
+    title: "Clínicas & Operações",
+    pending: true,
     items: [
-      { icon: Building2, label: "Hospitais", href: "/dashboard/hospitais", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Building2, label: "Clínicas & Unidades", href: "/dashboard/hospitais", requiredPlan: "BASIC" as PlanLevel },
       { icon: Settings, label: "Cadastros Base", href: "/dashboard/cadastros", requiredPlan: "BASIC" as PlanLevel },
       { icon: Wrench, label: "Central de OS", href: "/dashboard/os", requiredPlan: "BASIC" as PlanLevel },
       { icon: Box, label: "Patrimônio", href: "/dashboard/patrimonio", requiredPlan: "BASIC" as PlanLevel },
@@ -501,11 +522,13 @@ export function DashboardSidebar() {
     setMobileMenuOpen(false);
   }, [pathname, setMobileMenuOpen]);
 
-  // Avatar / Iniciais do Usuário (unificado com DashboardHeader para sincronia de dados)
+  // Avatar / Iniciais do Usuário (sincronizado com isMounted para evitar Hydration mismatch entre SSR e Client)
   const userName = isMounted ? (user?.full_name || user?.email?.split("@")[0] || "Operador") : "Operador";
-  const userInitials = (user?.full_name 
-    ? user.full_name.split(" ").filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join("")
-    : (user?.email?.charAt(0).toUpperCase() || "O"));
+  const userInitials = isMounted 
+    ? (user?.full_name 
+        ? user.full_name.split(" ").filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join("")
+        : (user?.email?.charAt(0).toUpperCase() || "O"))
+    : "O";
   const userRoleDisplay = isMounted ? (user?.cargo || user?.role || "Acesso") : "Acesso";
 
   return (
@@ -629,10 +652,19 @@ export function DashboardSidebar() {
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <span className={cn(
-                      "w-1.5 h-1.5 rounded-full transition-all shrink-0",
-                      isOpen ? "bg-rd-cyan scale-125" : hasActiveItem ? "bg-rd-cyan" : "bg-zinc-400 group-hover:bg-zinc-300"
+                      "w-2 h-2 rounded-full transition-all shrink-0",
+                      block.pending
+                        ? "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)] animate-pulse"
+                        : isOpen
+                          ? "bg-rd-cyan scale-125"
+                          : hasActiveItem
+                            ? "bg-rd-cyan"
+                            : "bg-zinc-400 group-hover:bg-zinc-300"
                     )} />
-                    <span className="text-[11px] font-heading uppercase tracking-[0.14em] truncate">
+                    <span className={cn(
+                      "text-xs font-sans font-medium tracking-normal truncate",
+                      block.pending && "text-amber-300/90"
+                    )}>
                       {block.title}
                     </span>
                   </div>
@@ -747,6 +779,12 @@ export function DashboardSidebar() {
                                 MANU
                               </span>
                             )}
+                            {item.pending && (
+                              <span className="flex items-center gap-1 bg-amber-400/20 border border-amber-400/50 px-1.5 py-0.2 rounded text-[9px] font-heading text-amber-400 font-bold tracking-wider uppercase shadow-inner shrink-0 ml-1.5 animate-pulse">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                Pendente
+                              </span>
+                            )}
                             {isHighlighted && authorized && !inMaintenance && (
                               <Sparkles size={13} strokeWidth={2} className={cn(theme === 'dark' ? "text-rd-cyan" : "text-zinc-950", "animate-pulse shrink-0 ml-1.5")} />
                             )}
@@ -859,10 +897,10 @@ export function DashboardSidebar() {
             )}
           >
             <div className="flex items-center gap-2.5">
-               <Stethoscope size={16} strokeWidth={2} className="text-rd-cyan" />
-               <span className="text-sm font-sans font-semibold truncate max-w-[240px]">
-                 {units.find(u => u.id === selectedUnitId)?.name || "Selecionar Hospital"}
-               </span>
+              <Stethoscope size={16} strokeWidth={2} className="text-rd-cyan" />
+              <span className="text-sm font-sans font-semibold truncate max-w-[240px]">
+                {units.find(u => u.id === selectedUnitId)?.name || "Selecionar Clínica"}
+              </span>
             </div>
             <ChevronDown size={14} strokeWidth={2} className="text-zinc-400" />
           </button>
@@ -879,8 +917,16 @@ export function DashboardSidebar() {
 
             return (
               <div key={block.title} className="space-y-2.5">
-                <h3 className="px-2 text-[11px] font-heading font-semibold text-rd-cyan uppercase tracking-[0.2em] flex items-center gap-2 opacity-90">
-                  <span className="w-1.5 h-3.5 bg-rd-cyan rounded-full shadow-[0_0_8px_#a78bfa]"></span>
+                <h3 className={cn(
+                  "px-2 text-xs font-sans font-medium flex items-center gap-2 opacity-95",
+                  block.pending ? "text-amber-400 font-bold" : "text-rd-cyan"
+                )}>
+                  <span className={cn(
+                    "w-2 h-2 rounded-full",
+                    block.pending
+                      ? "bg-amber-400 shadow-[0_0_8px_#fbbf24] animate-pulse"
+                      : "bg-rd-cyan shadow-[0_0_8px_#a78bfa]"
+                  )}></span>
                   {block.title}
                 </h3>
 
@@ -957,7 +1003,7 @@ export function DashboardSidebar() {
             { icon: CalendarRange, label: "Agenda", href: "/dashboard/agenda" },
             { icon: Users, label: "Pacientes", href: "/dashboard/pacientes" },
             { icon: Kanban, label: "Kanban", href: "/dashboard/kanban" },
-            { icon: Building2, label: "Hospitais", href: "/dashboard/hospitais" },
+            { icon: Building2, label: "Clínicas", href: "/dashboard/hospitais" },
           ].map((item) => {
             const isActive = pathname === item.href;
             const isHighlighted = item.highlight;

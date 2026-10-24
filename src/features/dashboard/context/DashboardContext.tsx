@@ -36,8 +36,8 @@ const DashboardContext = createContext<DashboardContextType | undefined>(undefin
 
 const defaultUnit: Unit = {
   id: "default-unit-1",
-  name: "Hospital Central MedCore",
-  type: "Hospital Geral",
+  name: "Clínica & Centro Médico MedCore",
+  type: "Clínica Especializada",
   active: true,
   country: "BR",
   taxRegime: "SIMPLES_NACIONAL"

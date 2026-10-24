@@ -78,7 +78,7 @@ const CERTIFICATES_DATABASE: Record<string, CertificateData> = {
   }
 };
 
-export default function ValidarCertificadoPage() {
+function ValidarCertificadoContent() {
   const searchParams = useSearchParams();
   const initialCode = searchParams?.get("codigo") || "";
 
@@ -313,5 +313,13 @@ export default function ValidarCertificadoPage() {
         </p>
       </footer>
     </div>
+  );
+}
+
+export default function ValidarCertificadoPage() {
+  return (
+    <React.Suspense fallback={<div className="min-h-screen bg-zinc-950 flex items-center justify-center text-zinc-400">Carregando validador...</div>}>
+      <ValidarCertificadoContent />
+    </React.Suspense>
   );
 }

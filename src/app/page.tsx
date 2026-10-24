@@ -23,86 +23,120 @@ import {
   ChevronDown
 } from "lucide-react";
 
-// ─── PLANOS ───────────────────────────────────
+// ─── PLANOS DO ECOSSISTEMA DRA. CONTE ───────────────────────────────────
 const plans = [
   {
-    name: "Free",
-    price: "R$ 0",
-    period: "",
-    description: "Ideal para profissionais liberais.",
+    name: "🩵 Dra. Conte Assistente",
+    price: "R$ 29,90",
+    period: "/mês",
+    description: "Para secretárias, recepcionistas e auxiliares de clínica.",
     color: "border-zinc-200",
     highlight: false,
-    badge: null,
+    badge: "Individual",
     features: [
-      "1 Unidade Hospitalar",
-      "5 Demandas / mês",
-      "Agenda Clínica Básica",
-      "Cards Kanban (3 quadros)",
-      "Drive Cofre: 500 MB",
-      "Suporte via E-mail",
-      "Sem IA Inteligente",
+      "Organização pessoal de tarefas diárias",
+      "Triagem inteligente de mensagens",
+      "Metas de confirmação & redução de faltas",
+      "Checklists da recepção e consultório",
+      "Dra. Conte Assistente pessoal",
+      "Acesso Mobile Web (PWA)",
     ],
-    cta: "Começar Grátis",
-    href: "/register",
+    cta: "Assinar Assistente",
+    href: "/register?plan=assistente",
   },
   {
-    name: "Pro",
-    price: "R$ 39,99",
+    name: "💙 Dra. Conte Profissional",
+    price: "R$ 59,90",
     period: "/mês",
-    description: "Melhor custo-benefício para clínicas.",
+    description: "Acelerador de carreira para profissionais da saúde.",
     color: "border-zinc-200",
     highlight: false,
-    badge: null,
+    badge: "Carreira",
     features: [
-      "2 Unidades Hospitalares",
-      "Demandas Ilimitadas",
-      "Emergency Monitor",
-      "Conselho Jurídico IA",
-      "Scanner de Documentos",
-      "Relatórios BI básicos",
-      "Drive Cofre: 2 GB",
-      "Suporte Prioritário",
+      "Tudo do plano Assistente",
+      "Módulo de Carreira & Produtividade",
+      "Emissão de Certificados com Dra. Conte",
+      "Relatório de Impacto Financeiro",
+      "Histórico consolidado de resultados",
+      "Trilhas de capacitação corporativa",
     ],
-    cta: "Assinar Pro",
-    href: "/register?plan=pro",
+    cta: "Assinar Profissional",
+    href: "/register?plan=profissional",
   },
   {
-    name: "Max",
-    price: "R$ 97,99",
+    name: "🏢 Dra. Conte Clínica",
+    price: "R$ 497",
     period: "/mês",
-    description: "Para hospitais e redes de saúde.",
+    description: "Para pequenas e médias clínicas (até 5 usuários).",
+    color: "border-zinc-200",
+    highlight: false,
+    badge: "Mais Buscado",
+    features: [
+      "Até 5 usuários inclusos",
+      "Agenda médica multiprofissional",
+      "Prontuário eletrônico unificado",
+      "Painel TV de chamada com voz neural",
+      "Caixa diário & Contas a pagar/receber",
+      "Dra. Conte integrada em todos os níveis",
+      "Suporte via WhatsApp",
+    ],
+    cta: "Começar na Clínica",
+    href: "/register?plan=clinica",
+  },
+  {
+    name: "🚀 Dra. Conte Business",
+    price: "R$ 997",
+    period: "/mês",
+    description: "Gestão completa para centros médicos em expansão.",
     color: "border-[var(--color-rd-navy)]",
     highlight: true,
-    badge: "Mais Popular",
-    features: [
-      "5 Unidades Hospitalares",
-      "IA em todos os módulos",
-      "E-mails integrados (IMAP)",
-      "Google, Outlook, Apple",
-      "Drive Cofre: 5 GB",
-      "Auditoria completa",
-      "Relatórios ilimitados",
-      "Suporte prioritário",
-    ],
-    cta: "Assinar Max",
-    href: "/register?plan=max",
-  },
-  {
-    name: "Empresas",
-    price: "R$ 279,99",
-    period: "/mês",
-    description: "Rede de hospitais descentralizada.",
-    color: "border-zinc-200",
-    highlight: false,
-    badge: "2 a 10 usuários",
+    badge: "Completo",
     features: [
       "Usuários ilimitados",
-      "Drive Cofre: 20 GB",
-      "HubMedcore incluso",
-      "API dedicada",
-      "SLA 99.9%",
-      "Gerente de conta",
-      "Onboarding personalizado",
+      "Faturamento TISS (XML e Glosas)",
+      "Repasses médicos automatizados",
+      "Controle de estoque crítico & injetáveis",
+      "Dra. Conte Executive AI em tempo real",
+      "RH completo (Ponto, escalas e folha)",
+      "Gerente de conta exclusivo",
+    ],
+    cta: "Assinar Business",
+    href: "/register?plan=business",
+  },
+  {
+    name: "🩺 Dra. Conte Medical AI",
+    price: "R$ 697",
+    period: "/médico/mês",
+    description: "Para médicos, especialistas e consultórios particulares.",
+    color: "border-purple-500",
+    highlight: false,
+    badge: "Medical Scribe",
+    features: [
+      "AI Scribe: escuta de consulta ao vivo",
+      "Preenchimento automático padrão SOAP",
+      "Sugestão diagnóstica CID-10 e condutas",
+      "Telemedicina com sala virtual HD",
+      "Prescrição digital com assinatura ICP-Brasil",
+      "Acesso completo via smartphone (PWA)",
+    ],
+    cta: "Ativar Medical AI",
+    href: "/register?plan=medical",
+  },
+  {
+    name: "👑 Clínica Inteligente",
+    price: "R$ 1.497",
+    period: "/mês",
+    description: "Redes médicas, policlínicas e centros de diagnóstico.",
+    color: "border-emerald-500",
+    highlight: false,
+    badge: "Redes & Franquias",
+    features: [
+      "Multi-unidades e filiais centralizadas",
+      "Dra. Conte em todos os níveis e especialidades",
+      "Módulo RIS de Worklist e laudos padronizados",
+      "Totens faciais homologados (REP-P)",
+      "API aberta para integrações externas",
+      "SLA 99.9% com suporte 24/7 dedicado",
     ],
     cta: "Falar com Especialista",
     href: "mailto:sac@medcore.app.br",
@@ -236,21 +270,24 @@ export default function Home() {
 
       {/* ─── HERO ────────────────────────────────── */}
       <section className="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6 pt-32 pb-16 max-w-5xl mx-auto">
-        <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[var(--color-rd-cyan)] text-white text-xs font-bold uppercase tracking-wider mb-8 shadow-sm">
-          MÊS DO CLIENTE
+        <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[var(--color-rd-cyan)] text-zinc-950 text-xs font-bold uppercase tracking-wider mb-8 shadow-sm">
+          ECOSSISTEMA INTELIGENTE PARA CLÍNICAS
         </div>
 
         <h1 className="font-heading text-5xl md:text-7xl font-black tracking-tight leading-tight text-zinc-900 dark:text-white mb-6">
-          Contrate as soluções MedCore<br />
-          e ganhe o 1º mês grátis
+          A plataforma onde a <span className="text-[var(--color-rd-cyan)]">Dra. Conte</span><br />
+          trabalha junto com sua equipe.
         </h1>
-        <p className="max-w-2xl font-body text-zinc-600 dark:text-zinc-300 text-lg md:text-xl font-medium leading-relaxed mb-10">
-          Estruture clínica, vendas e atendimento agora. Seu hospital cresce mais rápido, sem perder o controle da operação.
+        <p className="max-w-3xl font-body text-zinc-600 dark:text-zinc-300 text-lg md:text-xl font-medium leading-relaxed mb-10">
+          Substitua sistemas rígidos por inteligência ativa. Gestão de agenda, prontuário com IA, controle financeiro e valorização de carreira para clínicas, consultórios e redes de saúde.
         </p>
 
-        <div className="flex flex-col items-center gap-6 mb-20">
+        <div className="flex flex-col sm:flex-row items-center gap-4 mb-20">
           <Link href="/register" className="px-10 py-5 bg-[var(--color-rd-lime)] text-white font-black text-lg rounded-xl shadow-[0_4px_14px_0_rgba(255,90,95,0.39)] hover:scale-105 transition-transform flex items-center justify-center gap-2">
-            Começar Gratuitamente <ArrowRight size={20} />
+            Iniciar Teste Grátis <ArrowRight size={20} />
+          </Link>
+          <Link href="#planos" className="px-8 py-5 rounded-xl border border-zinc-300 dark:border-white/20 font-bold text-base hover:bg-white/5 transition-all">
+            Conhecer Planos a partir de R$ 29,90
           </Link>
         </div>
 
@@ -412,12 +449,14 @@ export default function Home() {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="font-heading text-4xl md:text-5xl font-black text-zinc-900 dark:text-white mb-4">
-              Planos e Preços
+              Planos do Ecossistema Dra. Conte
             </h2>
-            <p className="text-zinc-600 dark:text-zinc-300 text-lg max-w-xl mx-auto font-body">Comece grátis. Escale quando precisar.</p>
+            <p className="text-zinc-600 dark:text-zinc-300 text-lg max-w-2xl mx-auto font-body">
+              Planos individuais acessíveis para secretárias e médicos particulares, além de soluções completas para clínicas e redes.
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {plans.map((plan, i) => (
               <div
                 key={i}

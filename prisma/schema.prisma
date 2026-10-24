@@ -183,6 +183,7 @@ model Meeting {
   paciente              Paciente?   @relation(fields: [pacienteId], references: [id])
   tokenPublico          String?     @unique
   isPublic              Boolean     @default(false)
+  notificacao24hEnviada Boolean     @default(false)
   notificacao2hEnviada  Boolean     @default(false)
   createdAt             DateTime    @default(now())
 

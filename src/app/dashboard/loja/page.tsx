@@ -49,136 +49,130 @@ interface ModuloLoja {
 
 const MODULOS: ModuloLoja[] = [
   {
-    id: "kit-totem",
-    name: "Kit Totem Facial Homologado (Portaria 671)",
-    category: "hardware",
-    badge: "HARDWARE • PLUG & PLAY",
-    badgeColor: "bg-rd-cyan/15 text-rd-cyan border-rd-cyan/30",
-    isPopular: true,
-    shortDesc: "Tablet Kiosk dedicado com suporte de parede anti-furto, biometria facial e blindagem contra fraudes.",
-    longDesc: "Elimine 100% de passivos trabalhistas. Entregue um totem pronto para a recepção da clínica: o colaborador aproxima o rosto, o sistema identifica e registra o ponto em 3 segundos.",
-    monthlyPrice: 119,
-    annualPrice: 1190,
-    features: [
-      "Tablet Samsung Corporativo 8.7\" com Android Kiosk pré-configurado",
-      "Suporte articulado de parede em aço carbono com chave anti-furto",
-      "Reconhecimento facial com máscara de dados LGPD (Portaria MTP 671/2021)",
-      "Dispensa acordo coletivo com sindicato (enquadrado como coletor REP-P)",
-      "Garantia estendida com troca expressa em caso de defeito",
-      "Opção de compra única à vista (R$ 2.490) ou locação mensal recorrente"
-    ],
-    roiQuote: "Um relógio de ponto físico tradicional custa mais de R$ 4.500 e quebra bobina todo mês. O Totem MedCore é mais moderno, econômico e 100% blindado juridicamente.",
-    targetHref: "/dashboard/ponto"
-  },
-
-  {
     id: "marketing-crm",
-    name: "Marketing & CRM Automático",
+    name: "Dra. Conte Marketing & WhatsApp 24/7",
     category: "marketing",
-    badge: "MAIS VENDIDO",
+    badge: "HABILIDADE MAIS ATIVADA",
     badgeColor: "bg-amber-500/15 text-amber-500 border-amber-500/30",
     isPopular: true,
-    shortDesc: "Disparos no WhatsApp 24/7, Motor de Up-sell de Estética, IA Copywriter e E-mails via Resend.",
-    longDesc: "Transforme pacientes inativos em faturamento recorrente. Configure jornadas de pós-consulta, aniversário, retorno de 180 dias e recuperação de no-show no piloto automático.",
+    shortDesc: "Disparos no WhatsApp 24/7, régua de pós-consulta, resgate de faltas e IA Copywriter médica.",
+    longDesc: "A Dra. Conte assume o relacionamento com seus pacientes: confirma consultas, resgata quem faltou, envia lembretes preventivos de 180 dias e sugere pacotes de estética no momento ideal.",
     monthlyPrice: 97,
     annualPrice: 990,
     features: [
-      "Disparos automáticos WhatsApp 24/7 (NPS pós-consulta, Aniversariantes, Retorno 180 dias, Resgate de Faltas)",
-      "Motor de Up-sell inteligente de Procedimentos & Pacotes Estéticos",
-      "Assistente de Copys com IA (MEDCore AI Copywriter) ilimitado",
-      "Até 5.000 e-mails/mês inclusos com infraestrutura de alta entregabilidade (Resend)",
-      "Segmentador inteligente de pacientes (por especialidade, última visita e ticket)",
-      "Conexão multi-canal (WhatsApp Web Direct gratuito ou Evolution API / QR Code)",
-      "Relatórios de conversão e faturamento recuperado em tempo real"
+      "Disparos automáticos WhatsApp 24/7 sem intervenção manual",
+      "Régua de pós-consulta e pesquisa de satisfação NPS automática",
+      "Resgate ativo de pacientes ausentes e faltosos (recuperação de receita)",
+      "Lembrete inteligente de retorno preventivo (180 dias)",
+      "Dra. Conte AI Copywriter para campanhas de saúde e estética",
+      "Conexão simplificada via QR Code ou WhatsApp Direct gratuito"
     ],
-    roiQuote: "Doutor(a), uma única consulta de R$ 350 ou pacote de estética de R$ 1.500 que o módulo trouxer de volta com as mensagens automáticas já paga a assinatura do ano inteiro do sistema!",
+    roiQuote: "Uma única consulta resgatada ou procedimento estético de R$ 350 recuperado pela Dra. Conte já paga o módulo do ano inteiro!",
     targetHref: "/dashboard/marketing",
     tierOptions: [
       {
-        name: "Marketing Start",
+        name: "Habilidade Start (Envio Assistido)",
         price: 49,
-        desc: "Ideal para clínicas que desejam iniciar com envio manual assistido.",
+        desc: "Ideal para secretárias que desejam templates prontos e envio ágil.",
         features: [
-          "Envio manual via WhatsApp Direct (wa.me) 100% gratuito",
-          "Biblioteca de templates médicos de alta conversão",
-          "Segmentador dinâmico de pacientes",
-          "1.000 e-mails/mês inclusos"
+          "Envio via WhatsApp Direct assistido pela Dra. Conte",
+          "Templates médicos de alta conversão",
+          "Segmentador básico de pacientes"
         ]
       },
       {
-        name: "Marketing PRO com IA e Automação (Recomendado)",
+        name: "Habilidade PRO Automação 24/7 (Recomendado)",
         price: 97,
-        desc: "Automação total 24/7 em segundo plano + IA Copywriter ilimitado.",
+        desc: "A Dra. Conte executa disparos 100% no piloto automático dia e noite.",
         features: [
-          "Disparos 100% automáticos em segundo plano 24/7",
-          "Motor de Up-sell e Resgate de Faltas",
-          "MEDCore AI Copywriter ilimitado",
-          "5.000 e-mails/mês inclusos via Resend",
-          "Conexão por QR Code / Evolution API"
+          "Automação 24/7 sem operador humano",
+          "Resgate ativo de no-show e pós-consulta",
+          "Dra. Conte AI Copywriter ilimitado",
+          "Conexão por QR Code contínua"
         ]
       }
     ]
   },
   {
-    id: "emissor-fiscal",
-    name: "Emissor Fiscal Automático (NFS-e & DMED)",
-    category: "fiscal",
-    badge: "COMPLIANCE TOTAL",
-    badgeColor: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
-    shortDesc: "Emissão de Notas Fiscais de Serviço (NFS-e) e Relatório DMED automático para a Receita Federal.",
-    longDesc: "Elimine o retrabalho na recepção e o risco de multas fiscais. As notas fiscais são geradas assim que o paciente faz o pagamento.",
-    monthlyPrice: 67,
-    annualPrice: 680,
-    features: [
-      "Emissão automática de NFS-e na baixa de pagamentos ou agendamentos",
-      "Relatório DMED consolidado em 1 clique para a declaração anual da Receita Federal",
-      "Envio automático de XML e PDF da nota fiscal direto no e-mail e WhatsApp do paciente",
-      "Compatível com mais de 1.500 prefeituras em todo o território nacional",
-      "Armazenamento em nuvem criptografada de todas as notas fiscais por 5 anos",
-      "Gestão de alíquotas de ISS, retenções e regras específicas da área médica"
-    ],
-    roiQuote: "Economize até 20 horas mensais da sua equipe financeira e proteja sua clínica médica de cair na malha fina da Receita Federal.",
-    targetHref: "/dashboard/notas-fiscais"
-  },
-  {
     id: "ai-scribe",
-    name: "AI Scribe - Transcrição de Consultas Ilimitada",
+    name: "Dra. Conte Medical AI (AI Scribe Clínico)",
     category: "ia",
-    badge: "NOVO • IA AVANÇADA",
+    badge: "EXCLUSIVO PARA MÉDICOS",
     badgeColor: "bg-purple-500/15 text-purple-400 border-purple-500/30",
-    shortDesc: "Gravação, escuta médica e estruturação automática de prontuário no padrão SOAP em segundos.",
-    longDesc: "O médico foca 100% no paciente enquanto a IA ouve o diálogo, resume a queixa e preenche a anamnese, hipóteses diagnósticas e conduta.",
+    isPopular: true,
+    shortDesc: "Escuta médica da consulta e preenchimento automático do prontuário no padrão SOAP.",
+    longDesc: "Devolva o olho no olho com o paciente. A Dra. Conte ouve o atendimento com consentimento, extrai a anamnese, hipóteses diagnósticas e conduta e preenche o prontuário em segundos.",
     monthlyPrice: 147,
     annualPrice: 1490,
     features: [
-      "Gravação e transcrição ao vivo da consulta médica com precisão de terminologia clínica",
-      "Estruturação instantânea no padrão SOAP (Subjetivo, Objetivo, Avaliação, Plano)",
-      "Detecção automática de sintomas, sinais de alerta e sugestão de códigos CID-10",
-      "Integração direta com o Prontuário Eletrônico do Paciente no MEDCore",
-      "Economia comprovada de 1,5 a 2 horas diárias de digitação para cada médico",
-      "Em conformidade estrita com a LGPD e sigilo médico"
+      "Escuta médica inteligente e precisa em terminologias clínicas",
+      "Estruturação automática instantânea no formato SOAP",
+      "Sugestão inteligente de hipóteses e códigos CID-10",
+      "Integração direta com o Prontuário Eletrônico do MedCore",
+      "Economia comprovada de até 2 horas de digitação por dia de consultório",
+      "Conformidade rigorosa com normas CFM e LGPD"
     ],
-    roiQuote: "Devolva o contato visual aos seus atendimentos: médicos atendem com mais qualidade e saem no horário sem pilhas de prontuários pendentes.",
-    targetHref: "/dashboard/pacientes"
+    roiQuote: "Médicos terminam seus atendimentos sem pilhas de prontuários pendentes e com mais tempo de qualidade para cada paciente.",
+    targetHref: "/dashboard/prontuario"
+  },
+  {
+    id: "emissor-fiscal",
+    name: "Dra. Conte Fiscal & DMED Automático",
+    category: "fiscal",
+    badge: "BLINDAGEM TRIBUTÁRIA",
+    badgeColor: "bg-emerald-500/15 text-emerald-500 border-emerald-500/30",
+    shortDesc: "Emissão de NFS-e na baixa de pagamento e relatório DMED automático para a Receita.",
+    longDesc: "Elimine o estresse fiscal no fechamento do mês. As notas fiscais são geradas assim que o paciente paga, com envio imediato de PDF e XML no WhatsApp.",
+    monthlyPrice: 67,
+    annualPrice: 680,
+    features: [
+      "Emissão automática de NFS-e na baixa de consultas ou procedimentos",
+      "Envio direto do PDF e XML no WhatsApp e e-mail do paciente",
+      "Relatório DMED da Receita Federal pronto em 1 clique",
+      "Compatível com mais de 1.500 cidades e municípios brasileiros",
+      "Armazenamento seguro em nuvem por 5 anos com garantia fiscal"
+    ],
+    roiQuote: "Economize até 20 horas mensais da recepção e proteja a clínica médica de cair na malha fina da Receita Federal.",
+    targetHref: "/dashboard/notas-fiscais"
+  },
+  {
+    id: "kit-totem",
+    name: "Dra. Conte Ponto & Totem Facial (Portaria 671)",
+    category: "hardware",
+    badge: "HARDWARE HOMOLOGADO",
+    badgeColor: "bg-rd-cyan/15 text-rd-cyan border-rd-cyan/30",
+    shortDesc: "Tablet Totem Kiosk com reconhecimento facial anti-fraude e integração imediata com folha.",
+    longDesc: "Kit plug & play homologado pelo Ministério do Trabalho (Portaria MTP 671). O colaborador aproxima o rosto na entrada da clínica e o ponto é computado com segurança jurídica total.",
+    monthlyPrice: 119,
+    annualPrice: 1190,
+    features: [
+      "Tablet Samsung Corporativo 8.7\" com app de Ponto Kiosk bloqueado",
+      "Suporte articulado de parede em aço com chave anti-furto",
+      "Biometria facial com máscara anti-fraude em conformidade LGPD",
+      "Classificação REP-P: dispensa autorização prévia de sindicato",
+      "Garantia com substituição expressa e suporte técnico prioritário"
+    ],
+    roiQuote: "Blindagem definitiva contra passivos trabalhistas com custo muito inferior a um relógio de ponto tradicional com bobina.",
+    targetHref: "/dashboard/ponto"
   },
   {
     id: "painel-tv",
-    name: "Painel TV de Senhas com Voz Neural",
+    name: "Dra. Conte Painel TV (Chamada Humanizada)",
     category: "recepcao",
     badge: "SALA DE ESPERA",
     badgeColor: "bg-sky-500/15 text-sky-400 border-sky-500/30",
-    shortDesc: "Chamada de senhas por voz neural em português e sala de espera interativa na Smart TV.",
-    longDesc: "Modernize a recepção da sua clínica. Exiba vídeos educativos, previsão do tempo, avisos institucionais e chame os pacientes com voz humanizada.",
+    shortDesc: "Display inteligente e chamada de pacientes por voz neural nos consultórios.",
+    longDesc: "Modernize a recepção da clínica exibindo vídeos institucionais, orientações de saúde e chamadas por voz neural personalizadas na Smart TV.",
     monthlyPrice: 47,
     annualPrice: 470,
     features: [
-      "Chamada de senhas com voz sintética neural em português (nome do paciente e consultório)",
-      "Exibição personalizada com o logo, cores e tipografia da sua clínica",
-      "Carrossel multimídia: vídeos institucionais, notícias do dia e previsão do tempo",
-      "Compatível com qualquer TV (Samsung Tizen, LG WebOS, Android TV, Fire TV Stick)",
-      "Controle de chamadas direto da tela do médico ou recepcionista em 1 clique"
+      "Chamada de pacientes com voz sintetizada em português",
+      "Personalização total com logotipo e cores da sua clínica",
+      "Exibição simultânea de vídeos de procedimentos e notícias",
+      "Compatível com Smart TVs Samsung, LG, Android TV e Fire Stick",
+      "Acionamento direto pelo médico ou recepção em 1 clique"
     ],
-    roiQuote: "Uma experiência de clínica de alto padrão: acabe com aglomerações e gritos na recepção logo na primeira semana de uso.",
+    roiQuote: "Acabe com aglomerações e gritos de nomes na recepção, transmitindo sofisticação imediata aos pacientes.",
     targetHref: "/dashboard/painel-tv"
   }
 ];
@@ -193,11 +187,18 @@ export default function LojaModulosPage() {
 
   // Modal de Checkout / Ativação
   const [checkoutModule, setCheckoutModule] = useState<ModuloLoja | null>(null);
-  const [checkoutPaymentMethod, setCheckoutPaymentMethod] = useState<"card" | "pix">("card");
-  const [isActivating, setIsActivating] = useState(false);
-  const [activeModules, setActiveModules] = useState<string[]>(["marketing-crm"]);
+  // Todos os módulos e skills adicionais liberados e ativos por padrão para teste total
+  const ALL_MODULE_IDS = ["marketing-crm", "ai-scribe", "emissor-fiscal", "kit-totem", "painel-tv"];
+  const [activeModules, setActiveModules] = useState<string[]>(ALL_MODULE_IDS);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [pixCopied, setPixCopied] = useState(false);
+
+  // Sincronizar com localStorage para garantir persistência contínua
+  React.useEffect(() => {
+    try {
+      localStorage.setItem("medcore_active_store_modules", JSON.stringify(ALL_MODULE_IDS));
+    } catch (e) {}
+  }, []);
 
   // FAQ Expanders
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -257,16 +258,16 @@ export default function LojaModulosPage() {
         <div className="relative z-10 max-w-3xl space-y-5">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-rd-cyan/40 bg-rd-cyan/10 text-rd-cyan text-xs md:text-sm font-bold uppercase tracking-wider shadow-sm">
             <Sparkles size={16} className="animate-spin-slow" />
-            Loja Oficial de Módulos & Add-ons Extras
+            Habilidades Oficiais da Dra. Conte (Skills de IA & Operação)
           </div>
 
           <h1 className="text-3xl md:text-5xl font-heading font-extrabold text-on-surface tracking-tight leading-tight">
-            Turbine sua clínica com recursos que se <span className="text-rd-cyan underline decoration-rd-cyan/40 decoration-wavy underline-offset-4">pagam sozinhos</span>
+            Acople superpoderes à sua clínica com as <span className="text-rd-cyan underline decoration-rd-cyan/40 decoration-wavy underline-offset-4">Habilidades da Dra. Conte</span>
           </h1>
 
           <p className="text-base md:text-lg text-on-surface-variant font-medium leading-relaxed">
-            Ative módulos adicionais independentes para automatizar seu WhatsApp, garantir conformidade fiscal, 
-            economizar horas com IA e encantar pacientes na recepção. Sem fidelidade e com ativação instantânea.
+            Habilite inteligências e recursos especializados prontos para sua equipe médica e administrativa: 
+            automação WhatsApp 24/7, prontuário por escuta médica SOAP, emissão fiscal com DMED e totem facial homologado.
           </p>
 
           <div className="flex flex-wrap gap-3 pt-2">

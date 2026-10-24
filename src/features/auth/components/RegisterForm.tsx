@@ -35,25 +35,39 @@ export function RegisterForm() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isStrong) {
-      setError("A senha precisa ser forte (8+ caracteres, maiúscula, número e símbolo).");
+    if (password.length < 6) {
+      setError("A senha deve ter pelo menos 6 caracteres.");
       return;
     }
     if (!passwordsMatch) {
-      setError("As senhas não coincidem.");
+      setError("As senhas digitadas não coincidem.");
       return;
     }
     setLoading(true);
     setError(null);
 
     try {
-      // Basic placeholder for registration logic
-      // await authService.signUp(name, email, password);
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1500);
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: name,
+          email,
+          password
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Falha ao realizar cadastro.");
+      }
+
+      // Redireciona para o dashboard
+      router.push("/dashboard");
+      router.refresh();
     } catch (err: any) {
-      setError(err.message || "Falha no cadastro.");
+      setError(err.message || "Falha no cadastro. Verifique os dados e tente novamente.");
       setLoading(false);
     }
   };
@@ -156,15 +170,15 @@ export function RegisterForm() {
 
           <button
             type="submit"
-            disabled={loading || !isStrong || !passwordsMatch}
+            disabled={loading || password.length < 6 || !passwordsMatch || !name || !email}
             className={cn(
-              "w-full mt-2 bg-[var(--color-rd-lime)] hover:bg-[#eb5257] h-12 rounded-xl font-heading font-semibold text-[15px] text-white flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50 group/btn shadow-sm"
+              "w-full mt-2 bg-rd-cyan hover:bg-rd-cyan/90 h-12 rounded-xl font-heading font-semibold text-[15px] text-zinc-950 flex items-center justify-center gap-2 active:scale-[0.98] transition-all disabled:opacity-50 group/btn shadow-md shadow-rd-cyan/20 cursor-pointer"
             )}
           >
             {loading ? (
-              <Loader2 size={18} className="animate-spin" />
+              <Loader2 size={18} className="animate-spin text-zinc-950" />
             ) : (
-              <>Cadastrar <ArrowRight className="group-hover/btn:translate-x-1 transition-transform" size={16} /></>
+              <>Criar Conta <ArrowRight className="group-hover/btn:translate-x-1 transition-transform" size={16} /></>
             )}
           </button>
         </form>
