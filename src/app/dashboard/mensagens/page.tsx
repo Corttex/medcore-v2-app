@@ -55,6 +55,41 @@ export default function InboxPage() {
   const [showConnectorsModal, setShowConnectorsModal] = useState(false);
   const [showNewLeadModal, setShowNewLeadModal] = useState(false);
 
+  // Evolution API WhatsApp Live State
+  const [waLoading, setWaLoading] = useState(false);
+  const [waStatus, setWaStatus] = useState<"connected" | "qrcode" | "disconnected">("qrcode");
+  const [waQrCode, setWaQrCode] = useState<string | null>(null);
+  const [waPairingCode, setWaPairingCode] = useState<string | null>(null);
+
+  const fetchWaStatus = async () => {
+    try {
+      setWaLoading(true);
+      const res = await fetch("/api/whatsapp/connect");
+      if (res.ok) {
+        const data = await res.json();
+        setWaStatus(data.status || "qrcode");
+        if (data.base64) {
+          setWaQrCode(data.base64);
+        }
+        if (data.pairingCode) {
+          setWaPairingCode(data.pairingCode);
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao buscar QR da Evolution API:", e);
+    } finally {
+      setWaLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (showConnectorsModal) {
+      fetchWaStatus();
+      const interval = setInterval(fetchWaStatus, 6000);
+      return () => clearInterval(interval);
+    }
+  }, [showConnectorsModal]);
+
   // Formulário Novo Lead Completo
   const [newLead, setNewLead] = useState({
     nome: "",
@@ -550,59 +585,80 @@ export default function InboxPage() {
             {/* Box Principal de Conexão com QR Code e Explicação Técnica */}
             <div className="p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-800/40 border border-zinc-200 dark:border-zinc-700/70 space-y-4">
               
-              {/* Alerta Informativo sobre Escaneamento */}
-              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                <div className="text-xs space-y-1">
-                  <strong className="text-amber-400 font-bold block">Aviso sobre o Leitor de QR do WhatsApp:</strong>
-                  <p className="text-zinc-300 leading-relaxed">
-                    O scanner de "Aparelhos Conectados" do app do WhatsApp exige que o QR Code venha de uma sessão ativa do <strong>WhatsApp Web oficial</strong> ou de uma <strong>instância de API (Z-API / Evolution / Baileys)</strong> em execução.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center gap-6 pt-2">
-                <div className="p-3 bg-white rounded-2xl shadow-md border border-zinc-200 shrink-0 flex flex-col items-center">
-                  <img
-                    src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=4&data=https%3A%2F%2Fweb.whatsapp.com"
-                    alt="QR Code WhatsApp MedCore"
-                    className="w-36 h-36 rounded-lg"
-                  />
-                  <span className="text-[10px] text-zinc-500 font-mono mt-2 font-bold uppercase tracking-wider">
-                    Portal: web.whatsapp.com
-                  </span>
-                </div>
-
-                <div className="space-y-3 flex-1 text-center sm:text-left">
-                  <div className="space-y-1">
-                    <h4 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center justify-center sm:justify-start gap-1.5">
-                      <Wifi size={15} className="text-emerald-500" /> Como Conectar seu WhatsApp:
-                    </h4>
-                    <ol className="text-xs text-zinc-400 space-y-1 text-left list-decimal list-inside">
-                      <li>Abra o <strong>WhatsApp</strong> no celular &gt; <strong>Aparelhos conectados</strong>.</li>
-                      <li>Para conexão direta da recepção, abra o <strong>WhatsApp Web</strong> no navegador da clínica.</li>
-                      <li>Para automações de IA 24/7 em background, ative sua instância no <strong>Z-API</strong> ou <strong>Evolution API</strong>.</li>
-                    </ol>
+              {waStatus === "connected" ? (
+                <div className="p-5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold shrink-0">
+                    <CheckCircle2 size={28} />
                   </div>
-
-                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-1">
-                    <a
-                      href="https://web.whatsapp.com"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all"
-                    >
-                      <ExternalLink size={14} /> Abrir WhatsApp Web Oficial
-                    </a>
-                    <button
-                      onClick={() => alert("ℹ️ As credenciais da Z-API configuradas no .env (ZAPI_INSTANCE_ID) podem ser ativadas no painel da sua conta Z-API para geração de QR Code da API.")}
-                      className="px-3.5 py-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-all"
-                    >
-                      Verificar Instância Z-API
-                    </button>
+                  <div>
+                    <h4 className="text-sm font-bold text-emerald-400">WhatsApp Sincronizado e Conectado!</h4>
+                    <p className="text-xs text-zinc-300">Sua instância Evolution API está online e respondendo pelo número conectado. Todas as habilidades autônomas estão operando 24/7.</p>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/30 flex items-start gap-3">
+                  <Sparkles className="h-5 w-5 text-blue-400 shrink-0 mt-0.5" />
+                  <div className="text-xs space-y-1">
+                    <strong className="text-blue-400 font-bold block">QR Code Oficial Gerado pela Evolution API:</strong>
+                    <p className="text-zinc-300 leading-relaxed">
+                      Este QR Code foi gerado diretamente pela instância <strong>medcore</strong> na sua VPS. Aponte a câmera do WhatsApp para sincronizar o sistema instantaneamente.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {waStatus !== "connected" && (
+                <div className="flex flex-col sm:flex-row items-center gap-6 pt-2">
+                  <div className="p-3 bg-white rounded-2xl shadow-md border border-zinc-200 shrink-0 flex flex-col items-center min-w-[160px] min-h-[160px] justify-center">
+                    {waQrCode ? (
+                      <img
+                        src={waQrCode}
+                        alt="QR Code WhatsApp MedCore"
+                        className="w-40 h-40 rounded-lg object-contain"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center p-6 space-y-2">
+                        <RefreshCw className="animate-spin text-zinc-400" size={24} />
+                        <span className="text-[11px] text-zinc-500 font-medium">Carregando QR...</span>
+                      </div>
+                    )}
+                    <span className="text-[10px] text-zinc-500 font-mono mt-2 font-bold uppercase tracking-wider">
+                      Instância: medcore (Live)
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 flex-1 text-center sm:text-left">
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center justify-center sm:justify-start gap-1.5">
+                        <Wifi size={15} className="text-emerald-500" /> Como Conectar seu WhatsApp:
+                      </h4>
+                      <ol className="text-xs text-zinc-400 space-y-1.5 text-left list-decimal list-inside">
+                        <li>Abra o <strong>WhatsApp</strong> no seu celular.</li>
+                        <li>Toque em <strong>Configurações (ou 3 pontinhos) &gt; Aparelhos conectados</strong>.</li>
+                        <li>Toque em <strong>Conectar um aparelho</strong> e aponte a câmera para o QR Code ao lado.</li>
+                      </ol>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 pt-2">
+                      <button
+                        onClick={fetchWaStatus}
+                        disabled={waLoading}
+                        className="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all disabled:opacity-50"
+                      >
+                        <RefreshCw size={14} className={waLoading ? "animate-spin" : ""} /> {waLoading ? "Atualizando..." : "Recarregar QR Code"}
+                      </button>
+                      <a
+                        href="https://wa.gestaocomercial360.com.br/manager"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3.5 py-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 text-xs font-bold hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-all flex items-center gap-1.5"
+                      >
+                        <ExternalLink size={13} /> Gerenciador Evolution
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Painel de Skills da Dra. Conte no WhatsApp (Nível Máximo) */}

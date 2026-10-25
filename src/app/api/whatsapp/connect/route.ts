@@ -1,88 +1,113 @@
 import { NextResponse } from "next/server";
 
-// Simulação de Instância em Memória / Configuração do Gateway WhatsApp
-let instanceState = {
-  status: "connected", // "connected" | "qrcode" | "disconnected"
-  instanceName: "MedCore-Clinica-Alpha",
-  phone: "5511998765432",
-  profileName: "Atendimento MedCore Integrado",
-  battery: "94%",
-  webhookUrl: "https://medcore.com.br/api/webhooks/twilio",
-  pairingCode: "MEDC-9821",
-  qrCodeUrl: "https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=MEDCORE_WHATSAPP_SESSION_ACTIVE_TOKEN_AUTH_V2_PROD",
-  connectedAt: new Date(Date.now() - 3600000 * 4).toISOString(),
-  messagesSentToday: 142,
-  messagesReceivedToday: 89,
-  skillsActive: {
-    draConteCopilot: true,
-    agendamentoAutomatico: true,
-    confirmacaoConsultas: true,
-    resgateFaltosos: true,
-    npsPosConsulta: true,
-    auditoriaPreviaTiss: true
-  }
-};
+const EVOLUTION_URL = process.env.EVOLUTION_API_URL || "https://wa.gestaocomercial360.com.br";
+const EVOLUTION_KEY = process.env.EVOLUTION_API_KEY || "medcore_secret_key_2026";
+const INSTANCE_NAME = process.env.EVOLUTION_INSTANCE_NAME || "medcore";
 
 export async function GET() {
-  return NextResponse.json({
-    success: true,
-    instance: instanceState
-  });
+  try {
+    // 1. Verificar estado da conexão na Evolution API
+    const stateRes = await fetch(`${EVOLUTION_URL}/instance/connectionState/${INSTANCE_NAME}`, {
+      method: "GET",
+      headers: {
+        "apikey": EVOLUTION_KEY
+      },
+      cache: "no-store"
+    });
+
+    let connectionState = "disconnected";
+    let stateData = null;
+
+    if (stateRes.ok) {
+      stateData = await stateRes.json();
+      connectionState = stateData?.instance?.state || "disconnected";
+    }
+
+    // Se já estiver conectado
+    if (connectionState === "open") {
+      return NextResponse.json({
+        success: true,
+        status: "connected",
+        instanceName: INSTANCE_NAME,
+        phone: stateData?.instance?.ownerJid?.replace(/\D/g, "") || "5511998765432",
+        profileName: "Atendimento MedCore Integrado",
+        connectedAt: new Date().toISOString(),
+        skillsActive: 6
+      });
+    }
+
+    // 2. Se não estiver conectado, obter QR Code ativo
+    const connectRes = await fetch(`${EVOLUTION_URL}/instance/connect/${INSTANCE_NAME}`, {
+      method: "GET",
+      headers: {
+        "apikey": EVOLUTION_KEY
+      },
+      cache: "no-store"
+    });
+
+    if (connectRes.ok) {
+      const connectData = await connectRes.json();
+      return NextResponse.json({
+        success: true,
+        status: "qrcode",
+        instanceName: INSTANCE_NAME,
+        base64: connectData.base64 || null,
+        code: connectData.code || null,
+        pairingCode: connectData.pairingCode || null,
+        count: connectData.count || 1
+      });
+    }
+
+    // Caso a instância precise ser criada
+    return NextResponse.json({
+      success: true,
+      status: "disconnected",
+      instanceName: INSTANCE_NAME,
+      message: "Instância aguardando inicialização."
+    });
+
+  } catch (error: any) {
+    console.error("Erro na integração Evolution API:", error);
+    return NextResponse.json({
+      success: false,
+      error: error.message,
+      status: "disconnected"
+    }, { status: 500 });
+  }
 }
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { action, phone } = body;
+    const { action } = body;
 
-    if (action === "disconnect") {
-      instanceState.status = "disconnected";
-      return NextResponse.json({
-        success: true,
-        message: "Sessão do WhatsApp desconectada com sucesso.",
-        instance: instanceState
+    if (action === "create" || action === "restart") {
+      const createRes = await fetch(`${EVOLUTION_URL}/instance/create`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": EVOLUTION_KEY
+        },
+        body: JSON.stringify({
+          instanceName: INSTANCE_NAME,
+          qrcode: true,
+          integration: "WHATSAPP-BAILEYS"
+        })
       });
+      const data = await createRes.json();
+      return NextResponse.json({ success: true, data });
     }
 
-    if (action === "generate_qrcode") {
-      const timestamp = Date.now();
-      instanceState.status = "qrcode";
-      instanceState.qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=260x260&margin=10&data=MEDCORE_SESSION_${timestamp}`;
-      instanceState.pairingCode = `MEDC-${Math.floor(1000 + Math.random() * 9000)}`;
-      return NextResponse.json({
-        success: true,
-        message: "Novo QR Code gerado. Aponte a câmera do WhatsApp para conectar.",
-        instance: instanceState
+    if (action === "disconnect" || action === "logout") {
+      await fetch(`${EVOLUTION_URL}/instance/logout/${INSTANCE_NAME}`, {
+        method: "DELETE",
+        headers: { "apikey": EVOLUTION_KEY }
       });
+      return NextResponse.json({ success: true, message: "Desconectado com sucesso." });
     }
 
-    if (action === "connect" || action === "simulate_scan") {
-      instanceState.status = "connected";
-      if (phone) {
-        instanceState.phone = phone.replace(/\D/g, "");
-      }
-      instanceState.connectedAt = new Date().toISOString();
-      return NextResponse.json({
-        success: true,
-        message: "WhatsApp sincronizado com sucesso! Todas as Skills da Dra. Conte estão operacionais.",
-        instance: instanceState
-      });
-    }
-
-    if (action === "toggle_skill") {
-      const { skillName, enabled } = body;
-      if (skillName && instanceState.skillsActive.hasOwnProperty(skillName)) {
-        (instanceState.skillsActive as any)[skillName] = !!enabled;
-      }
-      return NextResponse.json({
-        success: true,
-        message: `Habilidade ${skillName} atualizada.`,
-        instance: instanceState
-      });
-    }
-
-    return NextResponse.json({ success: true, instance: instanceState });
+    return NextResponse.json({ success: true });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
