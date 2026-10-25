@@ -54,8 +54,14 @@ export default function AdminPage() {
           </p>
         </div>
         
-        <div className="flex items-center gap-6 bg-surface-container-low p-4 rounded-3xl border border-outline-variant/30">
-          <div className="text-right">
+        <div className="flex flex-wrap items-center gap-4 bg-surface-container-low p-4 rounded-3xl border border-outline-variant/30">
+          <a
+            href="/dashboard/admin/prospeccao"
+            className="px-5 py-2.5 bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-400 hover:to-orange-500 text-white text-xs font-bold rounded-2xl flex items-center gap-2 shadow-lg shadow-orange-500/20 active:scale-95 transition-all"
+          >
+            <Sparkles size={15} /> Abrir Radar de Prospecção (Leads)
+          </a>
+          <div className="text-right border-l border-zinc-200 dark:border-zinc-800 pl-4">
             <p className="text-sm font-semibold text-zinc-500 uppercase tracking-widest leading-none mb-1">Status Global</p>
             <p className="text-sm font-semibold text-emerald-500 flex items-center gap-2 justify-end uppercase tracking-tighter">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span> Sistema Saudável
