@@ -345,6 +345,8 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
 
 function isRouteAllowedForRole(role: string | undefined, href: string): boolean {
   if (!role) return true; // Se o perfil ainda não estiver carregado na sessão, mantém visível
+  const allowed = (ROLE_PERMISSIONS as Record<string, string[]>)[role];
+  if (!allowed) return true; // Papel não restrito tem acesso padrão
   if (allowed.includes("*")) return true; // Acesso total
   return allowed.includes(href);
 }
