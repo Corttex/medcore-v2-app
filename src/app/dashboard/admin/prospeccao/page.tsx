@@ -30,6 +30,8 @@ interface DossieComercial {
   clinica: string;
   perdaEstimadaMensal: string;
   diagnosticoGeral: string;
+  analiseReclamacoesGoogle?: string[];
+  argumentoCurativoVendas?: string;
   planoPrincipal: {
     nome: string;
     valorMensal: string;
@@ -452,6 +454,35 @@ export default function ProspeccaoAdminPage() {
                     <span className="text-[10px] font-bold uppercase tracking-wider">Gargalo de Recepção</span>
                   </div>
                 </div>
+
+                {/* Mineração de Reclamações do Google & Argumento Curativo */}
+                {dossie.analiseReclamacoesGoogle && (
+                  <div className="p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                        <Star size={14} className="text-amber-400 fill-amber-400" /> Reclamações Recorrentes Auditadas no Google Meu Negócio
+                      </span>
+                      <span className="text-[10px] text-amber-300 font-bold bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-500/30">
+                        Oportunidade de Conversão
+                      </span>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      {dossie.analiseReclamacoesGoogle.map((rec, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs text-zinc-300">
+                          <span className="text-red-400 font-bold">⚠️</span>
+                          <span>{rec}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {dossie.argumentoCurativoVendas && (
+                      <div className="mt-2 p-3 bg-zinc-950/50 rounded-xl border border-amber-500/30 text-xs text-amber-200 leading-relaxed font-medium">
+                        💡 <strong>Arma de Venda no Porta a Porta:</strong> {dossie.argumentoCurativoVendas}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Estratégia de Fechamento de Alto Valor */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

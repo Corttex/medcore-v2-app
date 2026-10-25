@@ -61,6 +61,98 @@ export default function InboxPage() {
   const [waQrCode, setWaQrCode] = useState<string | null>(null);
   const [waPairingCode, setWaPairingCode] = useState<string | null>(null);
 
+  // Mensagens Vivas do WhatsApp (Evolution API)
+  const [inboxTab, setInboxTab] = useState<"whatsapp_live" | "pacientes">("whatsapp_live");
+  const [liveChats, setLiveChats] = useState<any[]>([]);
+  const [loadingChats, setLoadingChats] = useState(false);
+  const [selectedChat, setSelectedChat] = useState<any | null>(null);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [newReplyMessage, setNewReplyMessage] = useState("");
+  const [sendingReply, setSendingReply] = useState(false);
+
+  const fetchLiveChats = async () => {
+    try {
+      setLoadingChats(true);
+      const res = await fetch("/api/whatsapp/chats");
+      if (res.ok) {
+        const data = await res.json();
+        setLiveChats(data.chats || []);
+        if (data.chats && data.chats.length > 0 && !selectedChat) {
+          setSelectedChat(data.chats[0]);
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao buscar chats do WhatsApp:", e);
+    } finally {
+      setLoadingChats(false);
+    }
+  };
+
+  const fetchChatMessages = async (remoteJid: string) => {
+    try {
+      setLoadingMessages(true);
+      const res = await fetch(`/api/whatsapp/chats?remoteJid=${encodeURIComponent(remoteJid)}`);
+      if (res.ok) {
+        const data = await res.json();
+        setChatMessages(data.messages || []);
+      }
+    } catch (e) {
+      console.error("Erro ao buscar mensagens do chat:", e);
+    } finally {
+      setLoadingMessages(false);
+    }
+  };
+
+  useEffect(() => {
+    if (inboxTab === "whatsapp_live") {
+      fetchLiveChats();
+      const interval = setInterval(fetchLiveChats, 8000);
+      return () => clearInterval(interval);
+    }
+  }, [inboxTab]);
+
+  useEffect(() => {
+    if (selectedChat?.remoteJid) {
+      fetchChatMessages(selectedChat.remoteJid);
+      const interval = setInterval(() => fetchChatMessages(selectedChat.remoteJid), 4000);
+      return () => clearInterval(interval);
+    }
+  }, [selectedChat]);
+
+  const handleSendReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newReplyMessage.trim() || !selectedChat) return;
+    setSendingReply(true);
+    try {
+      const res = await fetch("/api/whatsapp/send", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          telefone: selectedChat.phone || selectedChat.remoteJid.replace(/@.*$/, ""),
+          mensagem: newReplyMessage
+        })
+      });
+      if (res.ok) {
+        setChatMessages(prev => [
+          ...prev,
+          {
+            id: `temp-${Date.now()}`,
+            fromMe: true,
+            sender: "Clínica",
+            text: newReplyMessage,
+            timestamp: new Date().toISOString()
+          }
+        ]);
+        setNewReplyMessage("");
+      }
+    } catch (e) {
+      console.error("Erro ao enviar mensagem no chat:", e);
+    } finally {
+      setSendingReply(false);
+    }
+  };
+
   const fetchWaStatus = async () => {
     try {
       setWaLoading(true);
@@ -266,6 +358,34 @@ export default function InboxPage() {
           mobileTab === "detail" ? "hidden md:flex" : "flex"
         )}>
           <div className="p-4 border-b border-zinc-100 dark:border-zinc-800 space-y-3">
+            {/* Seletor de Modo: WhatsApp Live vs Pacientes */}
+            <div className="flex p-1 bg-zinc-100 dark:bg-zinc-800 rounded-xl gap-1">
+              <button
+                type="button"
+                onClick={() => setInboxTab("whatsapp_live")}
+                className={cn(
+                  "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5",
+                  inboxTab === "whatsapp_live"
+                    ? "bg-emerald-600 text-white shadow-sm"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                )}
+              >
+                <MessageSquare size={13} /> WhatsApp Live ({liveChats.length})
+              </button>
+              <button
+                type="button"
+                onClick={() => setInboxTab("pacientes")}
+                className={cn(
+                  "flex-1 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-1.5",
+                  inboxTab === "pacientes"
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                )}
+              >
+                <Users size={13} /> Pacientes ({pacientes.length})
+              </button>
+            </div>
+
             <div className="relative">
               <Search size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400" />
               <input 
@@ -315,75 +435,229 @@ export default function InboxPage() {
             </div>
           </div>
 
-          {/* Lista de Leads com Hover de Alto Contraste */}
+          {/* Lista de Leads ou Chats do WhatsApp */}
           <div className="flex-1 overflow-y-auto p-2.5 space-y-1.5 custom-blue-scrollbar">
-            {loading ? (
-              <p className="text-center text-zinc-500 py-10 text-xs">Carregando contatos...</p>
-            ) : filteredPacientes.length === 0 ? (
-              <div className="text-center text-zinc-500 py-10 space-y-2">
-                <AlertCircle size={28} className="mx-auto text-zinc-400" />
-                <p className="text-xs">Nenhum contato encontrado.</p>
-              </div>
-            ) : (
-              filteredPacientes.map(paciente => {
-                const isSelected = selectedId === paciente.id;
-                return (
-                  <button 
-                    key={paciente.id}
-                    onClick={() => {
-                      setSelectedId(paciente.id);
-                      setMobileTab("detail");
-                    }}
-                    className={cn(
-                      "w-full text-left p-3.5 rounded-xl transition-all border group cursor-pointer",
-                      isSelected 
-                        ? "bg-blue-50 dark:bg-blue-950/40 border-blue-500 dark:border-blue-500 shadow-sm" 
-                        : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800/80 hover:bg-blue-50/70 hover:border-blue-300 dark:hover:bg-zinc-800/70 dark:hover:border-zinc-700"
-                    )}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className={cn(
-                        "font-bold text-sm truncate leading-tight", 
-                        isSelected ? "text-blue-700 dark:text-blue-300" : "text-zinc-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400"
-                      )}>
-                        {paciente.nome}
-                      </h3>
-                      {paciente.leadSource === 'whatsapp' ? (
-                        <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1 border border-emerald-200 dark:border-emerald-800 shrink-0">
-                          <MessageCircle size={10} /> WhatsApp
-                        </span>
-                      ) : (
-                        <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-blue-200 dark:border-blue-800 shrink-0">
-                          Direct
-                        </span>
+            {inboxTab === "whatsapp_live" ? (
+              loadingChats ? (
+                <div className="p-8 text-center space-y-2">
+                  <RefreshCw className="animate-spin mx-auto text-emerald-500" size={24} />
+                  <p className="text-xs text-zinc-500">Sincronizando conversas do WhatsApp...</p>
+                </div>
+              ) : liveChats.length === 0 ? (
+                <div className="text-center text-zinc-500 py-10 space-y-2">
+                  <MessageSquare size={28} className="mx-auto text-zinc-400" />
+                  <p className="text-xs">Nenhuma conversa encontrada na instância.</p>
+                  <p className="text-[11px] text-zinc-400">Envie uma mensagem pelo WhatsApp para ela aparecer aqui em tempo real.</p>
+                </div>
+              ) : (
+                liveChats.map(chat => {
+                  const isSelected = selectedChat?.remoteJid === chat.remoteJid;
+                  return (
+                    <button
+                      key={chat.remoteJid}
+                      onClick={() => {
+                        setSelectedChat(chat);
+                        setMobileTab("detail");
+                      }}
+                      className={cn(
+                        "w-full text-left p-3.5 rounded-xl transition-all border group cursor-pointer flex items-center gap-3",
+                        isSelected
+                          ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-500 shadow-sm"
+                          : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800/80 hover:bg-emerald-50/50 hover:border-emerald-300 dark:hover:bg-zinc-800/70"
                       )}
-                    </div>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                      {paciente.telefone || paciente.email || 'Sem contato registrado'}
-                    </p>
-                    {paciente.convenio?.nome ? (
-                       <p className="text-[11px] text-zinc-600 dark:text-zinc-300 mt-1.5 font-medium flex items-center gap-1">
-                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                         Convênio: {paciente.convenio.nome}
-                       </p>
-                    ) : (
-                       <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 font-semibold flex items-center gap-1">
-                         <AlertCircle size={11}/> Ficha Incompleta
-                       </p>
-                    )}
-                  </button>
-                );
-              })
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/30">
+                        {chat.profilePicUrl ? (
+                          <img src={chat.profilePicUrl} alt={chat.name} className="w-full h-full rounded-xl object-cover" />
+                        ) : (
+                          chat.name?.charAt(0)?.toUpperCase() || "W"
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-0.5">
+                          <h4 className="font-bold text-sm text-zinc-900 dark:text-white truncate">{chat.name}</h4>
+                          <span className="text-[9px] font-mono text-zinc-400">Live</span>
+                        </div>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate font-mono">
+                          {chat.phone ? `+${chat.phone}` : chat.remoteJid}
+                        </p>
+                      </div>
+                    </button>
+                  );
+                })
+              )
+            ) : (
+              loading ? (
+                <p className="text-center text-zinc-500 py-10 text-xs">Carregando contatos...</p>
+              ) : filteredPacientes.length === 0 ? (
+                <div className="text-center text-zinc-500 py-10 space-y-2">
+                  <AlertCircle size={28} className="mx-auto text-zinc-400" />
+                  <p className="text-xs">Nenhum contato encontrado.</p>
+                </div>
+              ) : (
+                filteredPacientes.map(paciente => {
+                  const isSelected = selectedId === paciente.id;
+                  return (
+                    <button 
+                      key={paciente.id}
+                      onClick={() => {
+                        setSelectedId(paciente.id);
+                        setMobileTab("detail");
+                      }}
+                      className={cn(
+                        "w-full text-left p-3.5 rounded-xl transition-all border group cursor-pointer",
+                        isSelected 
+                          ? "bg-blue-50 dark:bg-blue-950/40 border-blue-500 dark:border-blue-500 shadow-sm" 
+                          : "bg-white dark:bg-zinc-900/60 border-zinc-200 dark:border-zinc-800/80 hover:bg-blue-50/70 hover:border-blue-300 dark:hover:bg-zinc-800/70 dark:hover:border-zinc-700"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className={cn(
+                          "font-bold text-sm truncate leading-tight", 
+                          isSelected ? "text-blue-700 dark:text-blue-300" : "text-zinc-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400"
+                        )}>
+                          {paciente.nome}
+                        </h3>
+                        {paciente.leadSource === 'whatsapp' ? (
+                          <span className="bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                            <MessageCircle size={10} /> WhatsApp
+                          </span>
+                        ) : (
+                          <span className="bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-blue-200 dark:border-blue-800 shrink-0">
+                            Direct
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
+                        {paciente.telefone || paciente.email || 'Sem contato registrado'}
+                      </p>
+                      {paciente.convenio?.nome ? (
+                         <p className="text-[11px] text-zinc-600 dark:text-zinc-300 mt-1.5 font-medium flex items-center gap-1">
+                           <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                           Convênio: {paciente.convenio.nome}
+                         </p>
+                      ) : (
+                         <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1.5 font-semibold flex items-center gap-1">
+                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                           Particular
+                         </p>
+                      )}
+                    </button>
+                  );
+                })
+              )
             )}
           </div>
         </div>
 
-        {/* Main Area - Perfil do Paciente & Ficha Clínica */}
+        {/* Main Area - WhatsApp Live Chat OU Ficha Clínica de Pacientes */}
         <div className={cn(
           "flex-1 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl flex flex-col overflow-hidden shadow-sm relative",
           mobileTab === "list" ? "hidden md:flex" : "flex"
         )}>
-          {!selectedPaciente ? (
+          {inboxTab === "whatsapp_live" ? (
+            !selectedChat ? (
+              <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 space-y-4 p-8 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
+                  <MessageSquare size={32} />
+                </div>
+                <div className="space-y-1">
+                  <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Selecione uma Conversa</h2>
+                  <p className="text-xs text-zinc-500 max-w-sm">Escolha uma conversa na lista ao lado para ver o histórico e responder em tempo real pelo WhatsApp.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex flex-col h-full overflow-hidden">
+                {/* Header do Chat Ativo */}
+                <div className="p-4 border-b border-zinc-200 dark:border-zinc-800 bg-zinc-50/70 dark:bg-zinc-800/40 flex items-center justify-between gap-3 shrink-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <button
+                      onClick={() => setMobileTab("list")}
+                      className="md:hidden p-2 rounded-xl bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200"
+                    >
+                      <ArrowLeft size={16} />
+                    </button>
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-600 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/30">
+                      {selectedChat.profilePicUrl ? (
+                        <img src={selectedChat.profilePicUrl} alt={selectedChat.name} className="w-full h-full rounded-xl object-cover" />
+                      ) : (
+                        selectedChat.name?.charAt(0)?.toUpperCase() || "W"
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-bold text-sm text-zinc-900 dark:text-white truncate">{selectedChat.name}</h3>
+                      <p className="text-xs text-zinc-500 font-mono">+{selectedChat.phone || selectedChat.remoteJid.replace(/@.*$/, "")}</p>
+                    </div>
+                  </div>
+
+                  <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 flex items-center gap-1 shrink-0">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Sincronizado Live
+                  </span>
+                </div>
+
+                {/* Mensagens do Chat */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-blue-scrollbar bg-zinc-50/30 dark:bg-zinc-950/20">
+                  {loadingMessages && chatMessages.length === 0 ? (
+                    <div className="text-center py-10">
+                      <RefreshCw className="animate-spin mx-auto text-emerald-500" size={20} />
+                      <p className="text-xs text-zinc-400 mt-2">Carregando mensagens...</p>
+                    </div>
+                  ) : chatMessages.length === 0 ? (
+                    <div className="text-center py-16 text-zinc-400 text-xs">
+                      Nenhuma mensagem registrada nesta conversa ainda. Envie uma mensagem abaixo.
+                    </div>
+                  ) : (
+                    chatMessages.map((msg, i) => (
+                      <div 
+                        key={msg.id || i}
+                        className={cn(
+                          "flex flex-col max-w-[80%]",
+                          msg.fromMe ? "ml-auto items-end" : "mr-auto items-start"
+                        )}
+                      >
+                        <div 
+                          className={cn(
+                            "px-4 py-2.5 rounded-2xl text-xs leading-relaxed shadow-xs",
+                            msg.fromMe 
+                              ? "bg-emerald-600 text-white rounded-br-xs" 
+                              : "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 border border-zinc-200 dark:border-zinc-700/80 rounded-bl-xs"
+                          )}
+                        >
+                          <p className="whitespace-pre-wrap">{msg.text}</p>
+                          <span 
+                            className={cn(
+                              "text-[9px] block mt-1 font-mono",
+                              msg.fromMe ? "text-emerald-100 text-right" : "text-zinc-400 text-left"
+                            )}
+                          >
+                            {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Input de Resposta do WhatsApp */}
+                <form onSubmit={handleSendReply} className="p-3 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 flex gap-2 shrink-0">
+                  <input
+                    type="text"
+                    value={newReplyMessage}
+                    onChange={(e) => setNewReplyMessage(e.target.value)}
+                    placeholder="Digite uma mensagem para responder pelo WhatsApp..."
+                    className="flex-1 bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 rounded-xl px-4 py-2.5 text-xs text-zinc-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                  />
+                  <button
+                    type="submit"
+                    disabled={sendingReply || !newReplyMessage.trim()}
+                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl flex items-center gap-1.5 shadow-md transition-all disabled:opacity-50"
+                  >
+                    <Send size={14} /> {sendingReply ? "Enviando..." : "Enviar"}
+                  </button>
+                </form>
+              </div>
+            )
+          ) : !selectedPaciente ? (
             <div className="flex-1 flex flex-col items-center justify-center text-zinc-500 space-y-4 p-8 text-center">
                <div className="w-16 h-16 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 flex items-center justify-center text-blue-600 dark:text-blue-400">
                  <MessageCircle size={32} />

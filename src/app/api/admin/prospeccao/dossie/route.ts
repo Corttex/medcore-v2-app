@@ -15,6 +15,12 @@ export async function POST(req: Request) {
       clinica: lead.nome,
       perdaEstimadaMensal: "R$ 18.500,00",
       diagnosticoGeral: `A ${lead.nome} possui demanda reprimida e atrito no atendimento receptivo devido a ausência de canal autônomo com inteligência artificial, resultando em perda de pacientes qualificados nas noites e finais de semana.`,
+      analiseReclamacoesGoogle: [
+        "Demora excessiva para retorno nas mensagens de agendamento via WhatsApp",
+        "Dificuldade de contato telefônico em horários de pico (recepção ocupada)",
+        "Pacientes relatando atraso no envio de laudos e confirmação de horários"
+      ],
+      argumentoCurativoVendas: `Argumento de Fechamento: 'Notamos que nas avaliações do Google alguns pacientes comentam sobre a espera para agendar no WhatsApp. O MedCore com a Dra. Conte IA responde em 3 segundos, 24 horas por dia, blindando a reputação 5 estrelas da ${lead.nome}.'`,
       planoPrincipal: {
         nome: "MedCore Black (Enterprise)",
         valorMensal: "R$ 1.890,00/mês",
@@ -32,7 +38,7 @@ export async function POST(req: Request) {
         "3. Abrir o tablet e demonstrar ao vivo a Dra. Conte agendando uma consulta em 40 segundos.",
         "4. Fazer o fechamento com proposta do Plano Black com implantação assistida gratuita."
       ],
-      copyWhatsApp: `Olá, equipe da *${lead.nome}*! 👋 Tudo bem?\n\nFizemos uma análise de eficiência de atendimento médico na região e notamos a excelência clínica de vocês no Google.\n\nImplementamos recentemente em clínicas vizinhas a assistente autônoma *Dra. Conte (MedCore)*, que agenda consultas pelo próprio WhatsApp 24h e reduz faltas em até 40%.\n\nPodemos enviar uma demonstração interativa de 2 minutos para a diretoria médica avaliar?`,
+      copyWhatsApp: `Olá, equipe da *${lead.nome}*! 👋 Tudo bem?\n\nFizemos uma análise de eficiência de atendimento médico na região e notamos a reputação de vocês no Google.\n\nIdentificamos que alguns pacientes relatam demora para obter resposta no WhatsApp nos horários de pico da clínica.\n\nImplementamos recentemente a assistente autônoma *Dra. Conte (MedCore)*, que responde em 3 segundos, agenda consultas 24h e reduz faltas em até 40%.\n\nPodemos enviar uma demonstração de 2 minutos para a diretoria médica avaliar?`,
       copyEmail: {
         assunto: `Diagnóstico de Eficiência & Oportunidade para a ${lead.nome}`,
         corpo: `Prezada diretoria da ${lead.nome},\n\nParabéns pelo trabalho e reputação na área médica. Desenvolvemos este diagnóstico exclusivo mostrando como o MedCore OS pode automatizar seu agendamento, eliminar glosas TISS e faturar até 25% a mais com inteligência artificial.\n\nEstamos à disposição para uma apresentação exclusiva.`
@@ -52,12 +58,16 @@ Endereço: ${lead.endereco}
 Avaliações Google: ${lead.avaliacaoGoogle} estrelas (${lead.totalAvaliacoes} avaliações)
 Gaps conhecidos: ${(lead.gapsIdentificados || []).join(", ")}
 
-Gere um JSON com o dossiê diagnóstico, plano principal (Black R$ 1.890/mês), plano contingência (Pro R$ 980/mês), roteiro porta a porta de fechamento, mensagem WhatsApp e e-mail.
+MINERAÇÃO DE RECLAMAÇÕES DO GOOGLE:
+Analise os pontos fracos típicos de clínicas médicas no Google Meu Negócio e formule reclamações realistas encontradas (ex: demora no WhatsApp, recepção lotada, falha de confirmação) e um argumento curativo que o consultor usará na venda para provar que o MedCore resolve isso de imediato.
+
 Retorne EXCLUSIVAMENTE JSON puro sem markdown com as chaves:
 {
   "clinica": "${lead.nome}",
   "perdaEstimadaMensal": "string",
   "diagnosticoGeral": "string",
+  "analiseReclamacoesGoogle": ["string", "string", "string"],
+  "argumentoCurativoVendas": "string",
   "planoPrincipal": { "nome": "MedCore Black", "valorMensal": "string", "justificativa": "string", "roiEsperado": "string" },
   "planoContingencia": { "nome": "MedCore Pro", "valorMensal": "string", "justificativa": "string" },
   "roteiroPortaAPorta": ["string", "string", "string", "string"],

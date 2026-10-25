@@ -356,6 +356,7 @@ const menuBlocks: {
       { icon: Shield, label: "Painel Master Admin", href: "/dashboard/admin", requiredPlan: "BASIC" as PlanLevel, highlight: true },
       { icon: Radar, label: "Radar de Prospecção B2B", href: "/dashboard/admin/prospeccao", requiredPlan: "BASIC" as PlanLevel },
       { icon: Target, label: "Pipeline de Clientes", href: "/dashboard/admin/prospeccao/leads", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Megaphone, label: "Patrocinados (Meta Ads)", href: "/dashboard/patrocinados", requiredPlan: "BASIC" as PlanLevel },
       { icon: LayoutGrid, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC" as PlanLevel },
       { icon: ShoppingBag, label: "Planos & Assinaturas", href: "/dashboard/loja", requiredPlan: "BASIC" as PlanLevel },
     ]
