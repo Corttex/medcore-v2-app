@@ -53,7 +53,9 @@ import {
   LogOut,
   ChevronRight,
   Smartphone,
-  ShoppingBag
+  ShoppingBag,
+  Radar,
+  Target
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -349,13 +351,13 @@ const menuBlocks: {
   }[];
 }[] = [
   {
-    title: "Ecossistema Dra. Conte",
+    title: "Administração & Expansão",
     items: [
-      { icon: BrainCircuit, label: "Dra. Conte Executive AI", href: "/dashboard/ia-executiva", requiredPlan: "BASIC" as PlanLevel, highlight: true },
+      { icon: Shield, label: "Painel Master Admin", href: "/dashboard/admin", requiredPlan: "BASIC" as PlanLevel, highlight: true },
+      { icon: Radar, label: "Radar de Prospecção B2B", href: "/dashboard/admin/prospeccao", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Target, label: "Pipeline de Clientes", href: "/dashboard/admin/prospeccao/leads", requiredPlan: "BASIC" as PlanLevel },
       { icon: LayoutGrid, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Award, label: "Carreira & Produtividade", href: "/dashboard/carreira", requiredPlan: "BASIC" as PlanLevel, pending: true },
-      { icon: ShoppingBag, label: "Habilidades Dra. Conte", href: "/dashboard/loja", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Smartphone, label: "Gestão Mobile (PWA)", href: "/mobile", requiredPlan: "BASIC" as PlanLevel, pending: true },
+      { icon: ShoppingBag, label: "Planos & Assinaturas", href: "/dashboard/loja", requiredPlan: "BASIC" as PlanLevel },
     ]
   },
   {
@@ -548,67 +550,8 @@ export function DashboardSidebar() {
         )}></div>
 
         {/* Logo */}
-        <div className="flex items-center px-5 mb-4 relative z-10">
+        <div className="flex items-center px-5 mb-5 relative z-10">
           <Logo className="scale-95 origin-left" />
-        </div>
-
-        {/* Especialidade Selector (Desktop) */}
-        <div className="px-3.5 mb-3 relative z-50">
-          <button 
-            onClick={() => setShowEspecialidadeMenu(!showEspecialidadeMenu)}
-            className={cn(
-              "w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl border-2 transition-all group text-left shadow-xs",
-              theme === 'dark' ? "bg-zinc-900/90 border-zinc-800 hover:border-rd-cyan/60" : "bg-zinc-50 border-zinc-200 hover:border-rd-cyan/60 hover:bg-white"
-            )}
-          >
-            <div className="w-7 h-7 rounded-lg bg-rd-cyan/15 border border-rd-cyan/30 flex items-center justify-center text-rd-cyan shrink-0 transition-transform group-hover:scale-105">
-              <Box size={14} strokeWidth={2} />
-            </div>
-            <div className="text-left flex-1 min-w-0">
-              <p className="text-[9px] font-heading font-semibold uppercase tracking-widest leading-none text-zinc-400">
-                Especialidade
-              </p>
-              <p className={cn(
-                "text-xs font-sans font-semibold truncate mt-0.5 tracking-tight transition-colors",
-                theme === 'dark' ? "text-white group-hover:text-rd-cyan" : "text-zinc-900 group-hover:text-rd-cyan"
-              )}>
-                {selectedEspecialidade}
-              </p>
-            </div>
-            <div className={cn(
-              "shrink-0 transition-transform duration-200",
-              showEspecialidadeMenu ? "rotate-180" : "",
-              theme === 'dark' ? "text-zinc-400 group-hover:text-rd-cyan" : "text-zinc-500 group-hover:text-rd-cyan"
-            )}>
-              <ChevronDown size={14} strokeWidth={2} />
-            </div>
-          </button>
-          
-          {/* Dropdown Menu */}
-          {showEspecialidadeMenu && (
-            <div className={cn(
-              "absolute top-full left-3.5 right-3.5 mt-1.5 py-1.5 rounded-xl border z-50 shadow-xl backdrop-blur-xl max-h-56 overflow-y-auto custom-scrollbar",
-              theme === 'dark' ? "bg-zinc-900/95 border-zinc-800" : "bg-white/95 border-zinc-200"
-            )}>
-              {ESPECIALIDADES.map((esp) => (
-                <button
-                  key={esp}
-                  onClick={() => {
-                    setSelectedEspecialidade(esp);
-                    setShowEspecialidadeMenu(false);
-                  }}
-                  className={cn(
-                    "w-full text-left px-3.5 py-1.5 text-xs transition-colors",
-                    selectedEspecialidade === esp 
-                      ? (theme === 'dark' ? "bg-rd-cyan/20 text-rd-cyan font-bold" : "bg-rd-cyan/10 text-rd-cyan font-bold")
-                      : (theme === 'dark' ? "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200" : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900")
-                  )}
-                >
-                  {esp}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Main Nav (Cascading Accordion Style) */}

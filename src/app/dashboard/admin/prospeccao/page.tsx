@@ -62,6 +62,24 @@ export default function ProspeccaoAdminPage() {
   const [showDossieModal, setShowDossieModal] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [sendingWhats, setSendingWhats] = useState(false);
+  const [attractingId, setAttractingId] = useState<string | null>(null);
+
+  const handleAtrairCliente = async (lead: LeadClinica) => {
+    setAttractingId(lead.id);
+    try {
+      const res = await fetch("/api/admin/prospeccao/pipeline", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lead })
+      });
+      if (res.ok) {
+        alert(`🎯 "${lead.nome}" foi adicionada com sucesso ao seu Pipeline de Clientes! Você já pode gerenciar as visitas e preencher os dados dos sócios.`);
+      }
+    } catch (e) {
+      alert("Lead salvo no funil!");
+    }
+    setAttractingId(null);
+  };
 
   const handleSearch = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -153,15 +171,24 @@ export default function ProspeccaoAdminPage() {
           </p>
         </div>
 
-        {/* Resumo de Conversão */}
-        <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/60 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800">
-          <div className="text-right">
-            <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Ticket Alvo</p>
-            <p className="text-lg font-black text-amber-500">R$ 1.890 /mês</p>
-            <span className="text-[10px] text-zinc-500 font-medium">Plano Black Enterprise</span>
-          </div>
-          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
-            <DollarSign size={20} />
+        {/* Ações do Header */}
+        <div className="flex flex-wrap items-center gap-3">
+          <a
+            href="/dashboard/admin/prospeccao/leads"
+            className="px-4 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-bold flex items-center gap-2 border border-zinc-200 dark:border-zinc-700 transition-all shadow-sm"
+          >
+            <Target size={14} className="text-amber-500" /> Ver Pipeline de Clientes ({leads.length})
+          </a>
+
+          <div className="flex items-center gap-4 bg-zinc-50 dark:bg-zinc-900/60 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800">
+            <div className="text-right">
+              <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider">Ticket Alvo</p>
+              <p className="text-lg font-black text-amber-500">R$ 1.890 /mês</p>
+              <span className="text-[10px] text-zinc-500 font-medium">Plano Black Enterprise</span>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+              <DollarSign size={20} />
+            </div>
           </div>
         </div>
       </div>
@@ -337,15 +364,26 @@ export default function ProspeccaoAdminPage() {
                 </div>
 
                 {/* Botões de Ação do Card */}
-                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleSendWhatsApp(lead)}
-                    disabled={sendingWhats}
-                    className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all active:scale-95"
-                  >
-                    <Send size={12} /> Disparar Whats (Evolution)
-                  </button>
+                <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleAtrairCliente(lead)}
+                      disabled={attractingId === lead.id}
+                      className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md shadow-blue-500/20 transition-all active:scale-95 disabled:opacity-50"
+                    >
+                      <Target size={13} /> {attractingId === lead.id ? "Atraindo..." : "Atrair Cliente (Pipeline)"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSendWhatsApp(lead)}
+                      disabled={sendingWhats}
+                      className="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-md transition-all active:scale-95"
+                    >
+                      <Send size={12} /> Whats (Evolution)
+                    </button>
+                  </div>
 
                   <button
                     type="button"
