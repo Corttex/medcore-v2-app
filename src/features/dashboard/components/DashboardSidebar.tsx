@@ -55,7 +55,20 @@ import {
   Smartphone,
   ShoppingBag,
   Radar,
-  Target
+  Target,
+  Gauge,
+  Footprints,
+  Link as LinkIcon,
+  Timer,
+  Zap,
+  HeartPulse,
+  Landmark,
+  Users2,
+  Mic,
+  Plug,
+  Terminal,
+  ShieldAlert,
+  TrendingUp
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -332,11 +345,55 @@ const ROLE_PERMISSIONS: Record<string, string[]> = {
 
 function isRouteAllowedForRole(role: string | undefined, href: string): boolean {
   if (!role) return true; // Se o perfil ainda não estiver carregado na sessão, mantém visível
-  const allowed = ROLE_PERMISSIONS[role];
-  if (!allowed) return true; // Papel não restrito tem acesso padrão
   if (allowed.includes("*")) return true; // Acesso total
   return allowed.includes(href);
 }
+
+export const MASTER_ADMIN_NAVIGATION = [
+  {
+    title: "1. War Room & Metas",
+    items: [
+      { icon: Gauge, label: "Painel Master (War Room)", href: "/dashboard/admin/overview", requiredPlan: "BASIC" as PlanLevel, highlight: true },
+      { icon: Target, label: "Termômetro 500k / 1M", href: "/dashboard/admin/metas", requiredPlan: "BASIC" as PlanLevel },
+      { icon: TrendingUp, label: "Unit Economics & SaaS", href: "/dashboard/admin/metricas-saas", requiredPlan: "BASIC" as PlanLevel }
+    ]
+  },
+  {
+    title: "2. Máquina Comercial B2B",
+    items: [
+      { icon: Radar, label: "Radar de Prospecção B2B", href: "/dashboard/admin/prospeccao", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Target, label: "Pipeline de Clientes (Funil)", href: "/dashboard/admin/prospeccao/leads", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Footprints, label: "Matemática do NÃO (PAP)", href: "/dashboard/admin/trincheira-pap", requiredPlan: "BASIC" as PlanLevel },
+      { icon: LinkIcon, label: "Gerador de Propostas & Links", href: "/dashboard/admin/propostas", requiredPlan: "BASIC" as PlanLevel }
+    ]
+  },
+  {
+    title: "3. Tenants & Retenção (Lock-in)",
+    items: [
+      { icon: Building2, label: "Clínicas & Médicos (Tenants)", href: "/dashboard/admin/tenants", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Timer, label: "Radar Lock-in (Primeiros 7d)", href: "/dashboard/admin/lockin-onboarding", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Zap, label: "Cavalo de Troia (Auxiliares)", href: "/dashboard/admin/cavalo-de-troia", requiredPlan: "BASIC" as PlanLevel },
+      { icon: HeartPulse, label: "Saúde da Base & Churn", href: "/dashboard/admin/churn-health", requiredPlan: "BASIC" as PlanLevel }
+    ]
+  },
+  {
+    title: "4. Tesouraria & Assinaturas",
+    items: [
+      { icon: CreditCard, label: "Planos & Assinaturas", href: "/dashboard/admin/assinaturas", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Landmark, label: "MRR, Caixa & Inadimplência", href: "/dashboard/admin/tesouraria", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Megaphone, label: "ROI do Bolso (Tráfego & CAC)", href: "/dashboard/admin/cac-trafego", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Users2, label: "Comissões & Afiliadas", href: "/dashboard/admin/comissoes", requiredPlan: "BASIC" as PlanLevel }
+    ]
+  },
+  {
+    title: "5. Motor IA & Infraestrutura",
+    items: [
+      { icon: Mic, label: "Telemetria Dra. Conte & Scribe", href: "/dashboard/admin/telemetria-ia", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Plug, label: "Status WhatsApp / TISS / ICP", href: "/dashboard/admin/integracoes", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Terminal, label: "Feature Flags & Logs PIN", href: "/dashboard/admin/seguranca", requiredPlan: "BASIC" as PlanLevel }
+    ]
+  }
+];
 
 const menuBlocks: {
   title: string;
@@ -534,6 +591,10 @@ export function DashboardSidebar() {
     : "O";
   const userRoleDisplay = isMounted ? (user?.cargo || user?.role || "Acesso") : "Acesso";
 
+  // ═══════ REGRA DE OURO: ISOLAMENTO DO MASTER ADMIN (SAAS WAR ROOM) ═══════
+  const isMasterAdminArea = pathname.startsWith("/dashboard/admin");
+  const activeMenuBlocks = isMasterAdminArea ? MASTER_ADMIN_NAVIGATION : menuBlocks;
+
   return (
     <>
       {/* ═══════ DESKTOP SIDEBAR (CASCATA PLAZAHUB STYLE) ═══════ */}
@@ -557,10 +618,12 @@ export function DashboardSidebar() {
 
         {/* Main Nav (Cascading Accordion Style) */}
         <nav className="flex-1 overflow-y-auto px-3 pb-3 space-y-2 relative z-10 custom-scrollbar">
-          {menuBlocks.map((block) => {
-            const visibleItems = block.items
-              .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
-              .filter(item => isRouteAllowedForRole(user?.role, item.href));
+          {activeMenuBlocks.map((block) => {
+            const visibleItems = isMasterAdminArea
+              ? block.items
+              : block.items
+                  .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
+                  .filter(item => isRouteAllowedForRole(user?.role, item.href));
 
             if (visibleItems.length === 0) return null;
 
@@ -852,10 +915,12 @@ export function DashboardSidebar() {
 
         {/* Navegação Categorizada por Blocos (Inteligência, Operacional, Financeiro, Gestão) */}
         <nav className="flex-1 overflow-y-auto p-4 space-y-6 custom-scrollbar">
-          {menuBlocks.map((block) => {
-            const visibleItems = block.items
-              .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
-              .filter(item => isRouteAllowedForRole(user?.role, item.href));
+          {activeMenuBlocks.map((block) => {
+            const visibleItems = isMasterAdminArea
+              ? block.items
+              : block.items
+                  .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
+                  .filter(item => isRouteAllowedForRole(user?.role, item.href));
 
             if (visibleItems.length === 0) return null;
 
