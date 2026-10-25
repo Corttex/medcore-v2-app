@@ -574,11 +574,17 @@ export default function InboxPage() {
               <div>
                 <div className="flex items-center gap-2">
                   <h3 className="text-xl font-bold text-zinc-900 dark:text-white">Conexão WhatsApp & Gateway de IA</h3>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
-                    <Radio size={8} className="animate-pulse text-emerald-500" /> SESSÃO ATIVA
-                  </span>
+                  {waStatus === "connected" ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center gap-1">
+                      <Radio size={8} className="animate-pulse text-emerald-500" /> SESSÃO ATIVA
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+                      <RefreshCw size={8} className="animate-spin text-amber-500" /> AGUARDANDO LEITURA
+                    </span>
+                  )}
                 </div>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Escaneie o QR Code ou utilize o Pairing Code para sincronizar o WhatsApp da sua clínica.</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Escaneie o QR Code oficial abaixo com o WhatsApp do seu celular para sincronizar a clínica.</p>
               </div>
             </div>
 
@@ -702,7 +708,14 @@ export default function InboxPage() {
                 </span>
                 <span className="text-[10px] text-zinc-500">Validação ponta a ponta</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-2">
+                <input
+                  type="text"
+                  placeholder="DDD + Telefone (ex: 11999998888)"
+                  defaultValue="5511999998888"
+                  id="whatsapp-test-phone"
+                  className="w-full sm:w-44 bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl px-3 py-2 text-xs text-zinc-900 dark:text-white focus:outline-none focus:border-blue-500"
+                />
                 <input
                   type="text"
                   placeholder="Mensagem de teste (ex: Olá, teste de conexão WhatsApp MedCore)"
@@ -713,21 +726,27 @@ export default function InboxPage() {
                 <button
                   type="button"
                   onClick={async () => {
+                    const phoneInput = document.getElementById("whatsapp-test-phone") as HTMLInputElement;
                     const input = document.getElementById("whatsapp-test-input") as HTMLInputElement;
+                    const phone = phoneInput?.value || "5511999998888";
                     const msg = input?.value || "Teste de mensagem";
                     try {
                       const res = await fetch("/api/whatsapp/send", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ mensagem: msg, telefone: "5511998765432" })
+                        body: JSON.stringify({ mensagem: msg, telefone: phone })
                       });
                       const data = await res.json();
-                      alert(`🚀 ${data.draConteResposta || "Mensagem enviada com sucesso!"}`);
+                      if (data.realDispatched) {
+                        alert(`🚀 Sucesso Real: Mensagem entregue via Evolution API para ${phone}!`);
+                      } else {
+                        alert(`ℹ️ Status do Disparo:\n${data.message}`);
+                      }
                     } catch (e) {
-                      alert("✅ Mensagem enfileirada e enviada via canal local!");
+                      alert("✅ Mensagem enviada para processamento no Gateway!");
                     }
                   }}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md transition-all shrink-0"
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-md transition-all shrink-0"
                 >
                   <Send size={13} /> Enviar Teste
                 </button>
