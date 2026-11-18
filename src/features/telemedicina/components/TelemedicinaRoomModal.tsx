@@ -24,7 +24,11 @@ import {
   ChevronRight,
   Maximize2,
   Minimize2,
-  Stethoscope
+  Stethoscope,
+  BrainCircuit,
+  AlertTriangle,
+  Activity,
+  ListChecks
 } from "lucide-react";
 import { Teleconsulta, ChatMessage } from "../types";
 
@@ -35,14 +39,18 @@ interface TelemedicinaRoomModalProps {
   onFinishConsulta: (id: string, prontuarioData: any) => Promise<void>;
 }
 
+const SUGGESTED_CIDS = [
+  { code: "I10", label: "Hipertensão Arterial Sistêmica (Essencial)" },
+  { code: "E11.9", label: "Diabetes Mellitus Tipo 2 sem complicações" },
+  { code: "R51", label: "Cefaleia associada a pico pressórico" },
+];
+
 export function TelemedicinaRoomModal({
   consulta,
   isOpen,
   onClose,
   onFinishConsulta,
 }: TelemedicinaRoomModalProps) {
-  if (!isOpen || !consulta) return null;
-
   // Estados dos Controles de Mídia
   const [micEnabled, setMicEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
@@ -66,7 +74,7 @@ export function TelemedicinaRoomModal({
     {
       id: "msg-2",
       sender: "paciente",
-      senderName: consulta.paciente?.nome || "Paciente",
+      senderName: consulta?.paciente?.nome || "Paciente",
       text: "Boa tarde, Doutor! Estou te ouvindo perfeitamente.",
       timestamp: "14:01"
     }
@@ -91,14 +99,16 @@ export function TelemedicinaRoomModal({
 
   // Cronômetro da consulta
   useEffect(() => {
+    if (!isOpen || !consulta) return;
     const timer = setInterval(() => {
       setSeconds((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [isOpen, consulta]);
 
   // Inicialização de Câmera Local
   useEffect(() => {
+    if (!isOpen || !consulta) return;
     let stream: MediaStream | null = null;
     async function setupLocalStream() {
       try {
@@ -119,7 +129,9 @@ export function TelemedicinaRoomModal({
         stream.getTracks().forEach((track) => track.stop());
       }
     };
-  }, [videoEnabled]);
+  }, [videoEnabled, isOpen, consulta]);
+
+  if (!isOpen || !consulta) return null;
 
   const formatTimer = (totalSecs: number) => {
     const mins = Math.floor(totalSecs / 60);
@@ -211,6 +223,10 @@ export function TelemedicinaRoomModal({
                 <span className="text-[11px] font-semibold text-zinc-400 bg-zinc-800/80 px-2 py-0.5 rounded-full border border-zinc-700">
                   {consulta.paciente?.convenio?.nome || "Particular"}
                 </span>
+                <span className="hidden lg:inline-flex items-center gap-1.5 text-[10px] font-bold text-[#00D4FF] bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-0.5 rounded-full">
+                  <BrainCircuit size={11} />
+                  Consulta Inteligente Assistida por IA
+                </span>
               </div>
               <p className="text-[11px] text-zinc-400 font-medium">
                 {consulta.title} • {consulta.paciente?.telefone || "(11) 98765-4321"}
@@ -291,10 +307,39 @@ export function TelemedicinaRoomModal({
                 </div>
               </div>
 
-              {/* Tag Superior no Vídeo */}
-              <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/10 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-xs font-bold text-white">Paciente Remoto • 1080p 60fps</span>
+              {/* Tag Superior no Vídeo + HUD Central da Copilota Dra. Conte */}
+              <div className="absolute top-4 left-4 right-4 flex flex-wrap items-start justify-between gap-3 pointer-events-none">
+                <div className="bg-black/65 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-white/10 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-xs font-bold text-white">Paciente Remoto • 1080p 60fps</span>
+                </div>
+
+                {/* HUD Central: 🎙 Assistente Clínico Ativo próximo à área principal */}
+                <div className="pointer-events-auto bg-[#0B0F19]/90 backdrop-blur-xl px-4 py-2.5 rounded-2xl border border-cyan-500/35 shadow-[0_12px_32px_rgba(0,0,0,0.45)] max-w-md">
+                  <div className="flex items-center justify-between gap-3 mb-1.5">
+                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <Mic size={13} className="text-[#00D4FF] animate-pulse" />
+                      🎙 Assistente Clínico Ativo
+                    </span>
+                    <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                      Dra. Conte Ao Vivo
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 text-[10px]">
+                    <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-zinc-200">
+                      • Escutando consulta
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-zinc-200">
+                      • Gerando evolução médica
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-cyan-500/15 border border-cyan-500/30 text-[#00D4FF] font-semibold">
+                      • Sugerindo CID: I10
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/35 text-amber-300 font-semibold">
+                      • Alerta: PA 150x95
+                    </span>
+                  </div>
+                </div>
               </div>
 
               {/* PiP da Câmera do Médico (Canto Inferior Direito) */}
@@ -398,7 +443,7 @@ export function TelemedicinaRoomModal({
                   onClick={() => setActiveTab("ai_scribe")}
                   className={`flex-1 py-2 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${activeTab === 'ai_scribe' ? 'bg-zinc-800 text-rd-cyan shadow-sm border border-zinc-700' : 'text-zinc-400 hover:text-white'}`}
                 >
-                  <Sparkles size={14} /> AI Scribe
+                  <BrainCircuit size={14} /> Copilota IA
                 </button>
 
                 <button
@@ -426,57 +471,110 @@ export function TelemedicinaRoomModal({
               {/* Conteúdo da Aba Ativa */}
               <div className="flex-1 overflow-y-auto p-5 space-y-4">
                 
-                {/* ABA 1: AI Scribe (Transcrição e Resumo Inteligente) */}
+                {/* ABA 1: Copilota Clínica Dra. Conte (Assistente Clínico Ativo) */}
                 {activeTab === "ai_scribe" && (
                   <div className="space-y-4 animate-in fade-in duration-200">
-                    <div className="bg-rd-cyan/10 border border-rd-cyan/25 rounded-2xl p-4 flex items-start gap-3">
-                      <Sparkles size={18} className="text-rd-cyan shrink-0 mt-0.5" />
-                      <div>
-                        <h4 className="text-xs font-bold text-white">MEDCore AI Scribe Ativo</h4>
-                        <p className="text-[11px] text-zinc-300 mt-0.5">
-                          Ouvindo e analisando o diálogo clínico em tempo real para estruturar o prontuário no padrão SOAP.
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Transcrição em Tempo Real Simulada */}
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold text-zinc-300">Transcrição da Conversa</span>
-                        <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-semibold">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-                          Gravando
+                    {/* Card Principal: Dra. Conte acompanhando esta teleconsulta */}
+                    <div className="bg-[#0B0F19] border border-cyan-500/30 rounded-2xl p-4 space-y-2.5 shadow-lg">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2">
+                          <BrainCircuit size={17} className="text-[#00D4FF] shrink-0" />
+                          <h4 className="text-xs font-bold text-white">
+                            Dra. Conte acompanhando esta teleconsulta
+                          </h4>
+                        </div>
+                        <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/15 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                          Ao Vivo
                         </span>
                       </div>
 
-                      <div className="bg-zinc-950/60 border border-zinc-800 rounded-2xl p-3.5 text-xs space-y-2.5 max-h-48 overflow-y-auto font-sans leading-relaxed">
+                      <div className="space-y-1.5 text-[11px]">
+                        {[
+                          "Resumo automático em andamento",
+                          "Hipóteses diagnósticas encontradas",
+                          "Próximas ações sugeridas",
+                          "Documentação sendo preparada",
+                          "Alertas clínicos identificados",
+                        ].map((item) => (
+                          <div key={item} className="flex items-center gap-2 text-zinc-200">
+                            <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                            <span>{item}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Alerta de Fatores de Risco + Sugestões de CID-10 Clicáveis */}
+                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-3.5 space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
+                        <AlertTriangle size={14} />
+                        <span>Fator de Risco Identificado</span>
+                      </div>
+                      <p className="text-[11px] text-amber-100/90 leading-relaxed">
+                        Paciente relata picos pressóricos matinais (150x95 mmHg) + cefaleia nucal há 5 dias. Avaliar ajuste posológico e adesão terapêutica.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <span className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
+                        <ListChecks size={13} className="text-[#00D4FF]" />
+                        Hipóteses & CID-10 Sugeridos (clique para aplicar)
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {SUGGESTED_CIDS.map((cid) => (
+                          <button
+                            key={cid.code}
+                            type="button"
+                            onClick={() => {
+                              setDiagnostico(`${cid.label} (CID-10: ${cid.code})`);
+                              setActiveTab("prontuario");
+                            }}
+                            className="text-left px-2.5 py-1.5 rounded-xl bg-zinc-950/80 hover:bg-cyan-500/15 border border-zinc-800 hover:border-cyan-500/40 text-[11px] text-zinc-200 transition-all cursor-pointer"
+                          >
+                            <span className="font-bold text-[#00D4FF]">{cid.code}</span> — {cid.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Transcrição em Tempo Real */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-xs font-bold text-zinc-300">🎙 Escuta Clínica em Tempo Real</span>
+                        <span className="flex items-center gap-1 text-[11px] text-emerald-400 font-semibold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                          Escutando
+                        </span>
+                      </div>
+
+                      <div className="bg-zinc-950/60 border border-zinc-800 rounded-2xl p-3.5 text-xs space-y-2.5 max-h-40 overflow-y-auto font-sans leading-relaxed">
                         <p className="text-zinc-400">
-                          <strong className="text-rd-cyan">Dr. Carlos:</strong> Boa tarde Mariana! Como você tem se sentido desde que iniciamos o tratamento para pressão?
+                          <strong className="text-rd-cyan">Médico:</strong> Boa tarde {consulta.paciente?.nome?.split(" ")[0] || "Paciente"}! Como você tem se sentido desde que iniciamos o tratamento para pressão?
                         </p>
                         <p className="text-zinc-300">
-                          <strong className="text-emerald-400">Mariana:</strong> Doutor, tive alguns episódios de dor de cabeça pela manhã e quando medi deu 15 por 9.
+                          <strong className="text-emerald-400">{consulta.paciente?.nome?.split(" ")[0] || "Paciente"}:</strong> Doutor, tive alguns episódios de dor de cabeça pela manhã e quando medi deu 15 por 9.
                         </p>
                         <p className="text-zinc-400">
-                          <strong className="text-rd-cyan">Dr. Carlos:</strong> Compreendo. Vamos ajustar a dosagem e adicionar um acompanhamento diário com retorno em 30 dias.
+                          <strong className="text-rd-cyan">Médico:</strong> Compreendo. Vamos ajustar a dosagem e adicionar um acompanhamento diário com retorno em 30 dias.
                         </p>
                       </div>
                     </div>
 
-                    {/* Botão de Geração de Resumo SOAP com IA */}
+                    {/* Botão de Geração de Resumo SOAP + Laudo com IA */}
                     <button
                       onClick={handleGenerateSoapAI}
                       disabled={aiGenerating}
-                      className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold p-3 rounded-2xl text-xs shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all"
+                      className="w-full bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white font-bold p-3 rounded-2xl text-xs shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
                     >
                       {aiGenerating ? (
                         <>
                           <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          <span>Processando inteligência clínica...</span>
+                          <span>Gerando evolução médica & documentação...</span>
                         </>
                       ) : (
                         <>
                           <Sparkles size={15} />
-                          <span>Gerar Resumo SOAP Clínico</span>
+                          <span>Gerar Evolução SOAP & Laudo Automático</span>
                         </>
                       )}
                     </button>
@@ -486,11 +584,11 @@ export function TelemedicinaRoomModal({
                       <div className="bg-zinc-950 border border-zinc-700/80 rounded-2xl p-4 space-y-3 animate-in zoom-in-95">
                         <div className="flex items-center justify-between">
                           <span className="text-xs font-bold text-rd-cyan flex items-center gap-1.5">
-                            <CheckCircle2 size={14} /> Resumo SOAP Estruturado
+                            <CheckCircle2 size={14} /> Documentação & Evolução SOAP Pronta
                           </span>
                           <button
                             onClick={handleTransferToProntuario}
-                            className="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1"
+                            className="text-[11px] font-bold text-emerald-400 hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             Inserir no Prontuário <ChevronRight size={13} />
                           </button>

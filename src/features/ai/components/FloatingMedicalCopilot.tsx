@@ -170,7 +170,10 @@ export function FloatingMedicalCopilot() {
     }
   }, []);
 
-  // Atalho de Teclado: Alt + A para alternar Copilot
+  // Ref para evitar stale closure ao disparar comandos externos via barra/tooltips
+  const handleSendRef = useRef<(textToSend?: string) => Promise<void>>(async () => {});
+
+  // Atalho de Teclado: Alt + A para alternar Copilot e Listener Global "medcore:open-copilot"
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey && (e.key === "a" || e.key === "A")) {
@@ -178,8 +181,32 @@ export function FloatingMedicalCopilot() {
         setIsOpen((prev) => !prev);
       }
     };
+
+    const handleExternalOpen = (e: Event) => {
+      const customEvent = e as CustomEvent<{ prompt?: string; autoSend?: boolean }>;
+      const prompt = customEvent.detail?.prompt?.trim();
+      const autoSend = customEvent.detail?.autoSend;
+
+      setIsOpen(true);
+      setIsMobileDockOpen(false);
+
+      if (prompt) {
+        if (autoSend) {
+          setTimeout(() => {
+            handleSendRef.current(prompt);
+          }, 80);
+        } else {
+          setInputValue(prompt);
+        }
+      }
+    };
+
     window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("medcore:open-copilot", handleExternalOpen);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("medcore:open-copilot", handleExternalOpen);
+    };
   }, []);
 
   // Scroll automático para o final da conversa
@@ -269,6 +296,8 @@ export function FloatingMedicalCopilot() {
       setLoading(false);
     }
   };
+
+  handleSendRef.current = handleSendMessage;
 
   const handleClearChat = () => {
     setMessages([

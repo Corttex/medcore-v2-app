@@ -5,6 +5,7 @@ import { PlanProvider } from "@/context/PlanContext";
 import { ModuleProvider } from "@/context/ModuleContext";
 import { UnitGate } from "@/features/dashboard/components/UnitGate";
 import { FloatingMedicalCopilot } from "@/features/ai/components/FloatingMedicalCopilot";
+import { DraConteCommandBar } from "@/features/ai/components/DraConteCommandBar";
 
 export default function DashboardLayout({
   children,
@@ -19,6 +20,7 @@ export default function DashboardLayout({
             <DashboardSidebar />
             <div className="flex-1 flex flex-col min-w-0 transition-all duration-300 lg:ml-64 relative">
               <DashboardHeader />
+              <DraConteCommandBar />
               <main className="flex-1 overflow-y-auto p-3 pb-32 sm:pb-36 md:p-5 md:pb-28 lg:p-6 lg:pb-8 scrollbar-hide">
                 <div className="max-w-[1600px] mx-auto min-h-full pb-8 lg:pb-0">
                   <UnitGate>

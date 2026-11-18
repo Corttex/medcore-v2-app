@@ -1,5 +1,11 @@
 import MetasWarRoomPage from "../metas/page";
+import { AdminLiveChatInbox } from "@/features/admin/components/AdminLiveChatInbox";
 
 export default function AdminOverviewPage() {
-  return <MetasWarRoomPage />;
+  return (
+    <div className="space-y-12">
+      <AdminLiveChatInbox />
+      <MetasWarRoomPage />
+    </div>
+  );
 }

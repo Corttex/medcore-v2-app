@@ -29,6 +29,7 @@ import {
 } from '@dnd-kit/sortable';
 
 import { DashboardWidget } from "@/features/dashboard/components/DashboardWidget";
+import { MotionReveal } from "@/components/animations/MotionReveal";
 
 // --- Custom Modern Chart Component (SVG-based) ---
 const SparklineChart = ({ data, color = "brand" }: { data: number[], color?: string }) => {
@@ -602,16 +603,18 @@ export default function DashboardPage() {
           strategy={rectSortingStrategy}
         >
           <div className="grid grid-cols-12 gap-5 pb-12">
-            {layout.map((item) => (
+            {layout.map((item, idx) => (
               <div key={item.id} className={item.colSpan}>
-                <DashboardWidget
-                  id={item.id}
-                  isEditMode={isEditMode}
-                  isVisible={item.visible}
-                  onToggleVisibility={toggleVisibility}
-                >
-                  {widgetRenderers[item.id]}
-                </DashboardWidget>
+                <MotionReveal delay={idx < 4 ? idx * 0.12 : 0.1} y={20} immediate={idx < 4}>
+                  <DashboardWidget
+                    id={item.id}
+                    isEditMode={isEditMode}
+                    isVisible={item.visible}
+                    onToggleVisibility={toggleVisibility}
+                  >
+                    {widgetRenderers[item.id]}
+                  </DashboardWidget>
+                </MotionReveal>
               </div>
             ))}
           </div>

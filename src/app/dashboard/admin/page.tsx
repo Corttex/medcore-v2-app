@@ -2,6 +2,7 @@
 
 import React from "react";
 import { AccessLinkGenerator } from "@/features/admin/components/AccessLinkGenerator";
+import { AdminLiveChatInbox } from "@/features/admin/components/AdminLiveChatInbox";
 import { 
   Shield, Users, ListFilter, Activity, ShieldCheck, Lock, Globe, Fingerprint, 
   ChevronRight, TrendingUp, DollarSign, UserMinus, ToggleRight, Radio, Server,
@@ -69,6 +70,9 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
+
+      {/* Central de Chat ao Vivo da Landing Page (Recebimento Tempo Real) */}
+      <AdminLiveChatInbox />
 
       {/* Financial Analysis - The "Money" part */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

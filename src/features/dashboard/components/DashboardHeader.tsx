@@ -11,6 +11,8 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import Link from "next/link";
 import { useUser } from "@/context/UserContext";
+import { SmartTooltip } from "@/components/ui/SmartTooltip";
+import { getModuleTooltip } from "@/lib/data/moduleTooltips";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -19,13 +21,13 @@ function cn(...inputs: ClassValue[]) {
 const routeTitles: Record<string, string> = {
   "/dashboard": "Dashboard",
   "/dashboard/pacotes": "Pacotes de Vendas e Tratamento",
-  "/dashboard/marketing": "Marketing & CRM",
+  "/dashboard/marketing": "Radar Comercial & CRM",
   "/dashboard/nps": "Pesquisa NPS",
   "/dashboard/mensagens": "Inbox",
   "/dashboard/agenda": "Agenda Clínica",
   "/dashboard/agendamento-online": "Agendamento Online",
   "/dashboard/painel-tv": "Painel de TV",
-  "/dashboard/telemedicina": "Telemedicina",
+  "/dashboard/telemedicina": "Consulta Inteligente Assistida por IA",
   "/dashboard/pacientes": "Pacientes",
   "/dashboard/prontuario": "Prontuário Eletrônico (PEP)",
   "/dashboard/demandas": "Demandas Internas",
@@ -291,21 +293,26 @@ export function DashboardHeader() {
           </div>
         </div>
 
-        {/* Habilidades da Dra. Conte (Skills & Add-ons) */}
+        {/* Dra. Conte — Copilota & Habilidades de IA */}
         <div className="flex items-center h-full px-2.5 sm:px-3 lg:px-4 border-l border-zinc-200 dark:border-zinc-800">
-          <Link
-            href="/dashboard/loja"
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-rd-cyan/40 bg-gradient-to-r from-rd-cyan/15 to-indigo-500/10 hover:from-rd-cyan/25 hover:to-indigo-500/20 text-on-surface hover:text-rd-cyan transition-all shadow-sm group hover:scale-[1.02] active:scale-[0.98]"
-            title="Habilidades da Dra. Conte & Add-ons de Inteligência"
+          <SmartTooltip
+            config={getModuleTooltip("/dashboard/loja", "Central & Habilidades Dra. Conte")}
+            icon={Sparkles}
+            preferredOrder={["bottom", "left", "right", "top"]}
           >
-            <Sparkles size={14} className="text-rd-cyan group-hover:rotate-12 transition-transform shrink-0" />
-            <span className="text-xs font-sans font-semibold hidden sm:inline">
-              Habilidades Dra. Conte
-            </span>
-            <span className="text-[10px] font-heading font-bold uppercase px-1.5 py-0.5 bg-gradient-to-r from-rd-cyan to-indigo-600 text-white rounded-full tracking-widest shadow-sm shrink-0">
-              SKILLS
-            </span>
-          </Link>
+            <Link
+              href="/dashboard/loja"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-rd-cyan/40 bg-gradient-to-r from-rd-cyan/15 to-indigo-500/10 hover:from-rd-cyan/25 hover:to-indigo-500/20 text-on-surface hover:text-rd-cyan transition-all shadow-sm group hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Sparkles size={14} className="text-rd-cyan group-hover:rotate-12 transition-transform shrink-0" />
+              <span className="text-xs font-sans font-semibold hidden sm:inline">
+                Dra. Conte IA & Planos
+              </span>
+              <span className="text-[10px] font-heading font-bold uppercase px-1.5 py-0.5 bg-gradient-to-r from-rd-cyan to-indigo-600 text-white rounded-full tracking-widest shadow-sm shrink-0">
+                COPILOT
+              </span>
+            </Link>
+          </SmartTooltip>
         </div>
         
         {/* Alternador de Tema (Dark / Light) */}

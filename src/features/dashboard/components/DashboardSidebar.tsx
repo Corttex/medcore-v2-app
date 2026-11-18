@@ -77,10 +77,12 @@ import { twMerge } from "tailwind-merge";
 import { Logo } from "@/components/ui/Logo";
 import { useDashboardContext } from "@/features/dashboard/context/DashboardContext";
 import { useTheme } from "@/context/ThemeContext";
-import { usePlan, PlanLevel } from "@/context/PlanContext";
+import { usePlan, PlanLevel, CommercialTier, COMMERCIAL_TIER_META } from "@/context/PlanContext";
 import { useModules } from "@/context/ModuleContext";
 import { useUser } from "@/context/UserContext";
 import { MaintenanceModal } from "@/components/ui/MaintenanceModal";
+import { SmartTooltip } from "@/components/ui/SmartTooltip";
+import { getModuleTooltip } from "@/lib/data/moduleTooltips";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -351,7 +353,19 @@ function isRouteAllowedForRole(role: string | undefined, href: string): boolean 
   return allowed.includes(href);
 }
 
-export const MASTER_ADMIN_NAVIGATION = [
+export const MASTER_ADMIN_NAVIGATION: {
+  title: string;
+  pending?: boolean;
+  items: {
+    icon: any;
+    label: string;
+    href: string;
+    requiredPlan: PlanLevel;
+    requiredTier?: CommercialTier;
+    highlight?: boolean;
+    pending?: boolean;
+  }[];
+}[] = [
   {
     title: "1. War Room & Metas",
     items: [
@@ -405,107 +419,114 @@ const menuBlocks: {
     label: string;
     href: string;
     requiredPlan: PlanLevel;
+    requiredTier: CommercialTier;
     highlight?: boolean;
     pending?: boolean;
   }[];
 }[] = [
   {
+    title: "Dra. Conte (OS Clínico)",
+    items: [
+      { icon: BrainCircuit, label: "Central Dra. Conte", href: "/dashboard/ia-executiva", requiredPlan: "BASIC", requiredTier: "STARTER", highlight: true },
+      { icon: LayoutGrid, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: ShoppingBag, label: "Planos & Habilidades IA", href: "/dashboard/loja", requiredPlan: "BASIC", requiredTier: "STARTER" },
+    ]
+  },
+  {
     title: "Administração & Expansão",
     items: [
-      { icon: Shield, label: "Painel Master Admin", href: "/dashboard/admin", requiredPlan: "BASIC" as PlanLevel, highlight: true },
-      { icon: Radar, label: "Radar de Prospecção B2B", href: "/dashboard/admin/prospeccao", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Target, label: "Pipeline de Clientes", href: "/dashboard/admin/prospeccao/leads", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Megaphone, label: "Patrocinados (Meta Ads)", href: "/dashboard/patrocinados", requiredPlan: "BASIC" as PlanLevel },
-      { icon: LayoutGrid, label: "Visão Executiva", href: "/dashboard", requiredPlan: "BASIC" as PlanLevel },
-      { icon: ShoppingBag, label: "Planos & Assinaturas", href: "/dashboard/loja", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Shield, label: "Painel Master Admin", href: "/dashboard/admin", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Radar, label: "Prospecção B2B", href: "/dashboard/admin/prospeccao", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Target, label: "Pipeline de Clientes", href: "/dashboard/admin/prospeccao/leads", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Megaphone, label: "Patrocinados (Meta Ads)", href: "/dashboard/patrocinados", requiredPlan: "BASIC", requiredTier: "STARTER" },
     ]
   },
   {
-    title: "Relacionamento & CRM",
+    title: "Recepção & Consulta IA",
     items: [
-      { icon: Package, label: "Pacotes & Vendas", href: "/dashboard/pacotes", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Megaphone, label: "Marketing", href: "/dashboard/marketing", requiredPlan: "PRO" as PlanLevel, pending: true },
-      { icon: Globe, label: "WebStudio (Site)", href: "/dashboard/webstudio", requiredPlan: "PRO" as PlanLevel, pending: true },
-      { icon: Smile, label: "Pesquisa NPS", href: "/dashboard/nps", requiredPlan: "BASIC" as PlanLevel },
-      { icon: MessageSquare, label: "Inbox", href: "/dashboard/mensagens", requiredPlan: "BASIC" as PlanLevel },
-    ]
-  },
-  {
-    title: "Recepção & Atendimento",
-    items: [
-      { icon: CalendarRange, label: "Agenda", href: "/dashboard/agenda", requiredPlan: "BASIC" as PlanLevel },
-      { icon: HeartHandshake, label: "Agendamento Online", href: "/dashboard/agendamento-online", requiredPlan: "PRO" as PlanLevel },
-      { icon: Tv, label: "Painel de TV", href: "/dashboard/painel-tv", requiredPlan: "BASIC" as PlanLevel, pending: true },
-      { icon: Video, label: "Telemedicina", href: "/dashboard/telemedicina", requiredPlan: "PRO" as PlanLevel },
+      { icon: CalendarRange, label: "Agenda", href: "/dashboard/agenda", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Video, label: "Consulta Inteligente (IA)", href: "/dashboard/telemedicina", requiredPlan: "PRO", requiredTier: "GROWTH" },
+      { icon: HeartHandshake, label: "Agendamento Online", href: "/dashboard/agendamento-online", requiredPlan: "PRO", requiredTier: "GROWTH" },
+      { icon: Tv, label: "Painel de TV", href: "/dashboard/painel-tv", requiredPlan: "BASIC", requiredTier: "STARTER", pending: true },
     ]
   },
   {
     title: "Operacional & Clínico",
     items: [
-      { icon: Users, label: "Pacientes", href: "/dashboard/pacientes", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Inbox, label: "Demandas", href: "/dashboard/demandas", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Kanban, label: "Kanban", href: "/dashboard/kanban", requiredPlan: "BASIC" as PlanLevel },
-      { icon: BellRing, label: "Lembretes", href: "/dashboard/lembretes", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Users, label: "Pacientes", href: "/dashboard/pacientes", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Inbox, label: "Demandas", href: "/dashboard/demandas", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Kanban, label: "Kanban", href: "/dashboard/kanban", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: BellRing, label: "Lembretes", href: "/dashboard/lembretes", requiredPlan: "BASIC", requiredTier: "STARTER" },
+    ]
+  },
+  {
+    title: "Relacionamento & Growth",
+    items: [
+      { icon: Radar, label: "Radar Comercial", href: "/dashboard/marketing", requiredPlan: "PRO", requiredTier: "GROWTH" },
+      { icon: Package, label: "Pacotes & Vendas", href: "/dashboard/pacotes", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: MessageSquare, label: "Inbox", href: "/dashboard/mensagens", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Smile, label: "Pesquisa NPS", href: "/dashboard/nps", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Globe, label: "WebStudio (Site)", href: "/dashboard/webstudio", requiredPlan: "PRO", requiredTier: "GROWTH", pending: true },
     ]
   },
   {
     title: "Central Diagnóstica (RIS)",
     items: [
-      { icon: Activity, label: "Worklist de Laudos", href: "/dashboard/laudos", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Activity, label: "Worklist de Laudos", href: "/dashboard/laudos", requiredPlan: "BASIC", requiredTier: "STARTER" },
     ]
   },
   {
     title: "Financeiro & Faturamento",
     pending: true,
     items: [
-      { icon: CreditCard, label: "Contas (Caixa)", href: "/dashboard/contas", requiredPlan: "PRO" as PlanLevel },
-      { icon: ArrowDownRight, label: "Contas a Receber", href: "/dashboard/contas-a-receber", requiredPlan: "PRO" as PlanLevel },
-      { icon: ArrowUpRight, label: "Contas a Pagar", href: "/dashboard/contas-a-pagar", requiredPlan: "PRO" as PlanLevel },
-      { icon: FileSpreadsheet, label: "Faturamento TISS", href: "/dashboard/tiss", requiredPlan: "PRO" as PlanLevel },
-      { icon: HandCoins, label: "Repasses Médicos", href: "/dashboard/repasses", requiredPlan: "PRO" as PlanLevel },
-      { icon: Receipt, label: "Emitir NF", href: "/dashboard/notas-fiscais", requiredPlan: "PRO" as PlanLevel },
-      { icon: PieChart, label: "Relatório Financeiro", href: "/dashboard/relatorios-financeiros", requiredPlan: "PRO" as PlanLevel },
+      { icon: CreditCard, label: "Contas (Caixa)", href: "/dashboard/contas", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: ArrowDownRight, label: "Contas a Receber", href: "/dashboard/contas-a-receber", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: ArrowUpRight, label: "Contas a Pagar", href: "/dashboard/contas-a-pagar", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: FileSpreadsheet, label: "Faturamento TISS", href: "/dashboard/tiss", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: HandCoins, label: "Repasses Médicos", href: "/dashboard/repasses", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: Receipt, label: "Emitir NF", href: "/dashboard/notas-fiscais", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: PieChart, label: "Relatório Financeiro", href: "/dashboard/relatorios-financeiros", requiredPlan: "PRO", requiredTier: "BUSINESS" },
     ]
   },
   {
     title: "Suprimentos",
     pending: true,
     items: [
-      { icon: Box, label: "Estoque Central", href: "/dashboard/estoque", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Syringe, label: "Injetáveis & Insumos Críticos", href: "/dashboard/vacinas", requiredPlan: "PRO" as PlanLevel },
-      { icon: ShoppingCart, label: "Compras", href: "/dashboard/compras", requiredPlan: "BASIC" as PlanLevel },
+      { icon: Box, label: "Gestão de Estoque", href: "/dashboard/estoque", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: Syringe, label: "Injetáveis & Insumos Críticos", href: "/dashboard/vacinas", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: ShoppingCart, label: "Compras", href: "/dashboard/compras", requiredPlan: "BASIC", requiredTier: "STARTER" },
     ]
   },
   {
     title: "Clínicas & Operações",
     pending: true,
     items: [
-      { icon: Building2, label: "Clínicas & Unidades", href: "/dashboard/hospitais", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Settings, label: "Cadastros Base", href: "/dashboard/cadastros", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Wrench, label: "Central de OS", href: "/dashboard/os", requiredPlan: "BASIC" as PlanLevel },
-      { icon: Box, label: "Patrimônio", href: "/dashboard/patrimonio", requiredPlan: "BASIC" as PlanLevel },
-      { icon: FolderOpen, label: "Drive & Scanner", href: "/dashboard/arquivos", requiredPlan: "PRO" as PlanLevel },
-      { icon: Scale, label: "Jurídico", href: "/dashboard/juridico", requiredPlan: "PRO" as PlanLevel },
-      { icon: Mail, label: "E-mails Corporativos", href: "/dashboard/emails", requiredPlan: "MAX" as PlanLevel },
+      { icon: Building2, label: "Clínicas & Unidades", href: "/dashboard/hospitais", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Settings, label: "Cadastros Base", href: "/dashboard/cadastros", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Wrench, label: "Central de OS", href: "/dashboard/os", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: Box, label: "Patrimônio", href: "/dashboard/patrimonio", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: FolderOpen, label: "Drive & Scanner", href: "/dashboard/arquivos", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: Scale, label: "Jurídico", href: "/dashboard/juridico", requiredPlan: "PRO", requiredTier: "BUSINESS" },
+      { icon: Mail, label: "E-mails Corporativos", href: "/dashboard/emails", requiredPlan: "MAX", requiredTier: "ENTERPRISE" },
     ]
   },
   {
-    title: "RH & Departamento Pessoal",
+    title: "RH Inteligente & DP",
     items: [
-      { icon: CalendarDays, label: "Escalas & Plantões", href: "/dashboard/escalas", requiredPlan: "PRO" as PlanLevel },
-      { icon: UserCheck, label: "Ponto & Frequência", href: "/dashboard/ponto", requiredPlan: "PRO" as PlanLevel },
-      { icon: FileSpreadsheet, label: "Folha & Benefícios", href: "/dashboard/folha", requiredPlan: "PRO" as PlanLevel },
-      { icon: Briefcase, label: "Recrutamento (ATS)", href: "/dashboard/recrutamento", requiredPlan: "PRO" as PlanLevel },
-      { icon: GraduationCap, label: "Educacional", href: "/dashboard/treinamentos", requiredPlan: "PRO" as PlanLevel },
-      { icon: Award, label: "Avaliação de Desempenho", href: "/dashboard/desempenho", requiredPlan: "PRO" as PlanLevel },
-      { icon: Users, label: "Gerenciar Equipe", href: "/dashboard/equipe", requiredPlan: "BASIC" as PlanLevel },
+      { icon: CalendarDays, label: "RH Inteligente (Escalas)", href: "/dashboard/escalas", requiredPlan: "MAX", requiredTier: "ENTERPRISE" },
+      { icon: UserCheck, label: "Ponto & Frequência", href: "/dashboard/ponto", requiredPlan: "MAX", requiredTier: "ENTERPRISE" },
+      { icon: FileSpreadsheet, label: "Folha & Benefícios", href: "/dashboard/folha", requiredPlan: "MAX", requiredTier: "ENTERPRISE" },
+      { icon: Briefcase, label: "Recrutamento (ATS)", href: "/dashboard/recrutamento", requiredPlan: "MAX", requiredTier: "ENTERPRISE" },
+      { icon: GraduationCap, label: "Educacional", href: "/dashboard/treinamentos", requiredPlan: "MAX", requiredTier: "ENTERPRISE" },
+      { icon: Award, label: "Avaliação de Desempenho", href: "/dashboard/desempenho", requiredPlan: "MAX", requiredTier: "ENTERPRISE" },
+      { icon: Users, label: "Gerenciar Equipe", href: "/dashboard/equipe", requiredPlan: "BASIC", requiredTier: "STARTER" },
     ]
   },
   {
     title: "Administração",
     items: [
-      { icon: Shield, label: "Auditoria & LGPD", href: "/dashboard/auditoria", requiredPlan: "BASIC" as PlanLevel },
-      { icon: BarChart2, label: "BI & Indicadores", href: "/dashboard/relatorios", requiredPlan: "PRO" as PlanLevel },
+      { icon: Shield, label: "Auditoria & LGPD", href: "/dashboard/auditoria", requiredPlan: "BASIC", requiredTier: "STARTER" },
+      { icon: BarChart2, label: "BI & Indicadores", href: "/dashboard/relatorios", requiredPlan: "PRO", requiredTier: "BUSINESS" },
     ]
   }
 ];
@@ -520,7 +541,14 @@ export function DashboardSidebar() {
     units 
   } = useDashboardContext();
   const { theme } = useTheme();
-  const { hasAccess } = usePlan();
+  const {
+    hasAccess,
+    hasCommercialAccess,
+    commercialTier,
+    setCommercialTier,
+    getCommercialPlanLabel,
+    openUpgradeModal,
+  } = usePlan();
   const { isModuleEnabled, isModuleInMaintenance, getModuleMaintenanceMessage } = useModules();
   const { user, logout } = useUser();
 
@@ -530,12 +558,19 @@ export function DashboardSidebar() {
 
   // Armazena quais blocos estão abertos na cascata
   const [openSections, setOpenSections] = React.useState<Record<string, boolean>>(() => {
-    // Abre por padrão o bloco que contém a rota atual
+    // Abre por padrão o bloco que contém a rota atual e os principais blocos estratégicos
     const initial: Record<string, boolean> = {};
     menuBlocks.forEach((block) => {
       const containsActive = block.items.some(item => item.href === pathname);
-      // Se tiver ativo abre; ou abre os 2 primeiros blocos por conveniência
-      if (containsActive || block.title === "Inteligência Clínica" || block.title === "Operacional & Clínico") {
+      if (
+        containsActive ||
+        block.title === "Dra. Conte (OS Clínico)" ||
+        block.title === "Recepção & Consulta IA" ||
+        block.title === "Operacional & Clínico" ||
+        block.title === "Relacionamento & Growth" ||
+        block.title === "Suprimentos" ||
+        block.title === "RH Inteligente & DP"
+      ) {
         initial[block.title] = true;
       }
     });
@@ -614,9 +649,54 @@ export function DashboardSidebar() {
         )}></div>
 
         {/* Logo */}
-        <div className="flex items-center px-5 mb-5 relative z-10">
+        <div className="flex items-center px-5 mb-3 relative z-10">
           <Logo className="scale-95 origin-left" />
         </div>
+
+        {/* Seletor Comercial de Plano & Visibilidade Clara (Desbloqueado vs. Upgrade) */}
+        {!isMasterAdminArea && (
+          <div className={cn(
+            "mx-3 mb-3 p-2.5 rounded-2xl border relative z-10 space-y-2",
+            theme === 'dark' ? "bg-zinc-900/80 border-zinc-800/90" : "bg-zinc-50 border-zinc-200"
+          )}>
+            <div className="flex items-center justify-between gap-1">
+              <span className="text-[10px] font-heading font-bold uppercase tracking-wider text-rd-cyan flex items-center gap-1">
+                <Sparkles size={11} />
+                {COMMERCIAL_TIER_META[commercialTier].label}
+              </span>
+              <Link
+                href="/dashboard/loja"
+                className="text-[10px] font-bold text-amber-400 hover:underline flex items-center gap-0.5"
+              >
+                Upgrade
+                <ChevronRight size={10} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-4 gap-1">
+              {(["STARTER", "GROWTH", "BUSINESS", "ENTERPRISE"] as CommercialTier[]).map((tier) => {
+                const active = commercialTier === tier;
+                return (
+                  <button
+                    key={tier}
+                    type="button"
+                    onClick={() => setCommercialTier(tier)}
+                    title={`Visualizar sistema como ${COMMERCIAL_TIER_META[tier].label}`}
+                    className={cn(
+                      "px-1 py-1 rounded-lg text-[9px] font-bold tracking-tight transition-all cursor-pointer truncate border",
+                      active
+                        ? "bg-rd-cyan/20 border-rd-cyan/60 text-rd-cyan shadow-xs"
+                        : theme === 'dark'
+                          ? "bg-zinc-950/60 border-zinc-800 text-zinc-500 hover:text-zinc-200"
+                          : "bg-white border-zinc-200 text-zinc-500 hover:text-zinc-900"
+                    )}
+                  >
+                    {COMMERCIAL_TIER_META[tier].shortLabel}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Main Nav (Cascading Accordion Style) */}
         <nav className="flex-1 overflow-y-auto px-3 pb-3 space-y-2 relative z-10 custom-scrollbar">
@@ -625,12 +705,18 @@ export function DashboardSidebar() {
               ? block.items
               : block.items
                   .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
-                  .filter(item => isRouteAllowedForRole(user?.role, item.href));
+                  .filter(item => {
+                    const reqTier = item.requiredTier || "STARTER";
+                    return isRouteAllowedForRole(user?.role, item.href) || !hasCommercialAccess(reqTier);
+                  });
 
             if (visibleItems.length === 0) return null;
 
             const isOpen = !!openSections[block.title];
             const hasActiveItem = visibleItems.some(i => i.href === pathname);
+            const lockedCount = isMasterAdminArea
+              ? 0
+              : visibleItems.filter(i => !hasCommercialAccess(i.requiredTier || "STARTER")).length;
 
             return (
               <div 
@@ -679,6 +765,15 @@ export function DashboardSidebar() {
                   </div>
 
                   <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                    {lockedCount > 0 && (
+                      <span
+                        title={`${lockedCount} módulo(s) disponíveis para upgrade`}
+                        className="inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.2 rounded-full bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold"
+                      >
+                        <Lock size={8} />
+                        {lockedCount}
+                      </span>
+                    )}
                     <span className={cn(
                       "text-[10px] px-1.5 py-0.2 rounded-full font-sans transition-colors",
                       isOpen 
@@ -703,102 +798,154 @@ export function DashboardSidebar() {
                   <div className="px-1.5 pb-2 pt-0.5 space-y-1 animate-in fade-in slide-in-from-top-1 duration-150">
                     {visibleItems.map((item) => {
                       const isActive = pathname === item.href;
-                      const authorized = hasAccess(item.requiredPlan);
+                      const reqTier: CommercialTier = item.requiredTier || "STARTER";
+                      const authorized = isMasterAdminArea
+                        ? hasAccess(item.requiredPlan)
+                        : hasCommercialAccess(reqTier);
+                      const commercialPlanName = getCommercialPlanLabel(reqTier);
                       const moduleId = moduleIdMap[item.href] || "dashboard";
                       const inMaintenance = isModuleInMaintenance(moduleId);
-                      
-                      const ItemWrapper = (authorized && !inMaintenance) ? Link : "div";
+                      const tooltipConfig = getModuleTooltip(item.href, item.label);
                       const isHighlighted = item.highlight;
-                      
-                      return (
-                        <ItemWrapper
-                          key={item.href}
-                          href={item.href}
-                          onClick={inMaintenance ? () => setMaintenanceModule({ 
-                            name: item.label, 
-                            message: getModuleMaintenanceMessage(moduleId) 
-                          }) : undefined}
-                          className={cn(
-                            "flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 font-sans text-xs font-medium group relative overflow-hidden cursor-pointer border",
-                            (!authorized || inMaintenance) && "opacity-60 cursor-not-allowed",
-                            inMaintenance && "border-rd-cyan/30 bg-rd-cyan/10",
-                            
-                            /* Default Hover and Active States */
-                            authorized && !inMaintenance && isActive && !isHighlighted && (
-                              theme === 'dark'
-                                ? "bg-rd-cyan/15 border-rd-cyan/40 text-rd-cyan shadow-xs font-semibold"
-                                : "bg-rd-cyan/10 border-rd-cyan/30 text-rd-cyan shadow-2xs font-semibold"
-                            ),
-                            authorized && !inMaintenance && !isActive && !isHighlighted && (
-                              theme === 'dark' 
-                                ? "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/70 hover:border-zinc-700/50" 
-                                : "border-transparent text-zinc-600 hover:text-zinc-950 hover:bg-white hover:border-zinc-200/80 shadow-2xs"
-                            ),
-                            
-                            /* HIGHLIGHTED (IA Executiva) Styles */
-                            isHighlighted && !inMaintenance && (
-                              theme === 'dark'
-                                ? "bg-zinc-950 border-rd-cyan/80 text-white shadow-[0_0_12px_rgba(0,169,255,0.2)] font-semibold"
-                                : "bg-white border-rd-cyan/80 text-zinc-950 shadow-[0_0_12px_rgba(0,169,255,0.15)] font-semibold"
-                            ),
-                            isHighlighted && !inMaintenance && isActive && "ring-2 ring-rd-cyan"
-                          )}
-                        >
-                          {/* Animated Shine for MEGA button */}
-                          {isHighlighted && (
+
+                      const handleBlockedClick = () => {
+                        if (inMaintenance) {
+                          setMaintenanceModule({
+                            name: item.label,
+                            message: getModuleMaintenanceMessage(moduleId),
+                          });
+                          return;
+                        }
+                        if (!authorized) {
+                          openUpgradeModal({
+                            title: item.label,
+                            requiredTier: reqTier,
+                            description: tooltipConfig.fullDesc,
+                            features: tooltipConfig.features,
+                            upsellHook: tooltipConfig.upsellHook,
+                            href: item.href,
+                          });
+                        }
+                      };
+
+                      const itemClassName = cn(
+                        "flex items-center gap-2.5 px-3 py-2 rounded-xl transition-all duration-200 font-sans text-xs font-medium group relative overflow-hidden cursor-pointer border w-full text-left",
+                        !authorized && !inMaintenance && (
+                          theme === 'dark'
+                            ? "bg-zinc-950/60 border-amber-500/20 text-zinc-300 hover:border-amber-400/50 hover:bg-amber-500/5"
+                            : "bg-amber-50/40 border-amber-300/50 text-zinc-700 hover:border-amber-400 hover:bg-amber-50"
+                        ),
+                        inMaintenance && "opacity-75 border-rd-cyan/30 bg-rd-cyan/10",
+                        
+                        /* Default Hover and Active States */
+                        authorized && !inMaintenance && isActive && !isHighlighted && (
+                          theme === 'dark'
+                            ? "bg-rd-cyan/15 border-rd-cyan/40 text-rd-cyan shadow-xs font-semibold"
+                            : "bg-rd-cyan/10 border-rd-cyan/30 text-rd-cyan shadow-2xs font-semibold"
+                        ),
+                        authorized && !inMaintenance && !isActive && !isHighlighted && (
+                          theme === 'dark' 
+                            ? "border-transparent text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/70 hover:border-zinc-700/50" 
+                            : "border-transparent text-zinc-600 hover:text-zinc-950 hover:bg-white hover:border-zinc-200/80 shadow-2xs"
+                        ),
+                        
+                        /* HIGHLIGHTED (Dra. Conte) Styles */
+                        isHighlighted && authorized && !inMaintenance && (
+                          theme === 'dark'
+                            ? "bg-zinc-950 border-rd-cyan/80 text-white shadow-[0_0_12px_rgba(0,169,255,0.2)] font-semibold"
+                            : "bg-white border-rd-cyan/80 text-zinc-950 shadow-[0_0_12px_rgba(0,169,255,0.15)] font-semibold"
+                        ),
+                        isHighlighted && authorized && !inMaintenance && isActive && "ring-2 ring-rd-cyan"
+                      );
+
+                      const innerContent = (
+                        <>
+                          {isHighlighted && authorized && (
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full animate-shine pointer-events-none" />
                           )}
 
-                          <item.icon 
-                            size={16} 
-                            strokeWidth={2}
-                            className={cn(
-                              "transition-transform duration-200 shrink-0",
-                              isActive && authorized && !isHighlighted ? "text-rd-cyan scale-110" : "",
-                              isHighlighted 
-                                ? theme === 'dark' ? "text-rd-cyan animate-pulse-slow" : "text-zinc-950 animate-pulse-slow" 
-                                : "text-zinc-400",
-                              authorized && !isActive && !isHighlighted && (
-                                theme === 'dark' ? "group-hover:text-zinc-200" : "group-hover:text-zinc-900"
-                              ),
-                              isHighlighted && "group-hover:scale-120"
-                            )} 
-                          />
+                          {!authorized && !inMaintenance ? (
+                            <div className="w-5 h-5 rounded-md bg-amber-500/15 border border-amber-500/35 text-amber-400 flex items-center justify-center shrink-0">
+                              <Lock size={11} strokeWidth={2.4} />
+                            </div>
+                          ) : (
+                            <item.icon 
+                              size={16} 
+                              strokeWidth={2}
+                              className={cn(
+                                "transition-transform duration-200 shrink-0",
+                                isActive && authorized && !isHighlighted ? "text-rd-cyan scale-110" : "",
+                                isHighlighted 
+                                  ? theme === 'dark' ? "text-rd-cyan animate-pulse-slow" : "text-zinc-950 animate-pulse-slow" 
+                                  : "text-zinc-400",
+                                authorized && !isActive && !isHighlighted && (
+                                  theme === 'dark' ? "group-hover:text-zinc-200" : "group-hover:text-zinc-900"
+                                ),
+                                isHighlighted && "group-hover:scale-120"
+                              )} 
+                            />
+                          )}
                           
-                          <span className="flex-1 flex items-center justify-between z-10 min-w-0">
-                            <span className={cn(
-                              "truncate",
-                              isHighlighted && "font-bold text-inherit"
-                            )}>
-                              {item.label}
-                            </span>
+                          <div className="flex-1 min-w-0 z-10">
+                            <div className="flex items-center justify-between gap-1.5">
+                              <span className={cn(
+                                "truncate",
+                                isHighlighted && "font-bold text-inherit",
+                                !authorized && "font-semibold"
+                              )}>
+                                {item.label}
+                              </span>
+
+                              {inMaintenance && (
+                                <span className="flex items-center gap-1 bg-rd-cyan/20 border border-rd-cyan/40 px-1.5 py-0.2 rounded text-[9px] font-heading text-rd-cyan font-bold tracking-widest uppercase shadow-inner animate-pulse shrink-0">
+                                  <Wrench size={9} strokeWidth={2} />
+                                  MANU
+                                </span>
+                              )}
+                              {authorized && item.pending && (
+                                <span className="flex items-center gap-1 bg-amber-400/20 border border-amber-400/50 px-1.5 py-0.2 rounded text-[9px] font-heading text-amber-400 font-bold tracking-wider uppercase shadow-inner shrink-0 animate-pulse">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                                  Pendente
+                                </span>
+                              )}
+                              {isHighlighted && authorized && !inMaintenance && (
+                                <Sparkles size={13} strokeWidth={2} className={cn(theme === 'dark' ? "text-rd-cyan" : "text-zinc-950", "animate-pulse shrink-0")} />
+                              )}
+                            </div>
 
                             {!authorized && !inMaintenance && (
-                              <span className={cn(
-                                "flex items-center gap-1 border px-1.5 py-0.2 rounded text-[9px] font-heading font-bold tracking-widest uppercase shrink-0 ml-1.5",
-                                theme === 'dark' ? "bg-zinc-950 border-zinc-800 text-zinc-400" : "bg-white border-zinc-200 text-zinc-600"
-                              )}>
-                                <Lock size={9} strokeWidth={2} />
-                                {item.requiredPlan}
-                              </span>
+                              <p className="text-[10px] text-amber-400/95 font-medium truncate mt-0.5 leading-tight">
+                                Disponível no {commercialPlanName}.
+                              </p>
                             )}
-                            {inMaintenance && (
-                              <span className="flex items-center gap-1 bg-rd-cyan/20 border border-rd-cyan/40 px-1.5 py-0.2 rounded text-[9px] font-heading text-rd-cyan font-bold tracking-widest uppercase shadow-inner animate-pulse shrink-0 ml-1.5">
-                                <Wrench size={9} strokeWidth={2} />
-                                MANU
-                              </span>
-                            )}
-                            {item.pending && (
-                              <span className="flex items-center gap-1 bg-amber-400/20 border border-amber-400/50 px-1.5 py-0.2 rounded text-[9px] font-heading text-amber-400 font-bold tracking-wider uppercase shadow-inner shrink-0 ml-1.5 animate-pulse">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
-                                Pendente
-                              </span>
-                            )}
-                            {isHighlighted && authorized && !inMaintenance && (
-                              <Sparkles size={13} strokeWidth={2} className={cn(theme === 'dark' ? "text-rd-cyan" : "text-zinc-950", "animate-pulse shrink-0 ml-1.5")} />
-                            )}
-                          </span>
-                        </ItemWrapper>
+                          </div>
+                        </>
+                      );
+
+                      return (
+                        <SmartTooltip
+                          key={item.href}
+                          config={tooltipConfig}
+                          icon={item.icon}
+                          isLocked={!authorized && !inMaintenance}
+                          lockedPlanLabel={commercialPlanName}
+                          preferredOrder={["right", "top", "bottom", "left"]}
+                          onUpgradeClick={handleBlockedClick}
+                        >
+                          {authorized && !inMaintenance ? (
+                            <Link href={item.href} className={itemClassName}>
+                              {innerContent}
+                            </Link>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={handleBlockedClick}
+                              className={itemClassName}
+                            >
+                              {innerContent}
+                            </button>
+                          )}
+                        </SmartTooltip>
                       );
                     })}
                   </div>
@@ -922,7 +1069,10 @@ export function DashboardSidebar() {
               ? block.items
               : block.items
                   .filter(item => isModuleEnabled(moduleIdMap[item.href] || "dashboard"))
-                  .filter(item => isRouteAllowedForRole(user?.role, item.href));
+                  .filter(item => {
+                    const reqTier = item.requiredTier || "STARTER";
+                    return isRouteAllowedForRole(user?.role, item.href) || !hasCommercialAccess(reqTier);
+                  });
 
             if (visibleItems.length === 0) return null;
 
@@ -944,8 +1094,47 @@ export function DashboardSidebar() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
                   {visibleItems.map((item) => {
                   const isActive = pathname === item.href;
-                  const authorized = hasAccess(item.requiredPlan);
+                  const reqTier: CommercialTier = item.requiredTier || "STARTER";
+                  const authorized = isMasterAdminArea
+                    ? hasAccess(item.requiredPlan)
+                    : hasCommercialAccess(reqTier);
+                  const commercialPlanName = getCommercialPlanLabel(reqTier);
                   const isHighlighted = item.highlight;
+                  const tooltipConfig = getModuleTooltip(item.href, item.label);
+
+                  if (!authorized) {
+                    return (
+                      <button
+                        key={item.href}
+                        type="button"
+                        onClick={() => {
+                          setMobileMenuOpen(false);
+                          openUpgradeModal({
+                            title: item.label,
+                            requiredTier: reqTier,
+                            description: tooltipConfig.fullDesc,
+                            features: tooltipConfig.features,
+                            upsellHook: tooltipConfig.upsellHook,
+                            href: item.href,
+                          });
+                        }}
+                        className={cn(
+                          "group flex flex-col items-center justify-center gap-1.5 p-3 rounded-2xl border-2 transition-all active:scale-95 text-center relative overflow-hidden shadow-sm w-full",
+                          theme === 'dark'
+                            ? "bg-zinc-950/80 border-amber-500/25 text-zinc-300 hover:border-amber-400/60"
+                            : "bg-amber-50/50 border-amber-300/60 text-zinc-700 hover:border-amber-400"
+                        )}
+                      >
+                        <div className="p-2 rounded-xl bg-amber-500/15 border border-amber-500/35 text-amber-400 flex items-center justify-center shrink-0">
+                          <Lock size={18} strokeWidth={2.2} />
+                        </div>
+                        <span className="text-[11px] font-sans font-semibold tracking-wide leading-tight w-full break-words line-clamp-2 px-1 text-center">{item.label}</span>
+                        <span className="text-[9px] font-semibold text-amber-400 leading-tight mt-auto">
+                          {commercialPlanName}
+                        </span>
+                      </button>
+                    );
+                  }
 
                   return (
                     <Link
@@ -967,11 +1156,6 @@ export function DashboardSidebar() {
                         <item.icon size={20} strokeWidth={2} className="text-blue-500 drop-shadow-[0_0_5px_rgba(59,130,246,0.5)] transition-transform group-hover:scale-110" />
                       </div>
                       <span className="text-[11px] font-sans font-semibold tracking-wide leading-tight w-full break-words line-clamp-2 px-1 text-center">{item.label}</span>
-                      {!authorized && (
-                        <span className="text-[10px] font-heading font-bold px-1.5 py-0.5 bg-zinc-950 border border-zinc-700 text-zinc-400 rounded flex items-center gap-1 uppercase shrink-0 mt-auto tracking-widest">
-                          <Lock size={10} strokeWidth={2} /> {item.requiredPlan}
-                        </span>
-                      )}
                     </Link>
                   );
                 })}
